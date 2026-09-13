@@ -392,38 +392,34 @@ function BowCard({
       {/* Action */}
       <div className="shrink-0">
         {equipped ? (
-          <span className="inline-flex items-center rounded-md bg-button-default px-6 py-2.5 text-[13px] font-semibold text-panel-text ring-1 ring-black/30">
+          <PixelButton disabled className="px-5 py-2 text-[13px] font-semibold">
             Equipped
-          </span>
+          </PixelButton>
         ) : owned ? (
-          <button
-            type="button"
+          <PixelButton
+            className="px-5 py-2 text-[13px] font-semibold"
             onClick={() => onChange(equipBow(progress, rarity))}
-            className="cursor-pointer rounded-md bg-button-default px-6 py-2.5 text-[13px] font-semibold text-panel-text ring-1 ring-black/30 transition hover:brightness-110"
           >
             Equip
-          </button>
+          </PixelButton>
         ) : (
-          <button
-            type="button"
+          <PixelButton
+            variant="green"
             disabled={progress.gold < def.unlockCost}
             onClick={() => onChange(buyBow(progress, rarity))}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-emerald-600 px-6 py-2.5 text-[13px] font-semibold text-white ring-1 ring-black/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="px-5 py-2 text-[13px] font-semibold"
           >
-            {progress.gold < def.unlockCost ? (
-              <>
+            <span className="flex items-center gap-1.5">
+              {progress.gold < def.unlockCost ? (
                 <Lock className="h-4 w-4" />
-                {def.unlockCost.toLocaleString()}
-              </>
-            ) : (
-              <>
+              ) : (
                 <Coins className="h-4 w-4 text-currency" />
-                {def.unlockCost.toLocaleString()}
-              </>
-            )}
-          </button>
+              )}
+              {def.unlockCost.toLocaleString()}
+            </span>
+          </PixelButton>
         )}
       </div>
-    </div>
+    </OuterPanel>
   );
 }
