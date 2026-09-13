@@ -355,11 +355,11 @@ function BowCard({
   const equipped = progress.equipped === rarity;
 
   return (
-    <div className="flex items-center gap-4 rounded-md bg-panel-description p-3 shadow-card ring-1 ring-button-default/60">
+    <OuterPanel className="flex items-center gap-4 p-2.5">
       {/* Art */}
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-md bg-panel-header ring-1 ring-black/40">
+      <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
         <img src={ICONS.bow} alt={def.name} className="h-12 w-12 object-contain" />
-      </div>
+      </InnerPanel>
 
       {/* Info */}
       <div className="min-w-0 flex-1">
