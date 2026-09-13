@@ -2212,7 +2212,7 @@ function MarketplacePage({
 
                   {selOwned ? (
                     selEquipped ? (
-                      <PixelButton variant="blue" disabled className="w-full py-2 text-[13px] font-semibold">
+                      <PixelButton variant="default" disabled className="w-full py-2 text-[13px] font-semibold">
                         Equipped
                       </PixelButton>
                     ) : (
