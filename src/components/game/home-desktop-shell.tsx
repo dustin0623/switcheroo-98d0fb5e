@@ -44,6 +44,7 @@ import {
   Swords,
   Trophy,
   User,
+  X,
   Zap,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
@@ -397,6 +398,7 @@ function InventoryPage({
   const [rarity, setRarity] = useState<BowRarity | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<BowRarity>(progress.equipped);
+  const [open, setOpen] = useState(false);
 
   const bows =
     tab === "materials"
@@ -478,17 +480,19 @@ function InventoryPage({
         </span>
       </div>
 
-      <div className="grid items-start gap-3 lg:grid-cols-[1fr_320px]">
-        {/* Grid */}
-        <OuterPanel className="bg-panel-description p-3">
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-7">
+      {/* Grid */}
+      <OuterPanel className="bg-panel-description p-3">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
             {bows.map((r) => {
               const has = ownsBow(progress, r);
               return (
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setSelected(r)}
+                  onClick={() => {
+                    setSelected(r);
+                    setOpen(true);
+                  }}
                   aria-label={BOWS[r].name}
                   className="cursor-pointer"
                 >
@@ -521,12 +525,41 @@ function InventoryPage({
           </div>
         </OuterPanel>
 
-        {/* Detail */}
-        <OuterPanel className="bg-panel-description p-3">
-          <div className="flex items-start gap-3">
-            <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
-              <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
-            </InnerPanel>
+      {/* Detail drawer */}
+      <div
+        className={clsx(
+          "fixed inset-0 z-50 transition-opacity duration-200",
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          aria-label="Close item details"
+          onClick={() => setOpen(false)}
+          className="absolute inset-0 cursor-pointer bg-black/50"
+        />
+        <div
+          role="dialog"
+          aria-label={`${def.name} details`}
+          className={clsx(
+            "absolute top-0 right-0 h-full w-full max-w-sm transition-transform duration-200 ease-out",
+            open ? "translate-x-0" : "translate-x-full",
+          )}
+        >
+          <OuterPanel className="flex h-full flex-col overflow-y-auto bg-panel-description p-4">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="order-last -mr-1 -mt-1 ml-auto cursor-pointer p-1 text-panel-text/70 transition-colors hover:text-panel-text"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
+                <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
+              </InnerPanel>
             <div className="min-w-0">
               <p className="font-pixel text-[13px] text-panel-text text-shadow">{def.name}</p>
               <span
@@ -591,7 +624,8 @@ function InventoryPage({
               </PixelButton>
             </div>
           </div>
-        </OuterPanel>
+          </OuterPanel>
+        </div>
       </div>
     </div>
   );
