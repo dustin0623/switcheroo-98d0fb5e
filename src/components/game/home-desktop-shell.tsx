@@ -4,8 +4,9 @@
  * player identity (avatar, name, level, XP) and wallet on the right.
  * The main content area sits to the right of the sidebar, under the header.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Backpack,
   BookOpen,
@@ -15,6 +16,7 @@ import {
   Globe,
   Hammer,
   Lock,
+  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Mail,
@@ -55,7 +57,7 @@ export default function HomeDesktopShell() {
       <div className="forest-bg pointer-events-none absolute inset-0" aria-hidden />
       <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
 
-      <Sidebar active={active} onChange={setActive} />
+      <Sidebar active={active} onChange={setActive} progress={progress} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <TopHeader progress={progress} />
@@ -79,8 +81,16 @@ export default function HomeDesktopShell() {
   );
 }
 
-/** Left rail: ARCOON wordmark plus the primary navigation list. */
-function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) => void }) {
+/** Left rail: ARCOON wordmark, navigation list, and the player identity footer. */
+function Sidebar({
+  active,
+  onChange,
+  progress,
+}: {
+  active: NavId;
+  onChange: (id: NavId) => void;
+  progress: Progress;
+}) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -147,50 +157,131 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
       </nav>
 
       <div className="fantasy-rule w-full" aria-hidden />
-      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-white/70 uppercase">
-        {collapsed ? "!" : "Stay sharp!"}
-      </p>
+      <PlayerFooter progress={progress} collapsed={collapsed} />
     </aside>
   );
 }
 
-/** Top bar: player identity + XP on the left, wallet and actions on the right. */
-function TopHeader({ progress }: { progress: Progress }) {
+/** Sidebar footer: avatar, name, level, XP bar, and a settings popover with sign out. */
+function PlayerFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
   const level = getLevelProgress(progress.xp);
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (collapsed) {
+    return (
+      <div ref={rootRef} className="relative flex flex-col items-center gap-2 px-2 py-3">
+        <FrogAvatar className="h-9 w-9 rounded-full ring-2 ring-shell-accent/70" />
+        <button
+          type="button"
+          aria-label="Settings"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+        {open && (
+          <div className="absolute bottom-2 left-full z-30 ml-2 w-40">
+            <SignOutMenu
+              onSignOut={() => {
+                setOpen(false);
+                navigate({ to: "/" });
+              }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <header className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
-      <div className="flex min-w-0 items-center gap-3">
-        <FrogAvatar className="h-11 w-11 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
-        <div className="min-w-0">
-          <div className="flex items-baseline gap-2">
-            <p className="font-pixel text-[13px] text-white text-shadow">ARCOON</p>
-            <p className="font-pixel text-[10px] text-white">Lv.{level.level}</p>
+    <div ref={rootRef} className="relative px-3 py-3">
+      <div className="flex items-center gap-2.5">
+        <FrogAvatar className="h-10 w-10 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-1.5">
+            <p className="truncate font-pixel text-[11px] text-white text-shadow">ARCOON</p>
+            <p className="shrink-0 font-pixel text-[9px] text-white">Lv.{level.level}</p>
           </div>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div className="h-2 w-36 overflow-hidden rounded-full bg-ink-900 ring-1 ring-ink-line">
+          <div className="mt-1 flex items-center gap-1.5">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
               <div
                 className="h-full rounded-full bg-shell-accent-strong"
                 style={{ width: `${Math.round(level.ratio * 100)}%` }}
               />
             </div>
-            <span className="text-[12px] whitespace-nowrap tabular-nums text-shell-muted">
-              {level.maxed ? "MAX" : `${level.into} / ${level.needed} XP`}
+            <span className="shrink-0 text-[10px] whitespace-nowrap tabular-nums text-white/80">
+              {level.maxed ? "MAX" : `${level.into}/${level.needed}`}
             </span>
           </div>
         </div>
+        <button
+          type="button"
+          aria-label="Settings"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
       </div>
+      {open && (
+        <div className="absolute right-3 bottom-full z-30 mb-2 w-44">
+          <SignOutMenu
+            onSignOut={() => {
+              setOpen(false);
+              navigate({ to: "/" });
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
-      <div className="flex shrink-0 items-center gap-2">
-        <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
-        <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
-        <HeaderIconButton label="Mail">
-          <Mail className="h-5 w-5" />
-        </HeaderIconButton>
-        <HeaderIconButton label="Settings">
-          <Settings className="h-5 w-5" />
-        </HeaderIconButton>
-      </div>
+/** Popover panel shown from the sidebar settings button. */
+function SignOutMenu({ onSignOut }: { onSignOut: () => void }) {
+  return (
+    <OuterPanel className="bg-panel-header p-1.5">
+      <button
+        type="button"
+        onClick={onSignOut}
+        className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-left text-[13px] text-panel-text transition-colors hover:bg-white/10"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
+    </OuterPanel>
+  );
+}
+
+/** Top bar: wallet and actions on the right. */
+function TopHeader({ progress }: { progress: Progress }) {
+  return (
+    <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
+      <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
+      <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
+      <HeaderIconButton label="Mail">
+        <Mail className="h-5 w-5" />
+      </HeaderIconButton>
     </header>
   );
 }
