@@ -44,6 +44,7 @@ import {
   Swords,
   Trophy,
   User,
+  X,
   Zap,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
