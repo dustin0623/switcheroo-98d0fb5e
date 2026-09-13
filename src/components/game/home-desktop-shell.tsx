@@ -132,15 +132,7 @@ export default function HomeDesktopShell() {
           ) : active === "character" ? (
             <CharacterPage progress={progress} onChange={commit} />
           ) : (
-            <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
-              <p className="font-pixel text-[12px] text-white">
-                {NAV.find((n) => n.id === active)?.label}
-              </p>
-              <p className="text-[13px] text-shell-muted">
-                This section is coming soon. The shell is ready — pick a destination from the
-                sidebar.
-              </p>
-            </div>
+            <MarketplacePage progress={progress} onChange={commit} />
           )}
         </main>
       </div>
