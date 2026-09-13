@@ -75,7 +75,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
   return (
     <aside
       className={clsx(
-        "relative z-10 flex shrink-0 flex-col border-r border-ink-line bg-ink-800/95 backdrop-blur transition-[width] duration-200",
+        "relative z-10 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
         collapsed ? "w-16" : "w-56",
       )}
     >
