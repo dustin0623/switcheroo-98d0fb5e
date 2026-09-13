@@ -82,6 +82,8 @@ export default function HomeDesktopShell() {
         <main className="relative flex-1 overflow-y-auto p-4">
           {active === "armory" ? (
             <ArmoryPage progress={progress} onChange={setProgress} />
+          ) : active === "world" ? (
+            <WorldPage progress={progress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
