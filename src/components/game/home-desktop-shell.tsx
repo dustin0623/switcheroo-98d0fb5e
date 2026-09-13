@@ -745,8 +745,8 @@ function MapCard({
   const stars = Math.min(3, Math.floor((cleared / map.stages) * 3));
 
   return (
-    <OuterPanel className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-3 p-2.5">
-      {/* Art + map tag — fills the full card height */}
+    <OuterPanel className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden p-0">
+      {/* Art + map tag — fills the full card height with no padding */}
       <div className="relative h-full min-h-[160px] overflow-hidden">
         <img
           src={MAP_ART[map.id] ?? whisperwoodArt}
@@ -764,7 +764,7 @@ function MapCard({
       </div>
 
       {/* Right content — 3-column wide area */}
-      <div className="grid grid-cols-3 items-center gap-3">
+      <div className="grid grid-cols-3 items-center gap-3 p-2.5">
         {/* Info spans 2 columns */}
         <div className="col-span-2 flex min-w-0 flex-col justify-center gap-1.5 py-1">
           <p className="font-pixel text-[14px] text-panel-text text-shadow">{map.name}</p>
