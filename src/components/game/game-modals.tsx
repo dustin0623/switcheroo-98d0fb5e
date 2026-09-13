@@ -70,8 +70,7 @@ export function StarRow({ stars, className }: { stars: number; className?: strin
 export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: () => void }) {
   const progress = getLevelProgress(hud.xp);
   const total = Math.max(hud.enemiesTotal, hud.enemiesLeft, 1);
-  const cleared = Math.max(0, total - hud.enemiesLeft);
-  const waveRatio = hud.intermission ? 1 : cleared / total;
+  const waveRatio = hud.intermission ? 1 : Math.min(1, hud.enemiesLeft / total);
   const waveLabel = hud.boss && !hud.intermission ? getMap(hud.mapId).boss : hud.intermission ? "Next wave in..." : `${hud.enemiesLeft} left`;
 
   const panelStyle = frame(darkBorder, "6px", "12px");

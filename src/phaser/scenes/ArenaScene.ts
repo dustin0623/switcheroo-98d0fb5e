@@ -404,7 +404,7 @@ export class ArenaScene extends Phaser.Scene {
       score: this.score,
       kills: this.kills,
       enemiesLeft: this.waves.toSpawn + this.enemies.aliveCount,
-      enemiesTotal: Math.max(this.waves.pending, 1),
+      enemiesTotal: Math.max(this.waves.total, 1),
       intermission: this.waves.intermission,
       gameOver: this.gameOver,
       stage: this.stage,
