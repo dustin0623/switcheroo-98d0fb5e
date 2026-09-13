@@ -34,9 +34,9 @@ export function Stat({ icon, value }: { icon: React.ReactNode; value: string }) 
   );
 }
 
-const GoldIcon = <Coins className="h-4 w-4 text-yellow-300" aria-label="gold" />;
-const SkullIcon = <Skull className="h-4 w-4 text-brown-100" aria-label="enemies left" />;
-const KillsIcon = <Swords className="h-4 w-4 text-brown-100" aria-label="kills" />;
+const GoldIcon = <Coins className="h-4 w-4 text-gold" aria-label="gold" />;
+const SkullIcon = <Skull className="h-4 w-4 text-hud-text" aria-label="enemies left" />;
+const KillsIcon = <Swords className="h-4 w-4 text-hud-text" aria-label="kills" />;
 
 /** Circular frog portrait — the hero of ARCOON. */
 export function FrogAvatar({ className }: { className?: string }) {
@@ -74,59 +74,89 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
   const waveRatio = hud.intermission ? 1 : cleared / total;
   const waveLabel = hud.boss && !hud.intermission ? getMap(hud.mapId).boss : hud.intermission ? "Next wave in..." : `${hud.enemiesLeft} left`;
 
+  const sidePanelStyle = frame(darkBorder, "6px", "12px");
+  const centerPanelStyle = frame(greenBorder, "7px", "12px");
+
   return (
-    <div className="pointer-events-auto mx-auto w-full max-w-5xl px-1 sm:px-2">
-      <OuterPanel className="relative grid h-12 grid-cols-2 items-center gap-40 bg-brown-700 px-1.5 py-0 sm:gap-52 sm:px-3">
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <img src={ICONS.bow} alt="Equipped bow" className="h-6 w-6 shrink-0 object-contain sm:h-8 sm:w-8" />
-            <div className="hidden min-w-0 sm:block">
-              <p className="truncate font-pixel text-[8px] leading-3 text-fgold">{hud.bowRarity}</p>
-              <StarRow stars={hud.bowStars} className="mt-0.5" />
-            </div>
-          </div>
-
-          <div className="min-w-12 sm:min-w-16">
-            <p className="font-pixel text-[8px] leading-3 text-white text-shadow">Lv {progress.level}</p>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/60 ring-1 ring-brown-100/50">
-              <div className="h-full rounded-full bg-neon transition-[width] duration-300" style={{ width: `${Math.round(progress.ratio * 100)}%` }} />
-            </div>
-          </div>
-
-          {onOpenSkills && (
-            <PixelButton className="hidden h-9 px-2 py-0 sm:flex" onClick={onOpenSkills}>
-              <span className="flex items-center gap-1.5 font-pixel text-[8px]">
-                <img src="/assets/icons/book.png" alt="" className="h-4 w-4 object-contain" />
-                Skills{hud.skillPoints > 0 ? ` (${hud.skillPoints})` : ""}
-              </span>
-            </PixelButton>
-          )}
-        </div>
-
-        <InnerPanel className="absolute left-1/2 top-1/2 z-10 h-16 w-36 -translate-x-1/2 -translate-y-1/2 px-2 py-1.5 text-center shadow-lg sm:w-48">
-          <div className="flex items-center justify-center gap-2">
-            <Swords className="h-3.5 w-3.5 text-brown-100" />
-            <span className="font-pixel text-[9px] leading-4">Wave {hud.wave}</span>
-            <Swords className="h-3.5 w-3.5 text-brown-100" />
-          </div>
-          <div className="mt-0.5 h-2.5 overflow-hidden rounded-full bg-black/60 ring-1 ring-brown-100/60">
-            <div className="h-full rounded-full bg-rose transition-[width] duration-300" style={{ width: `${Math.round(waveRatio * 100)}%` }} />
-          </div>
-          <p className="mt-1 truncate font-pixel text-[6px] leading-3 opacity-90">{waveLabel}</p>
-        </InnerPanel>
-
-        <div className="flex min-w-0 items-center justify-end divide-x divide-brown-100/35">
-          <div className="flex items-center gap-1 px-1.5 sm:px-2.5">
-            {SkullIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.enemiesLeft}</span>
-          </div>
-          <div className="hidden items-center gap-1 px-2.5 sm:flex">
-            {KillsIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.kills}</span>
-          </div>
-          <div className="flex items-center gap-1 px-1.5 sm:px-2.5">
-            {GoldIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.goldEarned}</span>
+    <div className="pointer-events-auto mx-auto flex w-full max-w-5xl items-center justify-center px-1 sm:px-2">
+      {/* Left side panel */}
+      <div
+        className="flex h-12 items-center gap-2 bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
+        style={sidePanelStyle}
+      >
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+          <img src={ICONS.bow} alt="Equipped bow" className="h-6 w-6 shrink-0 object-contain sm:h-8 sm:w-8" />
+          <div className="hidden min-w-0 sm:block">
+            <p className="truncate font-pixel text-[8px] leading-3 text-gold">{hud.bowRarity}</p>
+            <StarRow stars={hud.bowStars} className="mt-0.5" />
           </div>
         </div>
-      </OuterPanel>
+
+        <div className="h-6 w-px bg-hud-border/30" />
+
+        <div className="flex min-w-12 flex-col gap-0.5 sm:min-w-16">
+          <span className="font-pixel text-[8px] leading-3 text-hud-text">Lv {progress.level}</span>
+          <div className="h-2 overflow-hidden rounded-full bg-hud-border ring-1 ring-hud-highlight">
+            <div className="h-full rounded-full bg-neon transition-[width] duration-300" style={{ width: `${Math.round(progress.ratio * 100)}%` }} />
+          </div>
+        </div>
+
+        {onOpenSkills && (
+          <PixelButton className="hidden h-8 px-2 py-0 sm:flex" onClick={onOpenSkills}>
+            <span className="flex items-center gap-1.5 font-pixel text-[8px]">
+              <img src="/assets/icons/book.png" alt="" className="h-4 w-4 object-contain" />
+              Skills{hud.skillPoints > 0 ? ` (${hud.skillPoints})` : ""}
+            </span>
+          </PixelButton>
+        )}
+      </div>
+
+      {/* Center Wave panel — taller and green-bordered */}
+      <div
+        className="relative z-10 -mx-2 flex h-16 w-44 flex-col items-center justify-center bg-hud-panel-dark px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-20 sm:w-56"
+        style={centerPanelStyle}
+      >
+        <div className="absolute -left-2.5 top-1.5 flex flex-col gap-0.5">
+          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
+          <div className="h-3.5 w-3.5 rotate-45 bg-hud-leaf-bright ring-1 ring-hud-border" />
+          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
+        </div>
+        <div className="absolute -right-2.5 top-1.5 flex flex-col gap-0.5">
+          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
+          <div className="h-3.5 w-3.5 rotate-45 bg-hud-leaf-bright ring-1 ring-hud-border" />
+          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Swords className="h-3.5 w-3.5 text-hud-text" />
+          <span className="font-pixel text-[9px] leading-4 tracking-widest sm:text-[10px]">Wave {hud.wave}</span>
+          <Swords className="h-3.5 w-3.5 text-hud-text" />
+        </div>
+
+        <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-hud-border ring-1 ring-hud-highlight">
+          <div className="h-full rounded-full bg-rose transition-[width] duration-300" style={{ width: `${Math.round(waveRatio * 100)}%` }} />
+        </div>
+
+        <p className="mt-0.5 truncate font-pixel text-[6px] leading-3 text-hud-muted">{waveLabel}</p>
+      </div>
+
+      {/* Right side panel */}
+      <div
+        className="flex h-12 items-center justify-end gap-2 bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
+        style={sidePanelStyle}
+      >
+        <div className="flex items-center gap-1 px-1.5 sm:px-2.5">
+          {SkullIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.enemiesLeft}</span>
+        </div>
+        <div className="h-6 w-px bg-hud-border/30" />
+        <div className="hidden items-center gap-1 px-2.5 sm:flex">
+          {KillsIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.kills}</span>
+        </div>
+        <div className="h-6 w-px bg-hud-border/30 hidden sm:block" />
+        <div className="flex items-center gap-1 px-1.5 sm:px-2.5">
+          {GoldIcon}<span className="font-pixel text-[8px] tabular-nums text-gold">{hud.goldEarned}</span>
+        </div>
+      </div>
     </div>
   );
 }
