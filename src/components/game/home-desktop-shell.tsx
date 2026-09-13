@@ -29,6 +29,7 @@ import { getLevelProgress } from "@/features/game/experience";
 import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
 import { BOWS, BOW_RARITIES, bowStats, type BowRarity } from "@/features/game/bow";
 import { buyBow, equipBow, ownsBow, starsOf } from "@/features/game/armory";
+import { InnerPanel, OuterPanel, PixelButton, frame, lightBorder } from "@/components/ui/pixel-panel";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
@@ -253,15 +254,17 @@ function ArmoryPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
       {/* Banner */}
-      <div className="flex items-center gap-3 rounded-md bg-panel-header p-4 shadow-card ring-1 ring-black/40">
-        <Swords className="h-8 w-8 shrink-0 text-panel-text" />
-        <div className="min-w-0">
-          <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Armory</h1>
-          <p className="text-[13px] text-panel-text/80">
-            Equip powerful gear and prepare for your next adventure.
-          </p>
+      <OuterPanel className="bg-panel-header px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Swords className="h-8 w-8 shrink-0 text-panel-text" />
+          <div className="min-w-0">
+            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Armory</h1>
+            <p className="text-[13px] text-panel-text/80">
+              Equip powerful gear and prepare for your next adventure.
+            </p>
+          </div>
         </div>
-      </div>
+      </OuterPanel>
 
       {/* Tabs + filters */}
       <div className="flex flex-wrap items-center gap-2">
@@ -271,20 +274,13 @@ function ArmoryPage({
             { id: "items", label: "Items" },
           ] as const
         ).map((t) => (
-          <button
+          <PixelButton
             key={t.id}
-            type="button"
             onClick={() => setTab(t.id)}
-            aria-pressed={tab === t.id}
-            className={clsx(
-              "flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-[13px] text-panel-text transition-colors",
-              tab === t.id
-                ? "bg-button-default font-semibold shadow-card ring-1 ring-black/30"
-                : "bg-panel-header ring-1 ring-black/40 hover:brightness-125",
-            )}
+            className={clsx("px-4 py-1.5 text-[13px]", tab !== t.id && "opacity-70")}
           >
             {t.label}
-          </button>
+          </PixelButton>
         ))}
 
         <div className="ml-auto flex items-center gap-2">
@@ -293,7 +289,8 @@ function ArmoryPage({
               value={rarity}
               onChange={(e) => setRarity(e.target.value as BowRarity | "all")}
               aria-label="Filter by rarity"
-              className="cursor-pointer appearance-none rounded-md bg-panel-header py-2 pr-8 pl-3 text-[13px] text-panel-text ring-1 ring-black/40 outline-none"
+              style={frame(lightBorder, "5px", "15px")}
+              className="cursor-pointer appearance-none bg-panel-header py-1.5 pr-8 pl-3 text-[13px] text-panel-text text-shadow outline-none"
             >
               <option value="all">Rarity</option>
               {BOW_RARITIES.map((r) => (
@@ -302,16 +299,17 @@ function ArmoryPage({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 text-panel-text/70" />
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-panel-text/70" />
           </div>
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-panel-text/60" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-panel-text/60" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search item..."
               aria-label="Search items"
-              className="w-44 rounded-md bg-panel-header py-2 pr-3 pl-8 text-[13px] text-panel-text ring-1 ring-black/40 outline-none placeholder:text-panel-text/50"
+              style={frame(lightBorder, "5px", "15px")}
+              className="w-44 bg-panel-header py-1.5 pr-3 pl-9 text-[13px] text-panel-text text-shadow outline-none placeholder:text-panel-text/50"
             />
           </div>
         </div>
@@ -319,16 +317,16 @@ function ArmoryPage({
 
       {/* Content */}
       {tab === "items" ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-md bg-panel-description p-10 text-center ring-1 ring-black/40">
+        <OuterPanel className="flex flex-col items-center justify-center gap-2 p-10 text-center">
           <p className="font-pixel text-[12px] text-panel-text">Items</p>
           <p className="text-[13px] text-panel-text/70">
             Consumables and trinkets are coming soon.
           </p>
-        </div>
+        </OuterPanel>
       ) : bows.length === 0 ? (
-        <div className="rounded-md bg-panel-description p-10 text-center text-[13px] text-panel-text/70 ring-1 ring-black/40">
+        <OuterPanel className="p-10 text-center text-[13px] text-panel-text/70">
           No bows match your search.
-        </div>
+        </OuterPanel>
       ) : (
         <div className="flex flex-col gap-3 pb-4">
           {bows.map((r) => (
@@ -357,11 +355,11 @@ function BowCard({
   const equipped = progress.equipped === rarity;
 
   return (
-    <div className="flex items-center gap-4 rounded-md bg-panel-description p-3 shadow-card ring-1 ring-button-default/60">
+    <OuterPanel className="flex items-center gap-4 p-2.5">
       {/* Art */}
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-md bg-panel-header ring-1 ring-black/40">
+      <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
         <img src={ICONS.bow} alt={def.name} className="h-12 w-12 object-contain" />
-      </div>
+      </InnerPanel>
 
       {/* Info */}
       <div className="min-w-0 flex-1">
@@ -394,38 +392,34 @@ function BowCard({
       {/* Action */}
       <div className="shrink-0">
         {equipped ? (
-          <span className="inline-flex items-center rounded-md bg-button-default px-6 py-2.5 text-[13px] font-semibold text-panel-text ring-1 ring-black/30">
+          <PixelButton disabled className="px-5 py-2 text-[13px] font-semibold">
             Equipped
-          </span>
+          </PixelButton>
         ) : owned ? (
-          <button
-            type="button"
+          <PixelButton
+            className="px-5 py-2 text-[13px] font-semibold"
             onClick={() => onChange(equipBow(progress, rarity))}
-            className="cursor-pointer rounded-md bg-button-default px-6 py-2.5 text-[13px] font-semibold text-panel-text ring-1 ring-black/30 transition hover:brightness-110"
           >
             Equip
-          </button>
+          </PixelButton>
         ) : (
-          <button
-            type="button"
+          <PixelButton
+            variant="green"
             disabled={progress.gold < def.unlockCost}
             onClick={() => onChange(buyBow(progress, rarity))}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-emerald-600 px-6 py-2.5 text-[13px] font-semibold text-white ring-1 ring-black/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="px-5 py-2 text-[13px] font-semibold"
           >
-            {progress.gold < def.unlockCost ? (
-              <>
+            <span className="flex items-center gap-1.5">
+              {progress.gold < def.unlockCost ? (
                 <Lock className="h-4 w-4" />
-                {def.unlockCost.toLocaleString()}
-              </>
-            ) : (
-              <>
+              ) : (
                 <Coins className="h-4 w-4 text-currency" />
-                {def.unlockCost.toLocaleString()}
-              </>
-            )}
-          </button>
+              )}
+              {def.unlockCost.toLocaleString()}
+            </span>
+          </PixelButton>
         )}
       </div>
-    </div>
+    </OuterPanel>
   );
 }
