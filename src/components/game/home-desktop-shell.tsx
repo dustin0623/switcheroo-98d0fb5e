@@ -1673,6 +1673,19 @@ function CharacterPage({
               {level.into} / {level.needed} XP
             </span>
           </InnerPanel>
+          {level.maxed ? null : (
+            <PixelButton
+              variant={level.canLevel ? "green" : "default"}
+              disabled={!level.canLevel}
+              onClick={() => onChange(levelUpPlayer(progress))}
+              className="mt-2 w-full px-4 py-2 text-[13px] font-semibold"
+            >
+              {level.xpReady
+                ? `Level Up · ${level.shardCost} shards`
+                : "Earn more XP to level up"}
+            </PixelButton>
+          )}
+
           <div className="mt-3 flex flex-col gap-1.5">
             {sheet.map((s) => (
               <InnerPanel key={s.label} className="flex items-center gap-3 bg-panel-header px-3 py-2">
