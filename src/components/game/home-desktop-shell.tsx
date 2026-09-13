@@ -37,7 +37,7 @@ const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] =
 
 export default function HomeDesktopShell() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
-  const [active, setActive] = useState<NavId>("home");
+  const [active, setActive] = useState<NavId>("world");
 
   useEffect(() => {
     setProgress(loadProgress());
