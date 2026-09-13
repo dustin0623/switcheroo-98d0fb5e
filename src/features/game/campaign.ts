@@ -104,6 +104,8 @@ export interface Progress {
   seen: string[];
   /** Milestone ids whose reward has been claimed. */
   claimed: string[];
+  /** Weapon Shards — the material spent on enchantment (star upgrades). */
+  shards: number;
 }
 
 const KEY = "arcoon:progress:v2";
@@ -119,6 +121,7 @@ export const EMPTY_PROGRESS: Progress = {
   equipped: "Common",
   seen: [],
   claimed: [],
+  shards: 10,
 };
 
 function sanitize(raw: Partial<Progress>): Progress {
@@ -141,6 +144,7 @@ function sanitize(raw: Partial<Progress>): Progress {
     equipped,
     seen: Array.isArray(raw.seen) ? raw.seen.filter((s) => typeof s === "string") : [],
     claimed: Array.isArray(raw.claimed) ? raw.claimed.filter((s) => typeof s === "string") : [],
+    shards: num(raw.shards),
   };
 }
 
