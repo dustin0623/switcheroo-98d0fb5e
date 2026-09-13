@@ -1597,10 +1597,10 @@ function CharacterPage({
                 <div className="flex flex-col gap-3">
                   <SlotCard
                     label="Weapon"
-                    sub={`${stars}★ ${bow.name}`}
+                    sub={`Lv. ${weaponLevel} · ${bow.name}`}
                     art={<img src={ICONS.bow} alt={bow.name} className="h-10 w-10 object-contain" />}
                   />
-                  <SlotCard label="Helmet" sub="Empty" locked icon={HardHat} />
+                  <GearSlotCard progress={progress} slot="helmet" />
                 </div>
                 <InnerPanel className="relative flex min-h-[240px] items-end justify-center bg-panel-header p-4">
                   <FrogAvatar className="absolute top-6 h-28 w-28" />
@@ -1610,9 +1610,10 @@ function CharacterPage({
                   </PixelButton>
                 </InnerPanel>
                 <div className="flex flex-col gap-3">
-                  <SlotCard label="Armor" sub="Empty" locked icon={Shirt} />
-                  <SlotCard label="Boots" sub="Empty" locked icon={Footprints} />
+                  <GearSlotCard progress={progress} slot="armor" />
+                  <GearSlotCard progress={progress} slot="boots" />
                 </div>
+
               </div>
             </OuterPanel>
           )}
