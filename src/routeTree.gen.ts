@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GameRouteImport } from './routes/game'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as TestModalsRouteImport } from './routes/test-modals'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const GameRoute = GameRouteImport.update({
   path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestModalsRoute = TestModalsRouteImport.update({
   id: '/test-modals',
   path: '/test-modals',
@@ -32,30 +38,34 @@ const TestModalsRoute = TestModalsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/game': typeof GameRoute
+  '/home': typeof HomeRoute
   '/test-modals': typeof TestModalsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/game': typeof GameRoute
+  '/home': typeof HomeRoute
   '/test-modals': typeof TestModalsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/game': typeof GameRoute
+  '/home': typeof HomeRoute
   '/test-modals': typeof TestModalsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/game' | '/test-modals'
+  fullPaths: '/' | '/game' | '/home' | '/test-modals'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/game' | '/test-modals'
-  id: '__root__' | '/' | '/game' | '/test-modals'
+  to: '/' | '/game' | '/home' | '/test-modals'
+  id: '__root__' | '/' | '/game' | '/home' | '/test-modals'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GameRoute: typeof GameRoute
+  HomeRoute: typeof HomeRoute
   TestModalsRoute: typeof TestModalsRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test-modals': {
       id: '/test-modals'
       path: '/test-modals'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GameRoute: GameRoute,
+  HomeRoute: HomeRoute,
   TestModalsRoute: TestModalsRoute,
 }
 export const routeTree = rootRouteImport
