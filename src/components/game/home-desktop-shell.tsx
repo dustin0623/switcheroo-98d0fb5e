@@ -549,9 +549,17 @@ function InventoryPage({
         >
           <OuterPanel className="flex h-full flex-col overflow-y-auto bg-panel-description p-4">
             <div className="flex items-start gap-3">
-            <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
-              <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
-            </InnerPanel>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="order-last -mr-1 -mt-1 ml-auto cursor-pointer p-1 text-panel-text/70 transition-colors hover:text-panel-text"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
+                <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
+              </InnerPanel>
             <div className="min-w-0">
               <p className="font-pixel text-[13px] text-panel-text text-shadow">{def.name}</p>
               <span
