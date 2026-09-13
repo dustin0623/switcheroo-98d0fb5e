@@ -102,6 +102,8 @@ export interface Progress {
   equipped: BowRarity;
   /** Bestiary keys the player has encountered. */
   seen: string[];
+  /** Milestone ids whose reward has been claimed. */
+  claimed: string[];
 }
 
 const KEY = "arcoon:progress:v2";
@@ -116,6 +118,7 @@ export const EMPTY_PROGRESS: Progress = {
   bows: { Common: 1 },
   equipped: "Common",
   seen: [],
+  claimed: [],
 };
 
 function sanitize(raw: Partial<Progress>): Progress {
