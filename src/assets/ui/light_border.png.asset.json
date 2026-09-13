@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "90a634b3-f30d-416f-b3c2-0e62a9f2d65e",
-  "project_id": "3f49d9b3-dc42-4542-98a8-e7143ba837ea",
-  "url": "/__l5e/assets-v1/90a634b3-f30d-416f-b3c2-0e62a9f2d65e/light_border.png",
-  "r2_key": "a/v1/3f49d9b3-dc42-4542-98a8-e7143ba837ea/90a634b3-f30d-416f-b3c2-0e62a9f2d65e/light_border.png",
-  "original_filename": "light_border.png",
-  "size": 175,
   "content_type": "image/png",
-  "created_at": "2026-09-13T20:37:13Z"
+  "created_at": "2026-09-13T20:37:13Z",
+  "original_filename": "light_border.png",
+  "project_id": "31030414-5bfd-41a6-83d8-8e6ff83db4c8",
+  "r2_key": "a/v1/31030414-5bfd-41a6-83d8-8e6ff83db4c8/90a634b3-f30d-416f-b3c2-0e62a9f2d65e/light_border.png",
+  "size": 175,
+  "url": "/__l5e/assets-v1/90a634b3-f30d-416f-b3c2-0e62a9f2d65e/light_border.png",
+  "version": 1
 }
