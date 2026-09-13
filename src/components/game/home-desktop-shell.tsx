@@ -65,7 +65,7 @@ export default function HomeDesktopShell() {
           {active === "armory" ? (
             <ArmoryPage progress={progress} onChange={setProgress} />
           ) : (
-            <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
+            <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
                 {NAV.find((n) => n.id === active)?.label}
               </p>
