@@ -46,6 +46,8 @@ export class ArenaScene extends Phaser.Scene {
   private seen = new Set<string>();
   private bowRarity: BowRarity = "Common";
   private bowLevel = 1;
+  /** Flat bonuses from equipped helmet/armor/boots. */
+  private gearBonus = { hp: 0, defense: 0, moveSpeed: 0 };
   private coins!: CoinSystem;
   private xp = 0;
   private level = 1;
@@ -66,6 +68,7 @@ export class ArenaScene extends Phaser.Scene {
     const profile = loadProgress();
     this.bowRarity = profile.equipped;
     this.bowLevel = profile.bows[profile.equipped] ?? 1;
+    this.gearBonus = totalGearBonus(profile);
 
     const map = this.make.tilemap({ key: this.map.tilemap });
     const tileset = map.addTilesetImage("spr_tileset_sunnysideworld_16px", "tiles");
@@ -152,7 +155,8 @@ export class ArenaScene extends Phaser.Scene {
       const collectedXp = this.coins.update(this.player.bodyX, this.player.bodyY, !this.gameOver);
       if (collectedXp > 0) this.addXp(collectedXp);
 
-      const damage = this.enemies.update(this.player, time);
+      const rawDamage = this.enemies.update(this.player, time);
+      const damage = rawDamage > 0 ? Math.max(1, rawDamage - this.gearBonus.defense) : rawDamage;
       if (damage > 0 && this.player.takeDamage(damage, time)) {
         this.cameras.main.shake(120, 0.006);
         if (this.player.dead) {
@@ -384,13 +388,13 @@ export class ArenaScene extends Phaser.Scene {
   /** Pushes passive skill effects onto the player and pickup systems. */
   private applySkills() {
     const mods = getSkillModifiers(this.ranks);
-    const maxHp = PLAYER_CONFIG.MAX_HP + mods.bonusHp;
+    const maxHp = PLAYER_CONFIG.MAX_HP + mods.bonusHp + this.gearBonus.hp;
     if (maxHp > this.player.maxHp) {
       this.player.hp += maxHp - this.player.maxHp;
     }
     this.player.maxHp = maxHp;
     this.player.hp = Math.min(this.player.hp, maxHp);
-    this.player.speed = GAME_CONFIG.PLAYER_SPEED * mods.speedMult;
+    this.player.speed = GAME_CONFIG.PLAYER_SPEED * mods.speedMult + this.gearBonus.moveSpeed;
     this.player.iframeMs = PLAYER_CONFIG.IFRAME_MS * mods.iframeMult;
     this.coins.magnetMult = mods.magnetMult;
   }
