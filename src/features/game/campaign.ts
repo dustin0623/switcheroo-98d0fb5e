@@ -140,6 +140,7 @@ function sanitize(raw: Partial<Progress>): Progress {
     bows,
     equipped,
     seen: Array.isArray(raw.seen) ? raw.seen.filter((s) => typeof s === "string") : [],
+    claimed: Array.isArray(raw.claimed) ? raw.claimed.filter((s) => typeof s === "string") : [],
   };
 }
 
