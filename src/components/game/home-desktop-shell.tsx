@@ -759,7 +759,7 @@ const MILESTONES: MilestoneDef[] = [
     name: "First Warden",
     desc: "Defeat your first boss.",
     target: 1,
-    value: (p) => p.bosses,
+    value: (p) => p.bosses ?? 0,
     reward: 100,
     icon: Skull,
   },
@@ -768,7 +768,7 @@ const MILESTONES: MilestoneDef[] = [
     name: "Thousand Arrows",
     desc: "Defeat 1,000 enemies.",
     target: 1000,
-    value: (p) => p.kills,
+    value: (p) => p.kills ?? 0,
     reward: 500,
     icon: Swords,
   },
@@ -777,7 +777,7 @@ const MILESTONES: MilestoneDef[] = [
     name: "Whisperwood Cleared",
     desc: "Clear all 5 stages of Whisperwood.",
     target: 5,
-    value: (p) => p.cleared["whisperwood"] ?? 0,
+    value: (p) => p.cleared?.["whisperwood"] ?? 0,
     reward: 250,
     icon: Leaf,
   },
@@ -793,17 +793,19 @@ function BookPage({
 }) {
   const [tab, setTab] = useState<BookTabId>("overview");
 
-  const seen = BESTIARY.filter((b) => progress.seen.includes(b.key)).length;
+  const seenList = progress.seen ?? [];
+  const claimedList = progress.claimed ?? [];
+  const seen = BESTIARY.filter((b) => seenList.includes(b.key)).length;
   const owned = BOW_RARITIES.filter((r) => ownsBow(progress, r)).length;
   const done = MILESTONES.filter(
-    (m) => progress.claimed.includes(m.id) || m.value(progress) >= m.target,
+    (m) => claimedList.includes(m.id) || m.value(progress) >= m.target,
   ).length;
 
   const claim = (m: MilestoneDef) => {
     const next: Progress = {
       ...progress,
       gold: progress.gold + m.reward,
-      claimed: [...progress.claimed, m.id],
+      claimed: [...claimedList, m.id],
     };
     saveProgress(next);
     onChange(next);
@@ -856,7 +858,7 @@ function BookPage({
               />
               <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 {BESTIARY.map((b) => (
-                  <BeastCard key={b.key} beast={b} seen={progress.seen.includes(b.key)} />
+                  <BeastCard key={b.key} beast={b} seen={seenList.includes(b.key)} />
                 ))}
               </div>
             </OuterPanel>
@@ -990,7 +992,7 @@ function MilestoneRow({
 }) {
   const value = Math.min(milestone.value(progress), milestone.target);
   const complete = value >= milestone.target;
-  const claimed = progress.claimed.includes(milestone.id);
+  const claimed = (progress.claimed ?? []).includes(milestone.id);
   const Icon = milestone.icon;
 
   return (
