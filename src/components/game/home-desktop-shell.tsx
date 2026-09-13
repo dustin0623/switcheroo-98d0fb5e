@@ -616,7 +616,8 @@ function InventoryPage({
               </PixelButton>
             </div>
           </div>
-        </OuterPanel>
+          </OuterPanel>
+        </div>
       </div>
     </div>
   );
