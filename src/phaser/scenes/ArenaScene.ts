@@ -10,6 +10,7 @@ import type { Enemy } from "@/phaser/entities/Enemy";
 import { facingFromVector, playDirectional } from "@/phaser/systems/DirectionalAnimation";
 import { bowStats, type BowRarity } from "@/features/game/bow";
 import { CoinSystem } from "@/phaser/systems/CoinSystem";
+import { totalGearBonus } from "@/features/game/equipment";
 import { getLevel, xpForKill } from "@/features/game/experience";
 import { WAVES_PER_STAGE, bossKey, getMap, loadProgress, type MapDef } from "@/features/game/campaign";
 import type { HudState } from "@/features/game/hud";
