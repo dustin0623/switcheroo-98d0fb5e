@@ -223,7 +223,7 @@ function Sidebar({
 
 /** Sidebar footer: avatar, name, level, XP bar, and a settings popover with sign out. */
 function PlayerFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
-  const level = getLevelProgress(progress.xp);
+  const level = getPlayerLevel(progress);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -707,7 +707,7 @@ const ENEMY_ICON: Record<EnemyType, typeof Ghost> = {
 
 /** World page: "Choose your hunt" header plus the list of maps. */
 function WorldPage({ progress }: { progress: Progress }) {
-  const level = getLevelProgress(progress.xp).level;
+  const level = getPlayerLevel(progress).level;
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-6">
       <header className="flex flex-col items-center gap-1 py-2 text-center">
@@ -940,7 +940,7 @@ function BookPage({
   const seenList = progress.seen ?? [];
   const claimedList = progress.claimed ?? [];
   const seen = BESTIARY.filter((b) => seenList.includes(b.key)).length;
-  const owned = BOW_RARITIES.filter((r) => ownsBow(progress, r)).length;
+  const owned = BOW_RARITIES.filter((r) => owns(progress, "weapon", r)).length;
   const done = MILESTONES.filter(
     (m) => claimedList.includes(m.id) || m.value(progress) >= m.target,
   ).length;
@@ -1020,7 +1020,7 @@ function BookPage({
               />
               <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
                 {BOW_RARITIES.map((r) => (
-                  <IndexBowCard key={r} rarity={r} owned={ownsBow(progress, r)} />
+                  <IndexBowCard key={r} rarity={r} owned={owns(progress, "weapon", r)} />
                 ))}
               </div>
             </OuterPanel>
@@ -1256,7 +1256,7 @@ function EnchantmentPage({
   progress: Progress;
   onChange: (next: Progress) => void;
 }) {
-  const owned = BOW_RARITIES.filter((r) => ownsBow(progress, r));
+  const owned = BOW_RARITIES.filter((r) => owns(progress, "weapon", r));
   const [selected, setSelected] = useState<BowRarity>(progress.equipped);
   const [rarity, setRarity] = useState<BowRarity | "all">("all");
 
@@ -1492,7 +1492,7 @@ type CharacterTab = "equipment" | "appearance" | "stats";
 /** Character page: equipment loadout, hero portrait and the full stat sheet. */
 function CharacterPage({ progress }: { progress: Progress }) {
   const [tab, setTab] = useState<CharacterTab>("equipment");
-  const level = getLevelProgress(progress.xp);
+  const level = getPlayerLevel(progress);
   const stars = starsOf(progress, progress.equipped);
   const bow = BOWS[progress.equipped];
   const stats = bowStats(progress.equipped, Math.max(stars, 1));
@@ -1608,7 +1608,7 @@ function CharacterPage({ progress }: { progress: Progress }) {
                 <StatRow icon={<Trophy className="h-4 w-4 text-gold" />} label="Best Score" current={`${progress.bestScore}`} next={null} />
                 <StatRow icon={<Coins className="h-4 w-4 text-gold" />} label="Gold" current={`${progress.gold}`} next={null} />
                 <StatRow icon={<Gem className="h-4 w-4 text-purple-300" />} label="Weapon Shards" current={`${progress.shards}`} next={null} />
-                <StatRow icon={<Star className="h-4 w-4 text-gold" />} label="Bows Owned" current={`${BOW_RARITIES.filter((r) => ownsBow(progress, r)).length} / ${BOW_RARITIES.length}`} next={null} />
+                <StatRow icon={<Star className="h-4 w-4 text-gold" />} label="Bows Owned" current={`${BOW_RARITIES.filter((r) => owns(progress, "weapon", r)).length} / ${BOW_RARITIES.length}`} next={null} />
               </div>
             </OuterPanel>
           )}
