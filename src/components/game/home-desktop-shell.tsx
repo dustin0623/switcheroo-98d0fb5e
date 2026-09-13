@@ -79,6 +79,7 @@ import {
   owns,
   salvageGear,
   salvageValue,
+  totalGearBonus,
   type GearSlot,
 } from "@/features/game/equipment";
 
@@ -122,7 +123,7 @@ export default function HomeDesktopShell() {
           ) : active === "crafting" ? (
             <EnchantmentPage progress={progress} onChange={setProgress} />
           ) : active === "character" ? (
-            <CharacterPage progress={progress} />
+            <CharacterPage progress={progress} onChange={setProgress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
