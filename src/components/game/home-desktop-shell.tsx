@@ -29,6 +29,7 @@ import { getLevelProgress } from "@/features/game/experience";
 import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
 import { BOWS, BOW_RARITIES, bowStats, type BowRarity } from "@/features/game/bow";
 import { buyBow, equipBow, ownsBow, starsOf } from "@/features/game/armory";
+import { InnerPanel, OuterPanel, PixelButton, frame, lightBorder } from "@/components/ui/pixel-panel";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
