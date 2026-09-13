@@ -54,7 +54,7 @@ const SAMPLE: HudState = {
   victory: false,
   goldEarned: 2610,
   bowRarity: "Rare",
-  bowStars: 3,
+  bowLevel: 3,
   xp: 640,
   level: 5,
   skillPoints: 3,

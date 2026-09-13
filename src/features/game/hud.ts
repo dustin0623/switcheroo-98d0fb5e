@@ -25,7 +25,7 @@ export interface HudState {
   /** Gold earned this run (banked when the run ends). */
   goldEarned: number;
   bowRarity: BowRarity;
-  bowStars: number;
+  bowLevel: number;
   xp: number;
   level: number;
   skillPoints: number;

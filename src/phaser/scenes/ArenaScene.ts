@@ -45,7 +45,7 @@ export class ArenaScene extends Phaser.Scene {
   private bossesKilled = 0;
   private seen = new Set<string>();
   private bowRarity: BowRarity = "Common";
-  private bowStars = 1;
+  private bowLevel = 1;
   private coins!: CoinSystem;
   private xp = 0;
   private level = 1;
@@ -65,7 +65,7 @@ export class ArenaScene extends Phaser.Scene {
 
     const profile = loadProgress();
     this.bowRarity = profile.equipped;
-    this.bowStars = profile.bows[profile.equipped] ?? 1;
+    this.bowLevel = profile.bows[profile.equipped] ?? 1;
 
     const map = this.make.tilemap({ key: this.map.tilemap });
     const tileset = map.addTilesetImage("spr_tileset_sunnysideworld_16px", "tiles");
@@ -177,7 +177,7 @@ export class ArenaScene extends Phaser.Scene {
   private handleShooting(time: number) {
     if (this.player.dead) return;
     const mods = getSkillModifiers(this.ranks);
-    const base = bowStats(this.bowRarity, this.bowStars);
+    const base = bowStats(this.bowRarity, this.bowLevel);
     const stats = {
       damage: Math.round(base.damage * mods.damageMult),
       fireRateMs: base.fireRateMs * mods.fireRateMult,
@@ -413,7 +413,7 @@ export class ArenaScene extends Phaser.Scene {
       victory: this.victory,
       goldEarned: this.goldEarned,
       bowRarity: this.bowRarity,
-      bowStars: this.bowStars,
+      bowLevel: this.bowLevel,
       xp: this.xp,
       level: this.level,
       skillPoints: this.skillPoints,

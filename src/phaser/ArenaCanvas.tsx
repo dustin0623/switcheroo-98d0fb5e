@@ -34,7 +34,7 @@ const EMPTY_HUD: HudState = {
   victory: false,
   goldEarned: 0,
   bowRarity: "Common",
-  bowStars: 1,
+  bowLevel: 1,
   xp: 0,
   level: 1,
   skillPoints: 0,
