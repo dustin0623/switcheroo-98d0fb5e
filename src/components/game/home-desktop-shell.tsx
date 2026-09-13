@@ -59,15 +59,19 @@ export default function HomeDesktopShell() {
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
-          <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
-            <p className="font-pixel text-[12px] text-white">
-              {NAV.find((n) => n.id === active)?.label}
-            </p>
-            <p className="text-[13px] text-shell-muted">
-              This section is coming soon. The shell is ready — pick a destination from the
-              sidebar.
-            </p>
-          </div>
+          {active === "armory" ? (
+            <ArmoryPage progress={progress} onChange={setProgress} />
+          ) : (
+            <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
+              <p className="font-pixel text-[12px] text-white">
+                {NAV.find((n) => n.id === active)?.label}
+              </p>
+              <p className="text-[13px] text-shell-muted">
+                This section is coming soon. The shell is ready — pick a destination from the
+                sidebar.
+              </p>
+            </div>
+          )}
         </main>
       </div>
     </div>
