@@ -97,14 +97,20 @@ export interface Progress {
   xp: number;
   /** Bosses defeated across all runs. */
   bosses: number;
-  /** Owned bows mapped to their star level (1–5). */
+  /** Owned bows mapped to their level. */
   bows: Partial<Record<BowRarity, number>>;
   equipped: BowRarity;
+  /** Owned helmets/armor/boots keyed `slot:rarity`, mapped to their level. */
+  gear: Record<string, number>;
+  /** Equipped rarity per non-weapon slot. */
+  equippedGear: Partial<Record<"helmet" | "armor" | "boots", BowRarity>>;
+  /** Character level — raised manually with XP and shards. */
+  level: number;
   /** Bestiary keys the player has encountered. */
   seen: string[];
   /** Milestone ids whose reward has been claimed. */
   claimed: string[];
-  /** Weapon Shards — the material spent on enchantment (star upgrades). */
+  /** Weapon Shards — earned by salvaging gear, spent on levelling. */
   shards: number;
 }
 
@@ -119,6 +125,9 @@ export const EMPTY_PROGRESS: Progress = {
   bosses: 0,
   bows: { Common: 1 },
   equipped: "Common",
+  gear: {},
+  equippedGear: {},
+  level: 1,
   seen: [],
   claimed: [],
   shards: 10,
@@ -127,11 +136,21 @@ export const EMPTY_PROGRESS: Progress = {
 function sanitize(raw: Partial<Progress>): Progress {
   const bows: Partial<Record<BowRarity, number>> = {};
   for (const rarity of BOW_RARITIES) {
-    const stars = Number(raw.bows?.[rarity]);
-    if (Number.isFinite(stars) && stars > 0) bows[rarity] = Math.min(5, Math.round(stars));
+    const level = Number(raw.bows?.[rarity]);
+    if (Number.isFinite(level) && level > 0) bows[rarity] = Math.min(20, Math.round(level));
   }
   if (!bows.Common) bows.Common = 1;
   const equipped = raw.equipped && bows[raw.equipped] ? raw.equipped : "Common";
+  const gear: Record<string, number> = {};
+  for (const [key, value] of Object.entries(raw.gear ?? {})) {
+    const level = Number(value);
+    if (Number.isFinite(level) && level > 0) gear[key] = Math.min(20, Math.round(level));
+  }
+  const equippedGear: Progress["equippedGear"] = {};
+  for (const slot of ["helmet", "armor", "boots"] as const) {
+    const rarity = raw.equippedGear?.[slot];
+    if (rarity && gear[`${slot}:${rarity}`]) equippedGear[slot] = rarity;
+  }
   const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
   return {
     cleared: raw.cleared ?? {},
@@ -142,6 +161,9 @@ function sanitize(raw: Partial<Progress>): Progress {
     bosses: num(raw.bosses),
     bows,
     equipped,
+    gear,
+    equippedGear,
+    level: Math.max(1, Math.round(num(raw.level)) || 1),
     seen: Array.isArray(raw.seen) ? raw.seen.filter((s) => typeof s === "string") : [],
     claimed: Array.isArray(raw.claimed) ? raw.claimed.filter((s) => typeof s === "string") : [],
     shards: num(raw.shards),
@@ -216,7 +238,6 @@ export function recordRun(run: RunResult): Progress {
     xp: progress.xp + run.xp,
     bosses: progress.bosses + run.bosses,
     seen: [...new Set([...progress.seen, ...run.seen])],
-    shards: progress.shards + run.bosses * 2,
   };
   saveProgress(next);
   return next;
