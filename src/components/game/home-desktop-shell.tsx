@@ -54,7 +54,7 @@ export default function HomeDesktopShell() {
         <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
-            <p className="font-pixel text-[12px] text-shell-accent">
+            <p className="font-pixel text-[12px] text-white">
               {NAV.find((n) => n.id === active)?.label}
             </p>
             <p className="text-[13px] text-shell-muted">
