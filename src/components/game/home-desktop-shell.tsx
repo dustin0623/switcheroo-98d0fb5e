@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Anvil,
+  BarChart3,
   Backpack,
   BookOpen,
   Bug,
@@ -19,7 +20,10 @@ import {
   Ghost,
   Globe,
   Hammer,
+  HardHat,
+  Heart,
   Info,
+  Footprints,
   Leaf,
   Lock,
   LogOut,
@@ -28,8 +32,11 @@ import {
   Mail,
   Play,
   Rabbit,
+  RefreshCw,
   Search,
   Settings,
+  Shield,
+  Shirt,
   Skull,
   Sparkles,
   Star,
@@ -37,6 +44,7 @@ import {
   Swords,
   Trophy,
   User,
+  Zap,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
 import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
@@ -105,6 +113,8 @@ export default function HomeDesktopShell() {
             <BookPage progress={progress} onChange={setProgress} />
           ) : active === "crafting" ? (
             <EnchantmentPage progress={progress} onChange={setProgress} />
+          ) : active === "character" ? (
+            <CharacterPage progress={progress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
@@ -1496,7 +1506,7 @@ function CharacterPage({ progress }: { progress: Progress }) {
               />
             </span>
             <span className="text-[11px] tabular-nums text-panel-text/80">
-              {level.into} / {level.need} XP
+              {level.into} / {level.into + (level.needed - level.into)} XP
             </span>
           </InnerPanel>
           <div className="mt-3 flex flex-col gap-1.5">
