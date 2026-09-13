@@ -525,9 +525,30 @@ function InventoryPage({
           </div>
         </OuterPanel>
 
-        {/* Detail */}
-        <OuterPanel className="bg-panel-description p-3">
-          <div className="flex items-start gap-3">
+      {/* Detail drawer */}
+      <div
+        className={clsx(
+          "fixed inset-0 z-50 transition-opacity duration-200",
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          aria-label="Close item details"
+          onClick={() => setOpen(false)}
+          className="absolute inset-0 cursor-pointer bg-black/50"
+        />
+        <div
+          role="dialog"
+          aria-label={`${def.name} details`}
+          className={clsx(
+            "absolute top-0 right-0 h-full w-full max-w-sm transition-transform duration-200 ease-out",
+            open ? "translate-x-0" : "translate-x-full",
+          )}
+        >
+          <OuterPanel className="flex h-full flex-col overflow-y-auto bg-panel-description p-4">
+            <div className="flex items-start gap-3">
             <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
               <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
             </InnerPanel>
