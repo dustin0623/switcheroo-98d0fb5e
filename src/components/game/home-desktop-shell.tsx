@@ -112,7 +112,7 @@ function Sidebar({
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
           className={clsx(
-            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30 hover:text-white",
+            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30 hover:text-white",
             collapsed && "mx-auto",
           )}
         >
