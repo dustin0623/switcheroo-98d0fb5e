@@ -66,7 +66,7 @@ import {
   ownsBow,
   starsOf,
 } from "@/features/game/armory";
-import { InnerPanel, OuterPanel, PixelButton, frame, lightBorder } from "@/components/ui/pixel-panel";
+import { InnerPanel, OuterPanel, PixelButton, darkBorder, frame, lightBorder } from "@/components/ui/pixel-panel";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
@@ -1314,7 +1314,7 @@ function EnchantmentPage({
                       "flex w-full cursor-pointer items-center gap-3 p-2 text-left",
                       isSel ? "ring-2 ring-emerald-400" : "opacity-90 hover:opacity-100",
                     )}
-                    style={frame(darkBorderSafe, "6px", "20px")}
+                    style={frame(darkBorder, "6px", "20px")}
                   >
                     <InnerPanel className="flex h-14 w-14 shrink-0 items-center justify-center bg-panel-header">
                       <img src={ICONS.bow} alt={b.name} className="h-9 w-9 object-contain" />
