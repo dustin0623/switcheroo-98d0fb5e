@@ -136,7 +136,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
       </nav>
 
       <div className="fantasy-rule w-full" aria-hidden />
-      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-shell-muted/60 uppercase">
+      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-white/70 uppercase">
         {collapsed ? "!" : "Stay sharp!"}
       </p>
     </aside>
