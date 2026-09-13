@@ -745,9 +745,9 @@ function MapCard({
   const stars = Math.min(3, Math.floor((cleared / map.stages) * 3));
 
   return (
-    <OuterPanel className="flex items-stretch gap-4 p-2.5">
-      {/* Art + map tag */}
-      <div className="relative w-44 shrink-0 overflow-hidden">
+    <OuterPanel className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-3 p-2.5">
+      {/* Art + map tag — fills the full card height */}
+      <div className="relative h-full min-h-[160px] overflow-hidden">
         <img
           src={MAP_ART[map.id] ?? whisperwoodArt}
           alt={map.name}
@@ -763,73 +763,74 @@ function MapCard({
         </span>
       </div>
 
-      {/* Info */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-1">
-        <p className="font-pixel text-[14px] text-panel-text text-shadow">{map.name}</p>
-        <p className="text-[12px] text-panel-text/80">{map.blurb}</p>
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
-            <span className="text-[11px] text-panel-text/70">Recommended</span>
-            <span className="text-[11px] font-semibold text-panel-text">Lv. {reqLevel}+</span>
-          </InnerPanel>
-          <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
-            <span className="text-[11px] text-panel-text/70">Enemies</span>
-            <span className="flex items-center gap-1">
-              {map.family.map((t) => {
-                const Icon = ENEMY_ICON[t];
-                return <Icon key={t} className="h-3.5 w-3.5 text-panel-text" aria-label={t} />;
-              })}
-            </span>
-          </InnerPanel>
+      {/* Right content — 3-column wide area */}
+      <div className="grid grid-cols-3 items-center gap-3">
+        {/* Info spans 2 columns */}
+        <div className="col-span-2 flex min-w-0 flex-col justify-center gap-1.5 py-1">
+          <p className="font-pixel text-[14px] text-panel-text text-shadow">{map.name}</p>
+          <p className="text-[12px] text-panel-text/80">{map.blurb}</p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+              <span className="text-[11px] text-panel-text/70">Recommended</span>
+              <span className="text-[11px] font-semibold text-panel-text">Lv. {reqLevel}+</span>
+            </InnerPanel>
+            <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+              <span className="text-[11px] text-panel-text/70">Enemies</span>
+              <span className="flex items-center gap-1">
+                {map.family.map((t) => {
+                  const Icon = ENEMY_ICON[t];
+                  return <Icon key={t} className="h-3.5 w-3.5 text-panel-text" aria-label={t} />;
+                })}
+              </span>
+            </InnerPanel>
+          </div>
         </div>
-      </div>
 
-      {/* Rewards */}
-      <div className="flex shrink-0 flex-col justify-center gap-1.5">
-        <p className="text-[11px] text-panel-text/70">Rewards</p>
-        <div className="flex items-center gap-1.5">
-          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
-            <Coins className="h-4 w-4 text-currency" aria-label="gold" />
-          </InnerPanel>
-          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
-            <Leaf className="h-4 w-4 text-shell-accent" aria-label="materials" />
-          </InnerPanel>
-          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
-            <Gem className="h-4 w-4 text-frost" aria-label="gems" />
-          </InnerPanel>
+        {/* Rewards + stars + action in the rightmost column */}
+        <div className="col-span-1 flex flex-col items-end justify-center gap-2">
+          <div className="text-right">
+            <p className="text-[11px] text-panel-text/70">Rewards</p>
+            <div className="mt-1 flex items-center justify-end gap-1.5">
+              <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+                <Coins className="h-4 w-4 text-currency" aria-label="gold" />
+              </InnerPanel>
+              <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+                <Leaf className="h-4 w-4 text-shell-accent" aria-label="materials" />
+              </InnerPanel>
+              <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+                <Gem className="h-4 w-4 text-frost" aria-label="gems" />
+              </InnerPanel>
+            </div>
+          </div>
+          <span className="flex items-center gap-1 text-[12px] tabular-nums text-panel-text">
+            <Star className="h-4 w-4 fill-gold text-gold" aria-label="stars" />
+            {stars}/3
+          </span>
+          {open ? (
+            <PixelButton
+              variant="green"
+              className="w-full px-4 py-2 text-[13px] font-semibold"
+              onClick={() =>
+                navigate({
+                  to: "/game",
+                  search: { map: map.id, stage: Math.min(cleared + 1, map.stages) },
+                })
+              }
+            >
+              <span className="flex items-center justify-center gap-1.5">
+                Enter
+                <Play className="h-3.5 w-3.5 fill-current" />
+              </span>
+            </PixelButton>
+          ) : (
+            <PixelButton disabled className="w-full px-4 py-2 text-[12px] font-semibold">
+              <span className="flex items-center justify-center gap-1.5">
+                <Lock className="h-3.5 w-3.5" />
+                Unlocks at Lv. {reqLevel}
+              </span>
+            </PixelButton>
+          )}
         </div>
-      </div>
-
-      {/* Stars + action */}
-      <div className="flex w-40 shrink-0 flex-col items-end justify-between py-1">
-        <span className="flex items-center gap-1 text-[12px] tabular-nums text-panel-text">
-          <Star className="h-4 w-4 fill-gold text-gold" aria-label="stars" />
-          {stars}/3
-        </span>
-        {open ? (
-          <PixelButton
-            variant="green"
-            className="w-full px-4 py-2 text-[13px] font-semibold"
-            onClick={() =>
-              navigate({
-                to: "/game",
-                search: { map: map.id, stage: Math.min(cleared + 1, map.stages) },
-              })
-            }
-          >
-            <span className="flex items-center justify-center gap-1.5">
-              Enter
-              <Play className="h-3.5 w-3.5 fill-current" />
-            </span>
-          </PixelButton>
-        ) : (
-          <PixelButton disabled className="w-full px-4 py-2 text-[12px] font-semibold">
-            <span className="flex items-center justify-center gap-1.5">
-              <Lock className="h-3.5 w-3.5" />
-              Unlocks at Lv. {reqLevel}
-            </span>
-          </PixelButton>
-        )}
       </div>
     </OuterPanel>
   );
