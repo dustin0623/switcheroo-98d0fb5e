@@ -12,6 +12,7 @@ import {
   BookOpen,
   Bug,
   ChevronDown,
+  ChevronRight,
   Coins,
   Gem,
   Ghost,
@@ -27,10 +28,12 @@ import {
   Rabbit,
   Search,
   Settings,
+  Skull,
   Sparkles,
   Star,
   Store,
   Swords,
+  Trophy,
   User,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
@@ -39,8 +42,10 @@ import { getLevelProgress } from "@/features/game/experience";
 import {
   EMPTY_PROGRESS,
   MAPS,
+  bossKey,
   isMapUnlocked,
   loadProgress,
+  saveProgress,
   type Progress,
 } from "@/features/game/campaign";
 import whisperwoodArt from "@/assets/world/whisperwood.jpg";
@@ -84,6 +89,8 @@ export default function HomeDesktopShell() {
             <ArmoryPage progress={progress} onChange={setProgress} />
           ) : active === "world" ? (
             <WorldPage progress={progress} />
+          ) : active === "book" ? (
+            <BookPage progress={progress} onChange={setProgress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
