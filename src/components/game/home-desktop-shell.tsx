@@ -1,0 +1,192 @@
+/**
+ * HomeDesktopShell — the wide-screen home shell for ARCOON.
+ * A fixed left sidebar (logo + navigation) and a top header bar with the
+ * player identity (avatar, name, level, XP) and wallet on the right.
+ * The main content area sits to the right of the sidebar, under the header.
+ */
+import { useEffect, useState } from "react";
+import clsx from "clsx";
+import {
+  Backpack,
+  Coins,
+  Gem,
+  Hammer,
+  Home,
+  Mail,
+  Scroll,
+  Settings,
+  Store,
+  Swords,
+  Trophy,
+} from "lucide-react";
+import { FrogAvatar } from "@/components/game/game-modals";
+import { getLevelProgress } from "@/features/game/experience";
+import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
+
+type NavId =
+  | "home"
+  | "armory"
+  | "inventory"
+  | "crafting"
+  | "quests"
+  | "marketplace"
+  | "achievements"
+  | "settings";
+
+const NAV: { id: NavId; label: string; icon: typeof Home; badge?: boolean }[] = [
+  { id: "home", label: "Home", icon: Home },
+  { id: "armory", label: "Armory", icon: Backpack },
+  { id: "inventory", label: "Inventory", icon: Swords },
+  { id: "crafting", label: "Crafting", icon: Hammer },
+  { id: "quests", label: "Quests", icon: Scroll, badge: true },
+  { id: "marketplace", label: "Marketplace", icon: Store },
+  { id: "achievements", label: "Achievements", icon: Trophy },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
+export default function HomeDesktopShell() {
+  const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
+  const [active, setActive] = useState<NavId>("home");
+
+  useEffect(() => {
+    setProgress(loadProgress());
+  }, []);
+
+  return (
+    <div className="fantasy-shell relative flex h-full w-full overflow-hidden bg-ink-900 font-body text-shell-text">
+      <div className="forest-bg pointer-events-none absolute inset-0" aria-hidden />
+      <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
+
+      <Sidebar active={active} onChange={setActive} />
+
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        <TopHeader progress={progress} />
+        <main className="relative flex-1 overflow-y-auto p-4">
+          <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
+            <p className="font-pixel text-[12px] text-shell-accent">
+              {NAV.find((n) => n.id === active)?.label}
+            </p>
+            <p className="text-[13px] text-shell-muted">
+              This section is coming soon. The shell is ready — pick a destination from the
+              sidebar.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/** Left rail: ARCOON wordmark plus the primary navigation list. */
+function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) => void }) {
+  return (
+    <aside className="relative z-10 flex w-56 shrink-0 flex-col border-r border-ink-line bg-ink-800/95 backdrop-blur">
+      <div className="px-4 pt-5 pb-4">
+        <p className="text-center font-pixel text-[18px] tracking-wide text-fgold text-shadow">
+          ARCOON
+        </p>
+      </div>
+      <div className="fantasy-rule w-full" aria-hidden />
+
+      <nav aria-label="Main navigation" className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+        {NAV.map((item) => {
+          const isActive = item.id === active;
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onChange(item.id)}
+              aria-pressed={isActive}
+              className={clsx(
+                "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-left text-[14px] transition-colors",
+                isActive
+                  ? "bg-neon/90 font-semibold text-white shadow-card ring-1 ring-leaf-bright/60"
+                  : "text-shell-muted hover:bg-ink-700 hover:text-shell-text",
+              )}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              {item.badge && <span className="h-2 w-2 shrink-0 rounded-full bg-rose" aria-hidden />}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="fantasy-rule w-full" aria-hidden />
+      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-shell-muted/60 uppercase">
+        Stay sharp!
+      </p>
+    </aside>
+  );
+}
+
+/** Top bar: player identity + XP on the left, wallet and actions on the right. */
+function TopHeader({ progress }: { progress: Progress }) {
+  const level = getLevelProgress(progress.xp);
+
+  return (
+    <header className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
+      <div className="flex min-w-0 items-center gap-3">
+        <FrogAvatar className="h-11 w-11 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2">
+            <p className="font-pixel text-[13px] text-shell-accent text-shadow">ARCOON</p>
+            <p className="font-pixel text-[10px] text-shell-accent">Lv.{level.level}</p>
+          </div>
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="h-2 w-36 overflow-hidden rounded-full bg-ink-900 ring-1 ring-ink-line">
+              <div
+                className="h-full rounded-full bg-shell-accent-strong"
+                style={{ width: `${Math.round(level.ratio * 100)}%` }}
+              />
+            </div>
+            <span className="text-[12px] whitespace-nowrap tabular-nums text-shell-muted">
+              {level.maxed ? "MAX" : `${level.into} / ${level.needed} XP`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
+        <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
+        <HeaderIconButton label="Mail">
+          <Mail className="h-5 w-5" />
+        </HeaderIconButton>
+        <HeaderIconButton label="Settings">
+          <Settings className="h-5 w-5" />
+        </HeaderIconButton>
+      </div>
+    </header>
+  );
+}
+
+function CurrencyPill({ icon, value }: { icon: React.ReactNode; value: number }) {
+  return (
+    <div className="flex items-center gap-1.5 rounded-md bg-ink-700 px-3 py-1.5 ring-1 ring-ink-line">
+      {icon}
+      <span className="text-[14px] tabular-nums text-shell-text text-shadow">
+        {value.toLocaleString()}
+      </span>
+    </div>
+  );
+}
+
+function HeaderIconButton({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md bg-ink-700 text-shell-muted ring-1 ring-ink-line transition-colors hover:bg-ink-600 hover:text-shell-text"
+    >
+      {children}
+    </button>
+  );
+}
