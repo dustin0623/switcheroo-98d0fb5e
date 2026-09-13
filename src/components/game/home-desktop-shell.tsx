@@ -1525,16 +1525,24 @@ const CHARACTER_SLOTS: { id: string; label: string; icon: typeof Shirt }[] = [
 type CharacterTab = "equipment" | "appearance" | "stats";
 
 /** Character page: equipment loadout, hero portrait and the full stat sheet. */
-function CharacterPage({ progress }: { progress: Progress }) {
+function CharacterPage({
+  progress,
+  onChange,
+}: {
+  progress: Progress;
+  onChange: (next: Progress) => void;
+}) {
   const [tab, setTab] = useState<CharacterTab>("equipment");
   const level = getPlayerLevel(progress);
-  const stars = starsOf(progress, progress.equipped);
+  const weaponLevel = levelOf(progress, "weapon", progress.equipped);
   const bow = BOWS[progress.equipped];
-  const stats = bowStats(progress.equipped, Math.max(stars, 1));
-  const maxHp = 100 + level.level * 20;
-  const defense = 5 + Math.floor(level.level * 1.5);
-  const critRate = 5 + stars;
-  const critDamage = 150 + stars * 10;
+  const stats = bowStats(progress.equipped, Math.max(weaponLevel, 1));
+  const bonus = totalGearBonus(progress);
+  const maxHp = 100 + level.level * 20 + bonus.hp;
+  const defense = 5 + Math.floor(level.level * 1.5) + bonus.defense;
+  const critRate = 5 + weaponLevel;
+  const critDamage = 150 + weaponLevel * 10;
+
 
   const sheet: { icon: React.ReactNode; label: string; value: string }[] = [
     { icon: <Swords className="h-4 w-4 text-panel-text/80" />, label: "Attack", value: `${stats.damage}` },
