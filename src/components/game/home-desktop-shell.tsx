@@ -1720,6 +1720,39 @@ function GearSlotCard({ progress, slot }: { progress: Progress; slot: GearSlot }
 const SHARD_SELL_GOLD = 40;
 const SHARD_BUY_GOLD = 120;
 
+const RARITY_HEX: Record<BowRarity, string> = {
+  Common: "#94a3b8",
+  Uncommon: "#34d399",
+  Rare: "#60a5fa",
+  Epic: "#c084fc",
+  Legendary: "#fbbf24",
+};
+
+const GEAR_DESCRIPTIONS: Record<GearSlot, string> = {
+  weapon: "A bow that strikes from the shadows. Favored by those who never miss.",
+  helmet: "Sturdy headgear that keeps an adventurer standing through the longest fights.",
+  armor: "Battle-tested plating that turns aside blows that would fell a lesser frog.",
+  boots: "Light, quiet boots made for crossing forests and dunes alike.",
+};
+
+/** Visual rating shown on marketplace cards, derived from rarity. */
+function RarityStars({ rarity, className }: { rarity: BowRarity; className?: string }) {
+  const filled = BOW_RARITIES.indexOf(rarity) + 1;
+  return (
+    <span className={clsx("flex items-center gap-0.5", className)}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          className={clsx(
+            "h-3 w-3",
+            i <= filled ? "fill-amber-400 text-amber-400" : "text-panel-text/30",
+          )}
+        />
+      ))}
+    </span>
+  );
+}
+
 function MarketplacePage({
   progress,
   onChange,
@@ -1727,12 +1760,47 @@ function MarketplacePage({
   progress: Progress;
   onChange: (next: Progress) => void;
 }) {
-  const [tab, setTab] = useState<"shop" | "exchange">("shop");
-  const [slotFilter, setSlotFilter] = useState<GearSlot | "all">("all");
+  type MarketTab = "buy" | "featured" | "sell" | "listings";
+  type Item = { slot: GearSlot; rarity: BowRarity };
 
-  const stock = GEAR_SLOTS.flatMap((slot) =>
+  const [tab, setTab] = useState<MarketTab>("buy");
+  const [slotFilter, setSlotFilter] = useState<GearSlot | "all">("all");
+  const [rarityFilter, setRarityFilter] = useState<BowRarity | "all">("all");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<Item | null>(null);
+
+  const ALL_ITEMS: Item[] = GEAR_SLOTS.flatMap((slot) =>
     BOW_RARITIES.map((rarity) => ({ slot, rarity })),
-  ).filter((g) => (slotFilter === "all" || g.slot === slotFilter) && !owns(progress, g.slot, g.rarity));
+  );
+
+  const equipped = (slot: GearSlot, rarity: BowRarity) =>
+    equippedOf(progress, slot) === rarity;
+
+  const baseItems = ALL_ITEMS.filter((g) => {
+    const owned = owns(progress, g.slot, g.rarity);
+    if (tab === "buy") return !owned;
+    if (tab === "featured")
+      return !owned && (g.rarity === "Rare" || g.rarity === "Epic" || g.rarity === "Legendary");
+    if (tab === "sell") return owned && !equipped(g.slot, g.rarity);
+    return false;
+  });
+
+  const items = baseItems.filter((g) => {
+    if (slotFilter !== "all" && g.slot !== slotFilter) return false;
+    if (rarityFilter !== "all" && g.rarity !== rarityFilter) return false;
+    if (query && !gearName(g.slot, g.rarity).toLowerCase().includes(query.toLowerCase()))
+      return false;
+    return true;
+  });
+
+  const PAGE_SIZE = 10;
+  const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = items.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const sellPrice = (slot: GearSlot, rarity: BowRarity) =>
+    Math.max(10, Math.floor(gearUnlockCost(slot, rarity) * 0.4));
 
   const buyShards = (amount: number) => {
     const cost = amount * SHARD_BUY_GOLD;
@@ -1748,6 +1816,45 @@ function MarketplacePage({
       gold: progress.gold + amount * SHARD_SELL_GOLD,
     });
   };
+
+  /** Sells an owned, unequipped piece of gear back for gold. */
+  const sellGearForGold = (slot: GearSlot, rarity: BowRarity) => {
+    if (!owns(progress, slot, rarity) || equipped(slot, rarity)) return;
+    if (slot === "weapon" && rarity === "Common") return;
+    let next: Progress = { ...progress, gold: progress.gold + sellPrice(slot, rarity) };
+    if (slot === "weapon") {
+      const bows = { ...next.bows };
+      delete bows[rarity];
+      next = { ...next, bows };
+    } else {
+      const gear = { ...next.gear };
+      delete gear[`${slot}:${rarity}`];
+      next = { ...next, gear };
+    }
+    saveProgress(next);
+    if (selected?.slot === slot && selected?.rarity === rarity) setSelected(null);
+    onChange(next);
+  };
+
+  const switchTab = (t: MarketTab) => {
+    setTab(t);
+    setPage(1);
+    setSelected(null);
+  };
+
+  const TABS: { id: MarketTab; label: string; icon: typeof Store }[] = [
+    { id: "buy", label: "Buy", icon: ShoppingCart },
+    { id: "featured", label: "Featured", icon: Star },
+    { id: "sell", label: "Sell", icon: Coins },
+    { id: "listings", label: "My Listings", icon: Backpack },
+  ];
+
+  const sel = selected;
+  const selOwned = sel ? owns(progress, sel.slot, sel.rarity) : false;
+  const selEquipped = sel ? equipped(sel.slot, sel.rarity) : false;
+  const selLevel = sel ? levelOf(progress, sel.slot, sel.rarity) : 1;
+  const selCost = sel ? gearUnlockCost(sel.slot, sel.rarity) : 0;
+  const selAffordable = sel ? progress.gold >= selCost : false;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
@@ -1765,108 +1872,37 @@ function MarketplacePage({
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2">
-        {([
-          { id: "shop", label: "Shop" },
-          { id: "exchange", label: "Exchange" },
-        ] as const).map((t) => (
-          <PixelButton
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={clsx(
-              "px-4 py-1.5 text-[12px] font-semibold",
-              tab === t.id ? "brightness-110" : "opacity-70",
-            )}
-          >
-            {t.label}
-          </PixelButton>
-        ))}
+        {TABS.map((t) => {
+          const Icon = t.icon;
+          const active = tab === t.id;
+          return (
+            <PixelButton
+              key={t.id}
+              variant={active && t.id === "buy" ? "green" : "default"}
+              onClick={() => switchTab(t.id)}
+              className={clsx(
+                "flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold",
+                active ? "brightness-110" : "opacity-70",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {t.label}
+            </PixelButton>
+          );
+        })}
       </div>
 
-      {tab === "shop" ? (
-        <OuterPanel className="bg-panel-description p-3">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {(["all", ...GEAR_SLOTS] as const).map((s) => (
-              <PixelButton
-                key={s}
-                onClick={() => setSlotFilter(s as GearSlot | "all")}
-                className={clsx(
-                  "px-3 py-1 text-[11px]",
-                  slotFilter === s ? "brightness-110" : "opacity-70",
-                )}
-              >
-                {s === "all" ? "All" : SLOT_LABEL[s as GearSlot]}
-              </PixelButton>
-            ))}
-          </div>
-
-          {stock.length === 0 ? (
-            <p className="px-1 py-6 text-center text-[13px] text-panel-text/70">
-              Nothing left to buy here — you already own every piece in this category.
-            </p>
-          ) : (
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {stock.map((g) => {
-                const cost = gearUnlockCost(g.slot, g.rarity);
-                const affordable = progress.gold >= cost;
-                return (
-                  <InnerPanel
-                    key={`${g.slot}:${g.rarity}`}
-                    className="flex items-center gap-3 bg-panel-header p-2.5"
-                  >
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center">
-                      {g.slot === "weapon" ? (
-                        <img src={ICONS.bow} alt="" className="h-9 w-9 object-contain" />
-                      ) : (
-                        <SlotGlyph slot={g.slot} className="h-8 w-8 text-panel-text/70" />
-                      )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-panel-text">
-                        {gearName(g.slot, g.rarity)}
-                      </p>
-                      <span
-                        className={clsx(
-                          "mt-1 inline-block rounded-sm px-1.5 py-0.5 text-[10px] font-semibold text-white",
-                          RARITY_BADGE[g.rarity],
-                        )}
-                      >
-                        {g.rarity} {SLOT_LABEL[g.slot]}
-                      </span>
-                      <p className="mt-1 flex items-center gap-1 text-[12px] tabular-nums text-panel-text/80">
-                        <Coins className="h-3.5 w-3.5 text-amber-300" />
-                        {cost}
-                      </p>
-                    </div>
-                    <PixelButton
-                      variant={affordable ? "green" : "default"}
-                      disabled={!affordable}
-                      onClick={() => onChange(buyGear(progress, g.slot, g.rarity))}
-                      className="px-3 py-1.5 text-[12px] font-semibold"
-                    >
-                      Buy
-                    </PixelButton>
-                  </InnerPanel>
-                );
-              })}
-            </div>
-          )}
-        </OuterPanel>
-      ) : (
+      {tab === "listings" ? (
         <div className="grid items-start gap-3 lg:grid-cols-2">
           <OuterPanel className="bg-panel-description p-3">
             <p className="font-pixel text-[12px] text-panel-text">Buy Shards</p>
-            <p className="mt-1 text-[12px] text-panel-text/70">
-              {SHARD_BUY_GOLD} gold per shard.
-            </p>
+            <p className="mt-1 text-[12px] text-panel-text/70">{SHARD_BUY_GOLD} gold per shard.</p>
             <div className="mt-3 flex flex-col gap-2">
               {[1, 5, 10].map((n) => {
                 const cost = n * SHARD_BUY_GOLD;
                 const ok = progress.gold >= cost;
                 return (
-                  <InnerPanel
-                    key={n}
-                    className="flex items-center gap-3 bg-panel-header px-3 py-2"
-                  >
+                  <InnerPanel key={n} className="flex items-center gap-3 bg-panel-header px-3 py-2">
                     <Gem className="h-5 w-5 text-purple-300" />
                     <span className="flex-1 text-[13px] text-panel-text">{n} shards</span>
                     <span className="text-[12px] tabular-nums text-panel-text/80">{cost} gold</span>
@@ -1886,17 +1922,12 @@ function MarketplacePage({
 
           <OuterPanel className="bg-panel-description p-3">
             <p className="font-pixel text-[12px] text-panel-text">Sell Shards</p>
-            <p className="mt-1 text-[12px] text-panel-text/70">
-              {SHARD_SELL_GOLD} gold per shard.
-            </p>
+            <p className="mt-1 text-[12px] text-panel-text/70">{SHARD_SELL_GOLD} gold per shard.</p>
             <div className="mt-3 flex flex-col gap-2">
               {[1, 5, 10].map((n) => {
                 const ok = progress.shards >= n;
                 return (
-                  <InnerPanel
-                    key={n}
-                    className="flex items-center gap-3 bg-panel-header px-3 py-2"
-                  >
+                  <InnerPanel key={n} className="flex items-center gap-3 bg-panel-header px-3 py-2">
                     <Coins className="h-5 w-5 text-amber-300" />
                     <span className="flex-1 text-[13px] text-panel-text">
                       {n * SHARD_SELL_GOLD} gold
@@ -1920,6 +1951,308 @@ function MarketplacePage({
             </p>
           </OuterPanel>
         </div>
+      ) : (
+        <>
+          {/* Filters */}
+          <OuterPanel className="flex flex-wrap items-center gap-2 bg-panel-description p-2">
+            {(["all", ...GEAR_SLOTS] as const).map((s) => (
+              <PixelButton
+                key={s}
+                onClick={() => {
+                  setSlotFilter(s as GearSlot | "all");
+                  setPage(1);
+                }}
+                className={clsx(
+                  "px-3 py-1 text-[11px]",
+                  slotFilter === s ? "brightness-110" : "opacity-70",
+                )}
+              >
+                {s === "all" ? "All" : `${SLOT_LABEL[s as GearSlot]}s`}
+              </PixelButton>
+            ))}
+            <span className="mx-1 hidden h-5 w-px bg-panel-text/20 sm:block" />
+            <InnerPanel className="bg-panel-header px-2 py-1">
+              <select
+                value={rarityFilter}
+                onChange={(e) => {
+                  setRarityFilter(e.target.value as BowRarity | "all");
+                  setPage(1);
+                }}
+                className="bg-transparent text-[12px] text-panel-text outline-none"
+              >
+                <option value="all">Rarity</option>
+                {BOW_RARITIES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </InnerPanel>
+            <InnerPanel className="flex min-w-40 flex-1 items-center gap-2 bg-panel-header px-2.5 py-1.5">
+              <Search className="h-3.5 w-3.5 shrink-0 text-panel-text/60" />
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search items..."
+                className="w-full bg-transparent text-[12px] text-panel-text outline-none placeholder:text-panel-text/50"
+              />
+            </InnerPanel>
+          </OuterPanel>
+
+          <div className="grid items-start gap-3 xl:grid-cols-[1fr_320px]">
+            {/* Item grid */}
+            <OuterPanel className="bg-panel-description p-3">
+              {pageItems.length === 0 ? (
+                <p className="px-1 py-6 text-center text-[13px] text-panel-text/70">
+                  {tab === "sell"
+                    ? "Nothing to sell — gear you own (and haven't equipped) will show up here."
+                    : "Nothing found here — try a different filter or category."}
+                </p>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {pageItems.map((g) => {
+                    const cost =
+                      tab === "sell" ? sellPrice(g.slot, g.rarity) : gearUnlockCost(g.slot, g.rarity);
+                    const affordable = progress.gold >= cost;
+                    const isSel = selected?.slot === g.slot && selected?.rarity === g.rarity;
+                    return (
+                      <button
+                        key={`${g.slot}:${g.rarity}`}
+                        type="button"
+                        onClick={() => setSelected(isSel ? null : g)}
+                        className="text-left"
+                      >
+                        <InnerPanel
+                          className="flex h-full flex-col items-center gap-1 bg-panel-header p-2.5"
+                          style={{
+                            boxShadow: isSel
+                              ? `0 0 0 2px ${RARITY_HEX[g.rarity]}`
+                              : `inset 0 0 0 1px ${RARITY_HEX[g.rarity]}55`,
+                          }}
+                        >
+                          <span className="relative flex h-14 w-full items-center justify-center">
+                            {g.slot === "weapon" ? (
+                              <img src={ICONS.bow} alt="" className="h-10 w-10 object-contain" />
+                            ) : (
+                              <SlotGlyph slot={g.slot} className="h-9 w-9 text-panel-text/70" />
+                            )}
+                            <span className="absolute right-0 top-0 text-[10px] tabular-nums text-panel-text/70">
+                              Lv. {levelOf(progress, g.slot, g.rarity) || 1}
+                            </span>
+                          </span>
+                          <p className="w-full truncate text-center text-[12px] font-semibold text-panel-text">
+                            {gearName(g.slot, g.rarity)}
+                          </p>
+                          <p
+                            className="text-[11px] font-semibold"
+                            style={{ color: RARITY_HEX[g.rarity] }}
+                          >
+                            {g.rarity}
+                          </p>
+                          <RarityStars rarity={g.rarity} />
+                          <span className="mt-1 flex w-full items-center justify-between gap-2">
+                            <span className="flex items-center gap-1 text-[12px] tabular-nums text-panel-text/80">
+                              <Coins className="h-3.5 w-3.5 text-amber-300" />
+                              {cost}
+                            </span>
+                            {tab === "sell" ? (
+                              <PixelButton
+                                variant="green"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  sellGearForGold(g.slot, g.rarity);
+                                }}
+                                className="px-2.5 py-1 text-[11px] font-semibold"
+                              >
+                                Sell
+                              </PixelButton>
+                            ) : (
+                              <PixelButton
+                                variant={affordable ? "green" : "default"}
+                                disabled={!affordable}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onChange(buyGear(progress, g.slot, g.rarity));
+                                }}
+                                className="px-2.5 py-1 text-[11px] font-semibold"
+                              >
+                                Buy Now
+                              </PixelButton>
+                            )}
+                          </span>
+                        </InnerPanel>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Pagination */}
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1">
+                  <PixelButton
+                    disabled={safePage <= 1}
+                    onClick={() => setPage(safePage - 1)}
+                    className="px-2 py-1"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </PixelButton>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
+                    <PixelButton
+                      key={p}
+                      variant={p === safePage ? "green" : "default"}
+                      onClick={() => setPage(p)}
+                      className={clsx(
+                        "min-w-7 px-2 py-1 text-[11px] tabular-nums",
+                        p === safePage ? "brightness-110" : "opacity-70",
+                      )}
+                    >
+                      {p}
+                    </PixelButton>
+                  ))}
+                  <PixelButton
+                    disabled={safePage >= pageCount}
+                    onClick={() => setPage(safePage + 1)}
+                    className="px-2 py-1"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </PixelButton>
+                </div>
+                <p className="text-[11px] text-panel-text/60">
+                  Showing {items.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(safePage * PAGE_SIZE, items.length)} of {items.length} items
+                </p>
+              </div>
+            </OuterPanel>
+
+            {/* Detail panel */}
+            <OuterPanel className="sticky top-3 bg-panel-description p-3">
+              {!sel ? (
+                <p className="px-1 py-8 text-center text-[12px] text-panel-text/60">
+                  Select an item to inspect it here.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p
+                        className="truncate text-[15px] font-bold"
+                        style={{ color: RARITY_HEX[sel.rarity] }}
+                      >
+                        {gearName(sel.slot, sel.rarity)}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-panel-text/70">
+                        {sel.rarity} · {SLOT_LABEL[sel.slot]}
+                      </p>
+                    </div>
+                    <PixelButton
+                      onClick={() => setSelected(null)}
+                      className="px-1.5 py-1"
+                      aria-label="Close details"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </PixelButton>
+                  </div>
+
+                  <InnerPanel className="relative flex items-center justify-center bg-panel-header py-5">
+                    {sel.slot === "weapon" ? (
+                      <img src={ICONS.bow} alt="" className="h-16 w-16 object-contain" />
+                    ) : (
+                      <SlotGlyph slot={sel.slot} className="h-14 w-14 text-panel-text/70" />
+                    )}
+                    <span className="absolute right-2 top-2 rounded-sm bg-panel-description px-1.5 py-0.5 text-[11px] tabular-nums text-panel-text">
+                      Lv. {selOwned ? selLevel : 1}
+                    </span>
+                  </InnerPanel>
+
+                  <RarityStars rarity={sel.rarity} />
+
+                  <p className="text-[12px] leading-relaxed text-panel-text/80">
+                    {GEAR_DESCRIPTIONS[sel.slot]}
+                  </p>
+
+                  <InnerPanel className="flex flex-col gap-1.5 bg-panel-header p-2.5">
+                    {sel.slot === "weapon" ? (
+                      (() => {
+                        const s = bowStats(sel.rarity, selOwned ? selLevel : 1);
+                        const rows: [string, string][] = [
+                          ["Damage", String(s.damage)],
+                          ["Range", `${s.rangeTiles} tiles`],
+                          ["Attack Speed", `${(1000 / s.fireRateMs).toFixed(1)}/s`],
+                        ];
+                        return rows.map(([label, value]) => (
+                          <p key={label} className="flex items-center justify-between text-[12px]">
+                            <span className="text-panel-text/70">{label}</span>
+                            <span className="tabular-nums text-panel-text">{value}</span>
+                          </p>
+                        ));
+                      })()
+                    ) : (
+                      (() => {
+                        const b = gearBonus(sel.slot, sel.rarity, selOwned ? selLevel : 1);
+                        const rows: [string, string][] = [
+                          ["Max HP", `+${b.hp}`],
+                          ["Defense", `+${b.defense}`],
+                          ["Move Speed", `+${b.moveSpeed}`],
+                        ];
+                        return rows.map(([label, value]) => (
+                          <p key={label} className="flex items-center justify-between text-[12px]">
+                            <span className="text-panel-text/70">{label}</span>
+                            <span className="tabular-nums text-panel-text">{value}</span>
+                          </p>
+                        ));
+                      })()
+                    )}
+                  </InnerPanel>
+
+                  {selOwned ? (
+                    selEquipped ? (
+                      <PixelButton variant="blue" disabled className="w-full py-2 text-[13px] font-semibold">
+                        Equipped
+                      </PixelButton>
+                    ) : (
+                      <>
+                        <p className="flex items-center gap-1.5 text-[15px] font-bold tabular-nums text-amber-300">
+                          <Coins className="h-4 w-4" />
+                          {sellPrice(sel.slot, sel.rarity)}
+                        </p>
+                        <PixelButton
+                          variant="green"
+                          onClick={() => sellGearForGold(sel.slot, sel.rarity)}
+                          className="flex w-full items-center justify-center gap-2 py-2 text-[13px] font-semibold"
+                        >
+                          <Coins className="h-4 w-4" />
+                          Sell Now
+                        </PixelButton>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <p className="flex items-center gap-1.5 text-[15px] font-bold tabular-nums text-amber-300">
+                        <Coins className="h-4 w-4" />
+                        {selCost}
+                      </p>
+                      <PixelButton
+                        variant={selAffordable ? "green" : "default"}
+                        disabled={!selAffordable}
+                        onClick={() => onChange(buyGear(progress, sel.slot, sel.rarity))}
+                        className="flex w-full items-center justify-center gap-2 py-2 text-[13px] font-semibold"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Buy Now
+                      </PixelButton>
+                    </>
+                  )}
+                </div>
+              )}
+            </OuterPanel>
+          </div>
+        </>
       )}
     </div>
   );
