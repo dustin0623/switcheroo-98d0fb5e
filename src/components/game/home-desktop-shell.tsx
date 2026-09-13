@@ -153,8 +153,8 @@ function TopHeader({ progress }: { progress: Progress }) {
         <FrogAvatar className="h-11 w-11 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
         <div className="min-w-0">
           <div className="flex items-baseline gap-2">
-            <p className="font-pixel text-[13px] text-shell-accent text-shadow">ARCOON</p>
-            <p className="font-pixel text-[10px] text-shell-accent">Lv.{level.level}</p>
+            <p className="font-pixel text-[13px] text-white text-shadow">ARCOON</p>
+            <p className="font-pixel text-[10px] text-white">Lv.{level.level}</p>
           </div>
           <div className="mt-1.5 flex items-center gap-2">
             <div className="h-2 w-36 overflow-hidden rounded-full bg-ink-900 ring-1 ring-ink-line">
