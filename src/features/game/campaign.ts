@@ -216,6 +216,7 @@ export function recordRun(run: RunResult): Progress {
     xp: progress.xp + run.xp,
     bosses: progress.bosses + run.bosses,
     seen: [...new Set([...progress.seen, ...run.seen])],
+    shards: progress.shards + run.bosses * 2,
   };
   saveProgress(next);
   return next;
