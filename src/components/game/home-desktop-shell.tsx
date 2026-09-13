@@ -478,10 +478,9 @@ function InventoryPage({
         </span>
       </div>
 
-      <div className="grid items-start gap-3 lg:grid-cols-[1fr_320px]">
-        {/* Grid */}
-        <OuterPanel className="bg-panel-description p-3">
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-7">
+      {/* Grid */}
+      <OuterPanel className="bg-panel-description p-3">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
             {bows.map((r) => {
               const has = ownsBow(progress, r);
               return (
