@@ -534,3 +534,159 @@ function BowCard({
     </OuterPanel>
   );
 }
+
+/** Map art thumbnails for the world list. */
+const MAP_ART: Record<string, string> = {
+  whisperwood: whisperwoodArt,
+  dunes: dunesArt,
+  sewers: sewersArt,
+  city: neonCityArt,
+};
+
+/** Recommended account level per map slot. */
+const recommendedLevel = (index: number) => index * 10 + 1;
+
+/** Small enemy glyphs shown per map. */
+const ENEMY_ICON: Record<EnemyType, typeof Ghost> = {
+  grunt: Ghost,
+  runner: Rabbit,
+  brute: Bug,
+  boss: Sparkles,
+};
+
+/** World page: "Choose your hunt" header plus the list of maps. */
+function WorldPage({ progress }: { progress: Progress }) {
+  const level = getLevelProgress(progress.xp).level;
+  return (
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-6">
+      <header className="flex flex-col items-center gap-1 py-2 text-center">
+        <h1 className="flex items-center gap-3 font-pixel text-[20px] text-white text-shadow">
+          <Leaf className="h-5 w-5 text-shell-accent" aria-hidden />
+          Choose your hunt
+          <Leaf className="h-5 w-5 -scale-x-100 text-shell-accent" aria-hidden />
+        </h1>
+        <p className="text-[13px] text-white/80 text-shadow">
+          Explore new areas, defeat stronger enemies, and earn better rewards.
+        </p>
+      </header>
+
+      <div className="flex flex-col gap-3">
+        {MAPS.map((map, i) => (
+          <MapCard
+            key={map.id}
+            index={i}
+            progress={progress}
+            playerLevel={level}
+            map={map}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** One map row: art left, info middle, rewards and action right. */
+function MapCard({
+  map,
+  index,
+  progress,
+  playerLevel,
+}: {
+  map: (typeof MAPS)[number];
+  index: number;
+  progress: Progress;
+  playerLevel: number;
+}) {
+  const navigate = useNavigate();
+  const unlocked = isMapUnlocked(progress, map.id);
+  const reqLevel = recommendedLevel(index);
+  const levelLocked = playerLevel < reqLevel;
+  const open = unlocked && !levelLocked;
+  const cleared = progress.cleared[map.id] ?? 0;
+  const stars = Math.min(3, Math.floor((cleared / map.stages) * 3));
+
+  return (
+    <OuterPanel className="flex items-stretch gap-4 p-2.5">
+      {/* Art + map tag */}
+      <div className="relative w-44 shrink-0 overflow-hidden">
+        <img
+          src={MAP_ART[map.id] ?? whisperwoodArt}
+          alt={map.name}
+          loading="lazy"
+          width={768}
+          height={512}
+          className="h-full w-full object-cover"
+        />
+        <span className="absolute top-1.5 left-1.5">
+          <PixelButton className="cursor-default px-2 py-1 text-[10px] font-semibold">
+            MAP {index + 1}
+          </PixelButton>
+        </span>
+      </div>
+
+      {/* Info */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-1">
+        <p className="font-pixel text-[14px] text-panel-text text-shadow">{map.name}</p>
+        <p className="text-[12px] text-panel-text/80">{map.blurb}</p>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+            <span className="text-[11px] text-panel-text/70">Recommended</span>
+            <span className="text-[11px] font-semibold text-panel-text">Lv. {reqLevel}+</span>
+          </InnerPanel>
+          <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+            <span className="text-[11px] text-panel-text/70">Enemies</span>
+            <span className="flex items-center gap-1">
+              {map.family.map((t) => {
+                const Icon = ENEMY_ICON[t];
+                return <Icon key={t} className="h-3.5 w-3.5 text-panel-text" aria-label={t} />;
+              })}
+            </span>
+          </InnerPanel>
+        </div>
+      </div>
+
+      {/* Rewards */}
+      <div className="flex shrink-0 flex-col justify-center gap-1.5">
+        <p className="text-[11px] text-panel-text/70">Rewards</p>
+        <div className="flex items-center gap-1.5">
+          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+            <Coins className="h-4 w-4 text-currency" aria-label="gold" />
+          </InnerPanel>
+          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+            <Leaf className="h-4 w-4 text-shell-accent" aria-label="materials" />
+          </InnerPanel>
+          <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+            <Gem className="h-4 w-4 text-frost" aria-label="gems" />
+          </InnerPanel>
+        </div>
+      </div>
+
+      {/* Stars + action */}
+      <div className="flex w-40 shrink-0 flex-col items-end justify-between py-1">
+        <span className="flex items-center gap-1 text-[12px] tabular-nums text-panel-text">
+          <Star className="h-4 w-4 fill-gold text-gold" aria-label="stars" />
+          {stars}/3
+        </span>
+        {open ? (
+          <PixelButton
+            variant="green"
+            className="w-full px-4 py-2 text-[13px] font-semibold"
+            onClick={() => navigate({ to: "/" })}
+          >
+            <span className="flex items-center justify-center gap-1.5">
+              Enter
+              <Play className="h-3.5 w-3.5 fill-current" />
+            </span>
+          </PixelButton>
+        ) : (
+          <PixelButton disabled className="w-full px-4 py-2 text-[12px] font-semibold">
+            <span className="flex items-center justify-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" />
+              Unlocks at Lv. {reqLevel}
+            </span>
+          </PixelButton>
+        )}
+      </div>
+    </OuterPanel>
+  );
+}
