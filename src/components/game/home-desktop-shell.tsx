@@ -433,13 +433,9 @@ const INV_TABS: { id: GearSlot | "all"; label: string; icon: typeof Swords }[] =
   { id: "boots", label: "Boots", icon: Footprints },
 ];
 
-/** Full-width illustrated page banner using the dark pixel frame. */
+/** Full-width illustrated page banner. The uploaded artwork already has its own border design, so no UI panel is applied. */
 function PageBanner({ src, alt }: { src: string; alt: string }) {
-  return (
-    <OuterPanel className="overflow-hidden bg-panel-header p-0 leading-[0]">
-      <img src={src} alt={alt} className="block h-auto w-full object-cover" />
-    </OuterPanel>
-  );
+  return <img src={src} alt={alt} className="block h-auto w-full rounded-md object-cover" />;
 }
 
 /** Inventory page: banner, category tabs, item grid and a detail drawer. */
