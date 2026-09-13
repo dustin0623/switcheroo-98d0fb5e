@@ -81,8 +81,16 @@ export default function HomeDesktopShell() {
   );
 }
 
-/** Left rail: ARCOON wordmark plus the primary navigation list. */
-function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) => void }) {
+/** Left rail: ARCOON wordmark, navigation list, and the player identity footer. */
+function Sidebar({
+  active,
+  onChange,
+  progress,
+}: {
+  active: NavId;
+  onChange: (id: NavId) => void;
+  progress: Progress;
+}) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -149,10 +157,119 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
       </nav>
 
       <div className="fantasy-rule w-full" aria-hidden />
-      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-white/70 uppercase">
-        {collapsed ? "!" : "Stay sharp!"}
-      </p>
+      <PlayerFooter progress={progress} collapsed={collapsed} />
     </aside>
+  );
+}
+
+/** Sidebar footer: avatar, name, level, XP bar, and a settings popover with sign out. */
+function PlayerFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+  const level = getLevelProgress(progress.xp);
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (collapsed) {
+    return (
+      <div ref={rootRef} className="relative flex flex-col items-center gap-2 px-2 py-3">
+        <FrogAvatar className="h-9 w-9 rounded-full ring-2 ring-shell-accent/70" />
+        <button
+          type="button"
+          aria-label="Settings"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+        {open && (
+          <div className="absolute bottom-2 left-full z-30 ml-2 w-40">
+            <SignOutMenu
+              onSignOut={() => {
+                setOpen(false);
+                navigate({ to: "/" });
+              }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={rootRef} className="relative px-3 py-3">
+      <div className="flex items-center gap-2.5">
+        <FrogAvatar className="h-10 w-10 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-1.5">
+            <p className="truncate font-pixel text-[11px] text-white text-shadow">ARCOON</p>
+            <p className="shrink-0 font-pixel text-[9px] text-white">Lv.{level.level}</p>
+          </div>
+          <div className="mt-1 flex items-center gap-1.5">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
+              <div
+                className="h-full rounded-full bg-shell-accent-strong"
+                style={{ width: `${Math.round(level.ratio * 100)}%` }}
+              />
+            </div>
+            <span className="shrink-0 text-[10px] whitespace-nowrap tabular-nums text-white/80">
+              {level.maxed ? "MAX" : `${level.into}/${level.needed}`}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label="Settings"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+      </div>
+      {open && (
+        <div className="absolute right-3 bottom-full z-30 mb-2 w-44">
+          <SignOutMenu
+            onSignOut={() => {
+              setOpen(false);
+              navigate({ to: "/" });
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Popover panel shown from the sidebar settings button. */
+function SignOutMenu({ onSignOut }: { onSignOut: () => void }) {
+  return (
+    <OuterPanel className="bg-panel-header p-1.5">
+      <button
+        type="button"
+        onClick={onSignOut}
+        className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-left text-[13px] text-panel-text transition-colors hover:bg-white/10"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
+    </OuterPanel>
   );
 }
 
