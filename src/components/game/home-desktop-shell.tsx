@@ -398,6 +398,7 @@ function InventoryPage({
   const [rarity, setRarity] = useState<BowRarity | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<BowRarity>(progress.equipped);
+  const [open, setOpen] = useState(false);
 
   const bows =
     tab === "materials"
