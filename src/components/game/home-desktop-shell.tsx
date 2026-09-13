@@ -697,3 +697,367 @@ function MapCard({
     </OuterPanel>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Book — the in-game encyclopedia.
+// ---------------------------------------------------------------------------
+
+type BookTabId = "overview" | "bestiary" | "armory" | "milestones" | "lore";
+
+const BOOK_TABS: { id: BookTabId; label: string; icon: typeof BookOpen }[] = [
+  { id: "overview", label: "Overview", icon: BookOpen },
+  { id: "bestiary", label: "Bestiary", icon: Skull },
+  { id: "armory", label: "Armory", icon: Swords },
+  { id: "milestones", label: "Milestones", icon: Trophy },
+  { id: "lore", label: "Lore", icon: BookOpen },
+];
+
+/** Rarity text color for book entries. */
+const RARITY_TEXT: Record<BowRarity, string> = {
+  Common: "text-slate-300",
+  Uncommon: "text-emerald-400",
+  Rare: "text-sky-400",
+  Epic: "text-purple-400",
+  Legendary: "text-amber-400",
+};
+
+const BOSS_RARITY: BowRarity[] = ["Rare", "Rare", "Epic", "Legendary"];
+
+interface BeastDef {
+  key: string;
+  name: string;
+  rarity: BowRarity;
+  icon: typeof Ghost;
+}
+
+/** Every bestiary entry: the three field enemies plus each map's boss. */
+const BESTIARY: BeastDef[] = [
+  { key: "grunt", name: "Grunt", rarity: "Common", icon: Ghost },
+  { key: "runner", name: "Runner", rarity: "Common", icon: Rabbit },
+  { key: "brute", name: "Brute", rarity: "Uncommon", icon: Bug },
+  ...MAPS.map((m, i) => ({
+    key: bossKey(m.id),
+    name: m.boss,
+    rarity: BOSS_RARITY[i] ?? "Rare",
+    icon: Sparkles,
+  })),
+];
+
+interface MilestoneDef {
+  id: string;
+  name: string;
+  desc: string;
+  target: number;
+  value: (p: Progress) => number;
+  reward: number;
+  icon: typeof Skull;
+}
+
+const MILESTONES: MilestoneDef[] = [
+  {
+    id: "first-warden",
+    name: "First Warden",
+    desc: "Defeat your first boss.",
+    target: 1,
+    value: (p) => p.bosses,
+    reward: 100,
+    icon: Skull,
+  },
+  {
+    id: "thousand-arrows",
+    name: "Thousand Arrows",
+    desc: "Defeat 1,000 enemies.",
+    target: 1000,
+    value: (p) => p.kills,
+    reward: 500,
+    icon: Swords,
+  },
+  {
+    id: "whisperwood-cleared",
+    name: "Whisperwood Cleared",
+    desc: "Clear all 5 stages of Whisperwood.",
+    target: 5,
+    value: (p) => p.cleared["whisperwood"] ?? 0,
+    reward: 250,
+    icon: Leaf,
+  },
+];
+
+/** Book page: banner, tabs, and the overview/section content. */
+function BookPage({
+  progress,
+  onChange,
+}: {
+  progress: Progress;
+  onChange: (next: Progress) => void;
+}) {
+  const [tab, setTab] = useState<BookTabId>("overview");
+
+  const seen = BESTIARY.filter((b) => progress.seen.includes(b.key)).length;
+  const owned = BOW_RARITIES.filter((r) => ownsBow(progress, r)).length;
+  const done = MILESTONES.filter(
+    (m) => progress.claimed.includes(m.id) || m.value(progress) >= m.target,
+  ).length;
+
+  const claim = (m: MilestoneDef) => {
+    const next: Progress = {
+      ...progress,
+      gold: progress.gold + m.reward,
+      claimed: [...progress.claimed, m.id],
+    };
+    saveProgress(next);
+    onChange(next);
+  };
+
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 pb-6">
+      {/* Banner */}
+      <OuterPanel className="bg-panel-header px-4 py-3">
+        <div className="flex items-center gap-3">
+          <BookOpen className="h-8 w-8 shrink-0 text-panel-text" />
+          <div className="min-w-0">
+            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">The Book</h1>
+            <p className="text-[13px] text-panel-text/80">
+              Knowledge is power. Discover creatures, gear, worlds and your journey in ARCOON.
+            </p>
+          </div>
+        </div>
+      </OuterPanel>
+
+      {/* Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
+        {BOOK_TABS.map((t) => (
+          <PixelButton
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={clsx("px-4 py-1.5 text-[13px]", tab !== t.id && "opacity-70")}
+          >
+            <span className="flex items-center gap-1.5">
+              <t.icon className="h-4 w-4" />
+              {t.label}
+            </span>
+          </PixelButton>
+        ))}
+      </div>
+
+      {tab === "lore" ? (
+        <LorePanel />
+      ) : (
+        <>
+          {(tab === "overview" || tab === "bestiary") && (
+            <OuterPanel className="bg-panel-description p-3">
+              <BookSectionHeader
+                icon={<Skull className="h-5 w-5 text-emerald-400" />}
+                title="Bestiary"
+                subtitle="Study the creatures of the Arc. Learn their patterns and rewards."
+                count={`${seen} / ${BESTIARY.length}`}
+                countLabel="Discovered"
+                onViewAll={() => setTab("bestiary")}
+              />
+              <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                {BESTIARY.map((b) => (
+                  <BeastCard key={b.key} beast={b} seen={progress.seen.includes(b.key)} />
+                ))}
+              </div>
+            </OuterPanel>
+          )}
+
+          {(tab === "overview" || tab === "armory") && (
+            <OuterPanel className="bg-panel-description p-3">
+              <BookSectionHeader
+                icon={<Swords className="h-5 w-5 text-amber-300" />}
+                title="Armory Index"
+                subtitle="Collect and upgrade powerful gear."
+                count={`${owned} / ${BOW_RARITIES.length}`}
+                countLabel="Discovered"
+                onViewAll={() => setTab("armory")}
+              />
+              <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+                {BOW_RARITIES.map((r) => (
+                  <IndexBowCard key={r} rarity={r} owned={ownsBow(progress, r)} />
+                ))}
+              </div>
+            </OuterPanel>
+          )}
+
+          {(tab === "overview" || tab === "milestones") && (
+            <OuterPanel className="bg-panel-description p-3">
+              <BookSectionHeader
+                icon={<Trophy className="h-5 w-5 text-sky-300" />}
+                title="Milestones"
+                subtitle="Complete challenges and earn rewards."
+                count={`${done} / ${MILESTONES.length}`}
+                countLabel="Completed"
+                onViewAll={() => setTab("milestones")}
+              />
+              <div className="mt-3 flex flex-col gap-2">
+                {MILESTONES.map((m) => (
+                  <MilestoneRow key={m.id} milestone={m} progress={progress} onClaim={claim} />
+                ))}
+              </div>
+            </OuterPanel>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Section header: icon, title, subtitle, count chip and View All button. */
+function BookSectionHeader({
+  icon,
+  title,
+  subtitle,
+  count,
+  countLabel,
+  onViewAll,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  count: string;
+  countLabel: string;
+  onViewAll: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {icon}
+      <div className="min-w-0 flex-1">
+        <p className="font-pixel text-[13px] text-panel-text text-shadow">{title}</p>
+        <p className="text-[12px] text-panel-text/70">{subtitle}</p>
+      </div>
+      <InnerPanel className="bg-panel-header px-3 py-1.5 text-center">
+        <p className="text-[12px] font-semibold tabular-nums text-panel-text">{count}</p>
+        <p className="text-[10px] text-panel-text/60">{countLabel}</p>
+      </InnerPanel>
+      <PixelButton variant="green" onClick={onViewAll} className="px-3 py-1.5 text-[12px] font-semibold">
+        <span className="flex items-center gap-1">
+          View All
+          <ChevronRight className="h-3.5 w-3.5" />
+        </span>
+      </PixelButton>
+    </div>
+  );
+}
+
+/** One bestiary entry; unseen entries show as a silhouette with a "?". */
+function BeastCard({ beast, seen }: { beast: BeastDef; seen: boolean }) {
+  const Icon = beast.icon;
+  return (
+    <InnerPanel className="flex flex-col items-center gap-1.5 bg-panel-header px-2 py-3 text-center">
+      <span className="flex h-12 w-12 items-center justify-center">
+        {seen ? (
+          <Icon className={clsx("h-9 w-9", RARITY_TEXT[beast.rarity])} />
+        ) : (
+          <span className="font-pixel text-[20px] text-panel-text/40">?</span>
+        )}
+      </span>
+      <p className="text-[12px] font-semibold text-panel-text">{seen ? beast.name : "???"}</p>
+      <p className={clsx("text-[11px]", seen ? RARITY_TEXT[beast.rarity] : "text-panel-text/40")}>
+        {seen ? beast.rarity : beast.rarity}
+      </p>
+    </InnerPanel>
+  );
+}
+
+/** One armory index entry; locked bows show as a lock silhouette. */
+function IndexBowCard({ rarity, owned }: { rarity: BowRarity; owned: boolean }) {
+  const def = BOWS[rarity];
+  return (
+    <InnerPanel className="flex flex-col items-center gap-1.5 bg-panel-header px-2 py-3 text-center">
+      <span className="flex h-12 w-12 items-center justify-center">
+        {owned ? (
+          <img src={ICONS.bow} alt={def.name} className="h-10 w-10 object-contain" />
+        ) : (
+          <Lock className="h-7 w-7 text-panel-text/40" />
+        )}
+      </span>
+      <p className="text-[12px] font-semibold text-panel-text">{owned ? def.name : def.name}</p>
+      <p className={RARITY_TEXT[rarity] + " text-[11px]"}>{rarity}</p>
+    </InnerPanel>
+  );
+}
+
+/** One milestone row: icon, name, progress bar, reward and claim action. */
+function MilestoneRow({
+  milestone,
+  progress,
+  onClaim,
+}: {
+  milestone: MilestoneDef;
+  progress: Progress;
+  onClaim: (m: MilestoneDef) => void;
+}) {
+  const value = Math.min(milestone.value(progress), milestone.target);
+  const complete = value >= milestone.target;
+  const claimed = progress.claimed.includes(milestone.id);
+  const Icon = milestone.icon;
+
+  return (
+    <InnerPanel className="flex flex-wrap items-center gap-3 bg-panel-header px-3 py-2.5">
+      <Icon className="h-6 w-6 shrink-0 text-panel-text" />
+      <div className="min-w-40 flex-1">
+        <p className="text-[13px] font-semibold text-panel-text">{milestone.name}</p>
+        <p className="text-[11px] text-panel-text/60">{milestone.desc}</p>
+      </div>
+      <div className="flex w-48 items-center gap-2">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
+          <div
+            className="h-full rounded-full bg-emerald-500"
+            style={{ width: `${Math.round((value / milestone.target) * 100)}%` }}
+          />
+        </div>
+        <span className="shrink-0 text-[11px] tabular-nums text-panel-text/80">
+          {value.toLocaleString()} / {milestone.target.toLocaleString()}
+        </span>
+      </div>
+      <span className="flex shrink-0 items-center gap-1 text-[12px] tabular-nums text-panel-text">
+        <Coins className="h-4 w-4 text-currency" />
+        {milestone.reward.toLocaleString()}
+      </span>
+      {claimed ? (
+        <PixelButton disabled className="w-28 px-3 py-1.5 text-[12px] font-semibold">
+          Claimed
+        </PixelButton>
+      ) : complete ? (
+        <PixelButton
+          variant="green"
+          onClick={() => onClaim(milestone)}
+          className="w-28 px-3 py-1.5 text-[12px] font-semibold"
+        >
+          Claim
+        </PixelButton>
+      ) : (
+        <PixelButton disabled className="w-28 px-3 py-1.5 text-[12px] font-semibold">
+          In Progress
+        </PixelButton>
+      )}
+    </InnerPanel>
+  );
+}
+
+/** Lore tab: short flavor text for each world. */
+function LorePanel() {
+  return (
+    <OuterPanel className="bg-panel-description p-3">
+      <BookSectionHeader
+        icon={<BookOpen className="h-5 w-5 text-panel-text" />}
+        title="Lore"
+        subtitle="Tales of the Arc and the worlds it touches."
+        count={`${MAPS.length} / ${MAPS.length}`}
+        countLabel="Entries"
+        onViewAll={() => {}}
+      />
+      <div className="mt-3 flex flex-col gap-2.5">
+        {MAPS.map((m) => (
+          <InnerPanel key={m.id} className="bg-panel-header px-3 py-2.5">
+            <p className="font-pixel text-[12px] text-panel-text text-shadow">{m.name}</p>
+            <p className="mt-1 text-[12px] text-panel-text/75">
+              {m.blurb} It is said the {m.boss} still guards its deepest paths.
+            </p>
+          </InnerPanel>
+        ))}
+      </div>
+    </OuterPanel>
+  );
+}
