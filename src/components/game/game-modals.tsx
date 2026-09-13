@@ -6,7 +6,7 @@ import React from "react";
 import clsx from "clsx";
 import { Coins, Skull, Star, Swords } from "lucide-react";
 import { OuterPanel, InnerPanel, Label, PixelButton, frame, darkBorder } from "@/components/ui/pixel-panel";
-import { BOWS, bowStats, MAX_STARS } from "@/features/game/bow";
+import { BOWS, bowStats } from "@/features/game/bow";
 import { getLevelProgress } from "@/features/game/experience";
 import type { HudState } from "@/features/game/hud";
 import { getMap } from "@/features/game/campaign";
@@ -52,16 +52,17 @@ export function FrogAvatar({ className }: { className?: string }) {
   );
 }
 
-/** Row of filled/empty stars showing a bow's upgrade level. */
-export function StarRow({ stars, className }: { stars: number; className?: string }) {
+/** Small badge showing a piece of equipment's level. */
+export function LevelBadge({ level, className }: { level: number; className?: string }) {
   return (
-    <span className={clsx("inline-flex items-center gap-0.5", className)} aria-label={`${stars} stars`}>
-      {Array.from({ length: MAX_STARS }, (_, i) => (
-        <Star
-          key={i}
-          className={clsx("h-3 w-3", i < stars ? "fill-yellow-300 text-yellow-300" : "text-brown-100/50")}
-        />
-      ))}
+    <span
+      className={clsx(
+        "inline-flex items-center rounded-sm bg-black/40 px-1.5 py-0.5 font-pixel text-[9px] text-white tabular-nums",
+        className,
+      )}
+      aria-label={`Level ${level}`}
+    >
+      Lv. {level}
     </span>
   );
 }
@@ -183,7 +184,7 @@ export function LoadingOverlay({ progress }: { progress: number }) {
 
 /** Between-waves breather: shows the equipped bow and starts the next wave. */
 export function WaveBreakModal({ hud, onFight }: { hud: HudState; onFight: () => void }) {
-  const stats = bowStats(hud.bowRarity, hud.bowStars);
+  const stats = bowStats(hud.bowRarity, hud.bowLevel);
   const nextIsBoss = hud.wave + 1 >= hud.stageWaves;
 
   return (
@@ -206,7 +207,7 @@ export function WaveBreakModal({ hud, onFight }: { hud: HudState; onFight: () =>
               </p>
             </div>
           </div>
-          <StarRow stars={hud.bowStars} />
+          <LevelBadge level={hud.bowLevel} />
         </div>
       </InnerPanel>
 
