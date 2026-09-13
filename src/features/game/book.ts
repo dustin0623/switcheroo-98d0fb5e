@@ -66,7 +66,7 @@ export function getMilestones(progress: Progress): Milestone[] {
     (sum, m) => sum + Math.min(progress.cleared[m.id] ?? 0, m.stages),
     0,
   );
-  const maxStars = Math.max(0, ...Object.values(progress.bows).map((s) => s ?? 0));
+  const maxLevel = Math.max(0, ...Object.values(progress.bows).map((s) => s ?? 0));
   const firstMap = MAPS[0]!;
 
   return [
@@ -89,10 +89,10 @@ export function getMilestones(progress: Progress): Milestone[] {
       done: (progress.cleared[firstMap.id] ?? 0) >= firstMap.stages,
     },
     {
-      id: "five-star",
+      id: "max-level",
       name: "Master Fletcher",
-      detail: "Upgrade any bow to 5 stars.",
-      done: maxStars >= 5,
+      detail: "Raise any bow to level 10.",
+      done: maxLevel >= 10,
     },
     {
       id: "saga",

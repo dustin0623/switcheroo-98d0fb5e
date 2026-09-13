@@ -27,9 +27,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { InnerPanel, Label, OuterPanel, PixelButton } from "@/components/ui/pixel-panel";
 
-import { FrogAvatar, ICONS, Stat, StarRow } from "@/components/game/game-modals";
-import { BOWS, BOW_RARITIES, MAX_STARS, bowStats, starUpgradeCost, type BowRarity } from "@/features/game/bow";
-import { buyBow, equipBow, ownsBow, starsOf, upgradeStar } from "@/features/game/armory";
+import { FrogAvatar, ICONS, LevelBadge, Stat } from "@/components/game/game-modals";
+import { BOWS, BOW_RARITIES, MAX_GEAR_LEVEL, bowStats, type BowRarity } from "@/features/game/bow";
+import { levelUpShardCost } from "@/features/game/equipment";
+import { buyBow, bowLevelOf, equipBow, levelUpBow, ownsBow } from "@/features/game/armory";
 import { getBestiary, getMilestones } from "@/features/game/book";
 import { getLevelProgress } from "@/features/game/experience";
 import { SKILL_TREE } from "@/features/game/skill-tree";
@@ -131,16 +132,10 @@ function WalletPopover({ progress }: { progress: Progress }) {
       tone: "text-currency",
     },
     {
-      label: "Soul Shards",
-      value: 0,
+      label: "Shards",
+      value: progress.shards,
       icon: <Gem className="h-4 w-4 text-purple-400" />,
       tone: "text-purple-300",
-    },
-    {
-      label: "Arrow Tokens",
-      value: 0,
-      icon: <Sparkles className="h-4 w-4 text-frost" />,
-      tone: "text-frost",
     },
   ];
 
@@ -337,9 +332,9 @@ function BowRow({
 }) {
   const def = BOWS[rarity];
   const owned = ownsBow(progress, rarity);
-  const stars = starsOf(progress, rarity);
-  const stats = bowStats(rarity, Math.max(stars, 1));
-  const upgradeCost = owned ? starUpgradeCost(rarity, stars) : null;
+  const level = bowLevelOf(progress, rarity);
+  const stats = bowStats(rarity, Math.max(level, 1));
+  const upgradeCost = owned ? levelUpShardCost(level) : null;
   const equipped = progress.equipped === rarity;
 
   return (
@@ -352,7 +347,7 @@ function BowRow({
             <p className="text-[11px] opacity-70">{rarity}</p>
           </div>
         </div>
-        {owned ? <StarRow stars={stars} /> : <Lock className="h-4 w-4 text-shell-muted" />}
+        {owned ? <LevelBadge level={level} /> : <Lock className="h-4 w-4 text-shell-muted" />}
       </div>
 
       <InnerPanel className="mt-1 p-2">
@@ -384,15 +379,15 @@ function BowRow({
               <PixelButton
                 variant="green"
                 className="flex-1"
-                disabled={upgradeCost === null || progress.gold < upgradeCost}
-                onClick={() => onChange(upgradeStar(progress, rarity))}
+                disabled={upgradeCost === null || progress.shards < upgradeCost}
+                onClick={() => onChange(levelUpBow(progress, rarity))}
               >
                 <span className="flex items-center gap-1 text-[12px]">
                   {upgradeCost === null ? (
-                    `${MAX_STARS}★ max`
+                    `Lv. ${MAX_GEAR_LEVEL} max`
                   ) : (
                     <>
-                      <Star className="h-3.5 w-3.5 text-yellow-300" />
+                      <Gem className="h-3.5 w-3.5 text-purple-300" />
                       {upgradeCost}
                     </>
                   )}
@@ -448,16 +443,16 @@ function BookTab({ progress }: { progress: Progress }) {
         <p className="text-[13px]">Armory index</p>
         <div className="mt-1 space-y-1">
           {BOW_RARITIES.map((rarity) => {
-            const stars = starsOf(progress, rarity);
+            const level = bowLevelOf(progress, rarity);
             return (
-              <InnerPanel key={rarity} className={clsx("p-2", stars === 0 && "opacity-60")}>
+              <InnerPanel key={rarity} className={clsx("p-2", level === 0 && "opacity-60")}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate text-[13px]">{BOWS[rarity].name}</p>
                     <p className="text-[11px] opacity-70">{rarity}</p>
                   </div>
-                  {stars > 0 ? (
-                    <StarRow stars={stars} />
+                  {level > 0 ? (
+                    <LevelBadge level={level} />
                   ) : (
                     <span className="text-[12px] opacity-70">{BOWS[rarity].unlockCost}g</span>
                   )}
@@ -507,7 +502,7 @@ function CharacterTab({ progress }: { progress: Progress }) {
           <div className="min-w-0">
             <p className="text-[14px]">Frog</p>
             <p className="truncate text-[12px] opacity-80">
-              {equipped.name} · {starsOf(progress, progress.equipped)}★
+              {equipped.name} · Lv. {bowLevelOf(progress, progress.equipped)}
             </p>
           </div>
         </InnerPanel>

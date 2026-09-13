@@ -1,3 +1,5 @@
+import { saveProgress, type Progress } from "@/features/game/campaign";
+
 /**
  * Experience & levelling for the arena run.
  *
@@ -66,4 +68,61 @@ export const ENEMY_XP: Record<string, number> = {
 export function xpForKill(type: string, wave: number): number {
   const base = ENEMY_XP[type] ?? 10;
   return Math.round(base * (1 + (wave - 1) * 0.12));
+}
+
+// ---------------------------------------------------------------------------
+// Character levelling — costs XP *and* Weapon Shards.
+// ---------------------------------------------------------------------------
+
+/** Shards needed to go from `level` to the next one: level². */
+export function playerLevelUpCost(level: number): number {
+  const l = Math.max(1, Math.round(level));
+  return l * l;
+}
+
+export interface PlayerLevelState {
+  level: number;
+  into: number;
+  needed: number;
+  ratio: number;
+  maxed: boolean;
+  /** Enough XP banked for the next level. */
+  xpReady: boolean;
+  /** Shards the next level costs, or null when maxed. */
+  shardCost: number | null;
+  canLevel: boolean;
+}
+
+export function getPlayerLevel(progress: Progress): PlayerLevelState {
+  const level = Math.min(Math.max(1, progress.level), MAX_LEVEL);
+  if (level >= MAX_LEVEL) {
+    return { level, into: 0, needed: 0, ratio: 1, maxed: true, xpReady: false, shardCost: null, canLevel: false };
+  }
+  const needed = xpForLevel(level);
+  const into = Math.max(0, progress.xp - totalXpForLevel(level));
+  const xpReady = into >= needed;
+  const shardCost = playerLevelUpCost(level);
+  return {
+    level,
+    into: Math.min(into, needed),
+    needed,
+    ratio: Math.min(1, into / needed),
+    maxed: false,
+    xpReady,
+    shardCost,
+    canLevel: xpReady && progress.shards >= shardCost,
+  };
+}
+
+/** Spends shards to take the character up one level once the XP bar is full. */
+export function levelUpPlayer(progress: Progress): Progress {
+  const state = getPlayerLevel(progress);
+  if (!state.canLevel || state.shardCost === null) return progress;
+  const next: Progress = {
+    ...progress,
+    level: state.level + 1,
+    shards: progress.shards - state.shardCost,
+  };
+  saveProgress(next);
+  return next;
 }
