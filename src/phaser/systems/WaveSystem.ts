@@ -13,6 +13,8 @@ export class WaveSystem {
   toSpawn = 0;
   /** Enemies from the current wave that are still alive. */
   pending = 0;
+  /** Total enemies this wave started with (fixed for the whole wave). */
+  total = 0;
   intermission = true;
   nextEventAt = 0;
   /** True once the boss for this wave has been spawned. */
@@ -28,6 +30,7 @@ export class WaveSystem {
       ? 1 + WAVE_CONFIG.BOSS_ESCORTS
       : WAVE_CONFIG.BASE_COUNT + (this.wave - 1) * WAVE_CONFIG.COUNT_PER_WAVE;
     this.pending = this.toSpawn;
+    this.total = this.toSpawn;
     this.intermission = false;
     this.nextEventAt = now;
   }
