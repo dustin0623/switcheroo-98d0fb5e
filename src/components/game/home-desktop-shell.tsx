@@ -8,42 +8,31 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   Backpack,
+  BookOpen,
   Coins,
   Gem,
+  Globe,
   Hammer,
   PanelLeftClose,
   PanelLeftOpen,
-  Home,
   Mail,
-  Scroll,
   Settings,
   Store,
-  Swords,
-  Trophy,
+  User,
 } from "lucide-react";
 import { FrogAvatar } from "@/components/game/game-modals";
 import { getLevelProgress } from "@/features/game/experience";
 import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
 
-type NavId =
-  | "home"
-  | "armory"
-  | "inventory"
-  | "crafting"
-  | "quests"
-  | "marketplace"
-  | "achievements"
-  | "settings";
+type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
-const NAV: { id: NavId; label: string; icon: typeof Home; badge?: boolean }[] = [
-  { id: "home", label: "Home", icon: Home },
+const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] = [
+  { id: "world", label: "World", icon: Globe },
   { id: "armory", label: "Armory", icon: Backpack },
-  { id: "inventory", label: "Inventory", icon: Swords },
   { id: "crafting", label: "Crafting", icon: Hammer },
-  { id: "quests", label: "Quests", icon: Scroll, badge: true },
+  { id: "book", label: "Book", icon: BookOpen },
+  { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
-  { id: "achievements", label: "Achievements", icon: Trophy },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function HomeDesktopShell() {
