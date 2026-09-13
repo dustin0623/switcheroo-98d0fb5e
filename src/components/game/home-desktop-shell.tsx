@@ -4,8 +4,9 @@
  * player identity (avatar, name, level, XP) and wallet on the right.
  * The main content area sits to the right of the sidebar, under the header.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Backpack,
   BookOpen,
@@ -15,6 +16,7 @@ import {
   Globe,
   Hammer,
   Lock,
+  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Mail,
@@ -55,7 +57,7 @@ export default function HomeDesktopShell() {
       <div className="forest-bg pointer-events-none absolute inset-0" aria-hidden />
       <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
 
-      <Sidebar active={active} onChange={setActive} />
+      <Sidebar active={active} onChange={setActive} progress={progress} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <TopHeader progress={progress} />
