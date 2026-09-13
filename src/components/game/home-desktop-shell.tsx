@@ -1506,7 +1506,7 @@ function CharacterPage({ progress }: { progress: Progress }) {
               />
             </span>
             <span className="text-[11px] tabular-nums text-panel-text/80">
-              {level.into} / {level.into + (level.needed - level.into)} XP
+              {level.into} / {level.needed} XP
             </span>
           </InnerPanel>
           <div className="mt-3 flex flex-col gap-1.5">
