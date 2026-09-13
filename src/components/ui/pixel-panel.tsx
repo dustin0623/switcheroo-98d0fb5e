@@ -1,13 +1,13 @@
 import React from "react";
 import clsx from "clsx";
 
-const darkBorder = "/assets/ui/panel/dark_border.png";
-const lightBorder = "/assets/ui/panel/light_border.png";
-const whiteBorder = "/assets/ui/panel/white_border.png";
-const redBorder = "/assets/ui/panel/red_border.png";
-const greenBorder = "/assets/ui/panel/green_border.png";
+export const darkBorder = "/assets/ui/panel/dark_border.png";
+export const lightBorder = "/assets/ui/panel/light_border.png";
+export const whiteBorder = "/assets/ui/panel/white_border.png";
+export const redBorder = "/assets/ui/panel/red_border.png";
+export const greenBorder = "/assets/ui/panel/green_border.png";
 
-const frame = (src: string, width: string, radius: string): React.CSSProperties => ({
+export const frame = (src: string, width: string, radius: string): React.CSSProperties => ({
   borderStyle: "solid",
   borderWidth: width,
   borderImage: `url(${src}) 30 stretch`,

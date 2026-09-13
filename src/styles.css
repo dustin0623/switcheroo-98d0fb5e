@@ -161,6 +161,16 @@
   --color-neon: #3db85a;
   --color-rose: #e05252;
 
+  /* HUD header panels — rich dark wood tones from the reference art. */
+  --color-hud-panel: #4d3227;
+  --color-hud-panel-dark: #3a261d;
+  --color-hud-border: #2a1a14;
+  --color-hud-highlight: #6d493a;
+  --color-hud-text: #f8e2cf;
+  --color-hud-muted: #d4a373;
+  --color-hud-leaf: #436024;
+  --color-hud-leaf-bright: #5b8235;
+
   --text-xxs: 0.6rem;
 }
 
