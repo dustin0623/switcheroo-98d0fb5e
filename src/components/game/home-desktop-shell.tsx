@@ -489,7 +489,10 @@ function InventoryPage({
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setSelected(r)}
+                  onClick={() => {
+                    setSelected(r);
+                    setOpen(true);
+                  }}
                   aria-label={BOWS[r].name}
                   className="cursor-pointer"
                 >
