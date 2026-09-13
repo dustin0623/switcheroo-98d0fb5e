@@ -376,15 +376,55 @@ const RARITY_BADGE: Record<BowRarity, string> = {
   Legendary: "bg-amber-500",
 };
 
-type InvTabId = "all" | "weapons" | "materials";
+/** One inventory item: a gear slot + rarity pair. */
+type InvItem = { slot: GearSlot; rarity: BowRarity };
 
-const INV_TABS: { id: InvTabId; label: string; icon: typeof Swords }[] = [
+const SLOT_ICON: Record<GearSlot, typeof Swords> = {
+  weapon: Swords,
+  helmet: HardHat,
+  armor: Shirt,
+  boots: Footprints,
+};
+
+/** Art for any piece of gear. */
+function GearArt({ slot, className }: { slot: GearSlot; className?: string }) {
+  if (slot === "weapon") {
+    return <img src={ICONS.bow} alt="" className={clsx("object-contain", className)} />;
+  }
+  const Icon = SLOT_ICON[slot];
+  return <Icon className={clsx("text-panel-text/80", className)} />;
+}
+
+/** Stat lines for any piece of gear at a level. */
+function gearStatLines(slot: GearSlot, rarity: BowRarity, level: number) {
+  if (slot === "weapon") {
+    const s = bowStats(rarity, Math.max(level, 1));
+    return [
+      { icon: <Swords className="h-4 w-4 text-panel-text/80" />, label: "Attack", value: `${s.damage}` },
+      { icon: <Zap className="h-4 w-4 text-gold" />, label: "Attack Speed", value: `${(1000 / s.fireRateMs).toFixed(1)}/s` },
+      { icon: <Globe className="h-4 w-4 text-panel-text/80" />, label: "Range", value: `${s.rangeTiles} tiles` },
+    ];
+  }
+  const b = gearBonus(slot, rarity, Math.max(level, 1));
+  const lines = [
+    { icon: <Heart className="h-4 w-4 text-rose" />, label: "Max HP", value: `+${b.hp}` },
+    { icon: <Shield className="h-4 w-4 text-panel-text/80" />, label: "Defense", value: `+${b.defense}` },
+  ];
+  if (b.moveSpeed > 0) {
+    lines.push({ icon: <Zap className="h-4 w-4 text-gold" />, label: "Move Speed", value: `+${b.moveSpeed}` });
+  }
+  return lines;
+}
+
+const INV_TABS: { id: GearSlot | "all"; label: string; icon: typeof Swords }[] = [
   { id: "all", label: "All", icon: Backpack },
-  { id: "weapons", label: "Weapons", icon: Swords },
-  { id: "materials", label: "Materials", icon: Gem },
+  { id: "weapon", label: "Weapons", icon: Swords },
+  { id: "helmet", label: "Helmets", icon: HardHat },
+  { id: "armor", label: "Armor", icon: Shirt },
+  { id: "boots", label: "Boots", icon: Footprints },
 ];
 
-/** Inventory page: banner, category tabs, item grid and a detail panel. */
+/** Inventory page: banner, category tabs, item grid and a detail drawer. */
 function InventoryPage({
   progress,
   onChange,
@@ -394,26 +434,28 @@ function InventoryPage({
   onChange: (next: Progress) => void;
   onNavigate: (id: NavId) => void;
 }) {
-  const [tab, setTab] = useState<InvTabId>("all");
+  const [tab, setTab] = useState<GearSlot | "all">("all");
   const [rarity, setRarity] = useState<BowRarity | "all">("all");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<BowRarity>(progress.equipped);
+  const [selected, setSelected] = useState<InvItem>({ slot: "weapon", rarity: progress.equipped });
   const [open, setOpen] = useState(false);
 
-  const bows =
-    tab === "materials"
-      ? []
-      : BOW_RARITIES.filter((r) => rarity === "all" || r === rarity).filter((r) =>
-          BOWS[r].name.toLowerCase().includes(query.trim().toLowerCase()),
-        );
-  const showMaterials = tab !== "weapons";
+  const all: InvItem[] = GEAR_SLOTS.flatMap((slot) =>
+    BOW_RARITIES.map((r) => ({ slot, rarity: r })),
+  );
+  const items = all
+    .filter((it) => tab === "all" || it.slot === tab)
+    .filter((it) => rarity === "all" || it.rarity === rarity)
+    .filter((it) => gearName(it.slot, it.rarity).toLowerCase().includes(query.trim().toLowerCase()));
 
-  const def = BOWS[selected];
-  const owned = ownsBow(progress, selected);
-  const stars = starsOf(progress, selected);
-  const stats = bowStats(selected, Math.max(stars, 1));
-  const equipped = progress.equipped === selected;
-  const ownedCount = BOW_RARITIES.filter((r) => ownsBow(progress, r)).length;
+  const name = gearName(selected.slot, selected.rarity);
+  const level = levelOf(progress, selected.slot, selected.rarity);
+  const owned = level > 0;
+  const price = gearUnlockCost(selected.slot, selected.rarity);
+  const equipped = equippedOf(progress, selected.slot) === selected.rarity;
+  const canSalvage = owned && !equipped && !(selected.slot === "weapon" && selected.rarity === "Common");
+  const salvage = salvageValue(selected.rarity, Math.max(level, 1));
+  const ownedCount = all.filter((it) => owns(progress, it.slot, it.rarity)).length;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
@@ -476,54 +518,47 @@ function InventoryPage({
           />
         </div>
         <span className="text-[13px] tabular-nums text-white text-shadow">
-          {ownedCount} / {BOW_RARITIES.length}
+          {ownedCount} / {all.length}
         </span>
       </div>
 
       {/* Grid */}
       <OuterPanel className="bg-panel-description p-3">
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-            {bows.map((r) => {
-              const has = ownsBow(progress, r);
-              return (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => {
-                    setSelected(r);
-                    setOpen(true);
-                  }}
-                  aria-label={BOWS[r].name}
-                  className="cursor-pointer"
+          {items.map((it) => {
+            const lvl = levelOf(progress, it.slot, it.rarity);
+            const isSelected = selected.slot === it.slot && selected.rarity === it.rarity;
+            return (
+              <button
+                key={`${it.slot}:${it.rarity}`}
+                type="button"
+                onClick={() => {
+                  setSelected(it);
+                  setOpen(true);
+                }}
+                aria-label={gearName(it.slot, it.rarity)}
+                className="cursor-pointer"
+              >
+                <InnerPanel
+                  className={clsx(
+                    "relative flex aspect-square items-center justify-center bg-panel-header",
+                    lvl === 0 && "opacity-45",
+                    isSelected && "ring-2 ring-emerald-400",
+                  )}
                 >
-                  <InnerPanel
-                    className={clsx(
-                      "relative flex aspect-square items-center justify-center bg-panel-header",
-                      !has && "opacity-45",
-                      selected === r && "ring-2 ring-emerald-400",
-                    )}
-                  >
-                    <img src={ICONS.bow} alt="" className="h-8 w-8 object-contain" />
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap text-panel-text">
-                      {has ? `Lv. ${starsOf(progress, r)}` : <Lock className="h-3 w-3" />}
-                    </span>
-                  </InnerPanel>
-                </button>
-              );
-            })}
-            {showMaterials && (
-              <InnerPanel className="relative flex aspect-square items-center justify-center bg-panel-header">
-                <Gem className="h-7 w-7 text-purple-300" />
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] tabular-nums text-panel-text">
-                  {progress.shards}
-                </span>
-              </InnerPanel>
-            )}
-            {Array.from({ length: 14 }, (_, i) => (
-              <InnerPanel key={`empty-${i}`} className="aspect-square bg-panel-header/40" />
-            ))}
-          </div>
-        </OuterPanel>
+                  <GearArt slot={it.slot} className="h-8 w-8" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap text-panel-text">
+                    {lvl > 0 ? `Lv. ${lvl}` : <Lock className="h-3 w-3" />}
+                  </span>
+                </InnerPanel>
+              </button>
+            );
+          })}
+          {Array.from({ length: 8 }, (_, i) => (
+            <InnerPanel key={`empty-${i}`} className="aspect-square bg-panel-header/40" />
+          ))}
+        </div>
+      </OuterPanel>
 
       {/* Detail drawer */}
       <div
@@ -541,7 +576,7 @@ function InventoryPage({
         />
         <div
           role="dialog"
-          aria-label={`${def.name} details`}
+          aria-label={`${name} details`}
           className={clsx(
             "absolute top-0 right-0 h-full w-full max-w-sm transition-transform duration-200 ease-out",
             open ? "translate-x-0" : "translate-x-full",
@@ -558,72 +593,84 @@ function InventoryPage({
                 <X className="h-5 w-5" />
               </button>
               <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
-                <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
+                <GearArt slot={selected.slot} className="h-11 w-11" />
               </InnerPanel>
-            <div className="min-w-0">
-              <p className="font-pixel text-[13px] text-panel-text text-shadow">{def.name}</p>
-              <span
-                className={clsx(
-                  "mt-1 inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold text-white",
-                  RARITY_BADGE[selected],
-                )}
-              >
-                {selected}
-              </span>
-              <p className="mt-1 text-[12px] text-panel-text/80">Lv. {owned ? stars : 0}</p>
-              <StarRow stars={owned ? stars : 0} className="mt-1" />
+              <div className="min-w-0">
+                <p className="font-pixel text-[13px] text-panel-text text-shadow">{name}</p>
+                <span
+                  className={clsx(
+                    "mt-1 inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold text-white",
+                    RARITY_BADGE[selected.rarity],
+                  )}
+                >
+                  {selected.rarity}
+                </span>
+                <p className="mt-1 text-[12px] text-panel-text/80">
+                  {SLOT_LABEL[selected.slot]} · Lv. {level}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <p className="mt-3 text-[12px] text-panel-text/70">{BOW_FLAVOR[selected]}</p>
-
-          <div className="mt-3 flex flex-col gap-1.5">
-            <StatRow icon={<Swords className="h-4 w-4 text-panel-text/80" />} label="Attack" current={`${stats.damage}`} next={null} />
-            <StatRow icon={<Zap className="h-4 w-4 text-gold" />} label="Attack Speed" current={`${(1000 / stats.fireRateMs).toFixed(1)}/s`} next={null} />
-            <StatRow icon={<Star className="h-4 w-4 text-gold" />} label="Range" current={`${stats.rangeTiles} tiles`} next={null} />
-          </div>
-
-          <div className="mt-3 flex flex-col gap-2">
-            {!owned ? (
-              <PixelButton
-                variant="green"
-                disabled={progress.gold < def.unlockCost}
-                onClick={() => onChange(buyBow(progress, selected))}
-                className="flex w-full items-center justify-center gap-1.5 px-5 py-2 text-[13px] font-semibold"
-              >
-                {progress.gold < def.unlockCost ? (
-                  <Lock className="h-4 w-4" />
-                ) : (
-                  <Coins className="h-4 w-4 text-currency" />
-                )}
-                {def.unlockCost.toLocaleString()}
-              </PixelButton>
-            ) : equipped ? (
-              <PixelButton disabled className="w-full px-5 py-2 text-[13px] font-semibold">
-                Equipped
-              </PixelButton>
-            ) : (
-              <PixelButton
-                variant="green"
-                onClick={() => onChange(equipBow(progress, selected))}
-                className="w-full px-5 py-2 text-[13px] font-semibold"
-              >
-                Equip
-              </PixelButton>
+            {selected.slot === "weapon" && (
+              <p className="mt-3 text-[12px] text-panel-text/70">{BOW_FLAVOR[selected.rarity]}</p>
             )}
-            <div className="grid grid-cols-2 gap-2">
-              <PixelButton
-                disabled={!owned}
-                onClick={() => onNavigate("crafting")}
-                className="px-3 py-2 text-[13px] font-semibold"
-              >
-                Enhance
-              </PixelButton>
-              <PixelButton variant="red" disabled className="px-3 py-2 text-[13px] font-semibold">
-                Discard
-              </PixelButton>
+
+            <div className="mt-3 flex flex-col gap-1.5">
+              {gearStatLines(selected.slot, selected.rarity, level).map((s) => (
+                <StatRow key={s.label} icon={s.icon} label={s.label} current={s.value} next={null} />
+              ))}
             </div>
-          </div>
+
+            <div className="mt-3 flex flex-col gap-2">
+              {!owned ? (
+                <PixelButton
+                  variant="green"
+                  disabled={progress.gold < price}
+                  onClick={() => onChange(buyGear(progress, selected.slot, selected.rarity))}
+                  className="flex w-full items-center justify-center gap-1.5 px-5 py-2 text-[13px] font-semibold"
+                >
+                  {progress.gold < price ? (
+                    <Lock className="h-4 w-4" />
+                  ) : (
+                    <Coins className="h-4 w-4 text-currency" />
+                  )}
+                  {price.toLocaleString()}
+                </PixelButton>
+              ) : equipped ? (
+                <PixelButton disabled className="w-full px-5 py-2 text-[13px] font-semibold">
+                  Equipped
+                </PixelButton>
+              ) : (
+                <PixelButton
+                  variant="green"
+                  onClick={() => onChange(equipGear(progress, selected.slot, selected.rarity))}
+                  className="w-full px-5 py-2 text-[13px] font-semibold"
+                >
+                  Equip
+                </PixelButton>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <PixelButton
+                  disabled={!owned}
+                  onClick={() => onNavigate("crafting")}
+                  className="px-3 py-2 text-[13px] font-semibold"
+                >
+                  Enhance
+                </PixelButton>
+                <PixelButton
+                  variant="red"
+                  disabled={!canSalvage}
+                  onClick={() => {
+                    onChange(salvageGear(progress, selected.slot, selected.rarity));
+                    setOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-semibold"
+                >
+                  <Gem className="h-4 w-4" />
+                  {canSalvage ? `Salvage +${salvage}` : "Salvage"}
+                </PixelButton>
+              </div>
+            </div>
           </OuterPanel>
         </div>
       </div>
