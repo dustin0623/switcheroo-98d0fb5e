@@ -81,7 +81,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
     >
       <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
         {!collapsed && (
-          <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-fgold text-shadow">
+          <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-white text-shadow">
             ARCOON
           </p>
         )}
@@ -91,7 +91,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
           className={clsx(
-            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-shell-muted ring-1 ring-ink-line transition-colors hover:bg-ink-700 hover:text-shell-text",
+            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30 hover:text-white",
             collapsed && "mx-auto",
           )}
         >
