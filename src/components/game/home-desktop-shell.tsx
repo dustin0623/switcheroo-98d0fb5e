@@ -52,8 +52,18 @@ import whisperwoodArt from "@/assets/world/whisperwood.jpg";
 import dunesArt from "@/assets/world/dunes.jpg";
 import sewersArt from "@/assets/world/sewers.jpg";
 import neonCityArt from "@/assets/world/neon-city.jpg";
-import { BOWS, BOW_RARITIES, bowStats, type BowRarity } from "@/features/game/bow";
-import { buyBow, equipBow, ownsBow, starsOf } from "@/features/game/armory";
+import { BOWS, BOW_RARITIES, MAX_STARS, bowStats, type BowRarity } from "@/features/game/bow";
+import {
+  SHARD_BUNDLE,
+  SHARD_BUNDLE_GOLD,
+  buyBow,
+  buyShards,
+  enchantBow,
+  enchantShardCost,
+  equipBow,
+  ownsBow,
+  starsOf,
+} from "@/features/game/armory";
 import { InnerPanel, OuterPanel, PixelButton, frame, lightBorder } from "@/components/ui/pixel-panel";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
@@ -91,6 +101,8 @@ export default function HomeDesktopShell() {
             <WorldPage progress={progress} />
           ) : active === "book" ? (
             <BookPage progress={progress} onChange={setProgress} />
+          ) : active === "crafting" ? (
+            <EnchantmentPage progress={progress} onChange={setProgress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
