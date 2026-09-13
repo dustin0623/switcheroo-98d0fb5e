@@ -1730,3 +1730,17 @@ function SlotCard({
     </InnerPanel>
   );
 }
+
+/** Equipment slot tile backed by the player's equipped gear. */
+function GearSlotCard({ progress, slot }: { progress: Progress; slot: GearSlot }) {
+  const rarity = equippedOf(progress, slot);
+  const Icon = slot === "helmet" ? HardHat : slot === "armor" ? Shirt : Footprints;
+  if (!rarity) return <SlotCard label={SLOT_LABEL[slot]} sub="Empty" locked icon={Icon} />;
+  return (
+    <SlotCard
+      label={SLOT_LABEL[slot]}
+      sub={`Lv. ${levelOf(progress, slot, rarity)} · ${rarity}`}
+      art={<Icon className="h-8 w-8 text-panel-text/70" />}
+    />
+  );
+}
