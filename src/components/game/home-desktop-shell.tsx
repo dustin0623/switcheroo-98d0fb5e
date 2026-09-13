@@ -276,7 +276,7 @@ function SignOutMenu({ onSignOut }: { onSignOut: () => void }) {
 /** Top bar: wallet and actions on the right. */
 function TopHeader({ progress }: { progress: Progress }) {
   return (
-    <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
+    <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line/60 bg-transparent px-4 py-2.5">
       <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
       <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
       <HeaderIconButton label="Mail">
