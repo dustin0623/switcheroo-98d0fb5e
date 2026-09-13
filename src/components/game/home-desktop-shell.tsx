@@ -2019,11 +2019,15 @@ function MarketplacePage({
                     const affordable = progress.gold >= cost;
                     const isSel = selected?.slot === g.slot && selected?.rarity === g.rarity;
                     return (
-                      <button
+                      <div
                         key={`${g.slot}:${g.rarity}`}
-                        type="button"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelected(isSel ? null : g)}
-                        className="text-left"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") setSelected(isSel ? null : g);
+                        }}
+                        className="cursor-pointer text-left"
                       >
                         <InnerPanel
                           className="flex h-full flex-col items-center gap-1 bg-panel-header p-2.5"
@@ -2084,7 +2088,7 @@ function MarketplacePage({
                             )}
                           </span>
                         </InnerPanel>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
