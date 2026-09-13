@@ -48,3 +48,43 @@ export function equipBow(progress: Progress, rarity: BowRarity): Progress {
   saveProgress(next);
   return next;
 }
+
+// ---------------------------------------------------------------------------
+// Enchantment — spending Weapon Shards to raise a bow's star level.
+// ---------------------------------------------------------------------------
+
+/** Weapon Shards needed to go from `stars` to the next star. */
+export function enchantShardCost(stars: number): number {
+  return Math.min(Math.max(stars, 1), MAX_STARS) * 5;
+}
+
+/** A "Get More" bundle: gold traded for shards. */
+export const SHARD_BUNDLE_GOLD = 100;
+export const SHARD_BUNDLE = 5;
+
+/** Spends Weapon Shards to add one star to an owned bow. */
+export function enchantBow(progress: Progress, rarity: BowRarity): Progress {
+  const stars = starsOf(progress, rarity);
+  if (stars < 1 || stars >= MAX_STARS) return progress;
+  const cost = enchantShardCost(stars);
+  if (progress.shards < cost) return progress;
+  const next: Progress = {
+    ...progress,
+    shards: progress.shards - cost,
+    bows: { ...progress.bows, [rarity]: stars + 1 },
+  };
+  saveProgress(next);
+  return next;
+}
+
+/** Trades gold for a bundle of Weapon Shards. */
+export function buyShards(progress: Progress): Progress {
+  if (progress.gold < SHARD_BUNDLE_GOLD) return progress;
+  const next: Progress = {
+    ...progress,
+    gold: progress.gold - SHARD_BUNDLE_GOLD,
+    shards: progress.shards + SHARD_BUNDLE,
+  };
+  saveProgress(next);
+  return next;
+}
