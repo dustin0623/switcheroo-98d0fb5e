@@ -11,6 +11,8 @@ import {
   Coins,
   Gem,
   Hammer,
+  PanelLeftClose,
+  PanelLeftOpen,
   Home,
   Mail,
   Scroll,
