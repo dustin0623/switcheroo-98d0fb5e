@@ -142,3 +142,211 @@
     color: var(--color-foreground);
   }
 }
+
+/* ---------------------------------------------------------------
+ * Pixel-art game UI palette + typography (matches reference art)
+ * ------------------------------------------------------------- */
+@theme {
+  --font-pixel: "Press Start 2P", monospace;
+  --font-body: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brown-100: #ead4aa;
+  --color-brown-200: #e7a873;
+  --color-brown-300: #c28669;
+  --color-brown-400: #966953;
+  --color-brown-600: #b96f50;
+  --color-brown-700: #945542;
+  --color-silver-300: #bfcbda;
+  --color-gold: #d4a017;
+  --color-neon: #3db85a;
+  --color-rose: #e05252;
+
+  --text-xxs: 0.6rem;
+}
+
+@utility text-shadow {
+  text-shadow: 1px 1px 0 #000;
+}
+
+@utility text-outline {
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 -1px 0 #000,
+    0 1px 0 #000,
+    -1px 0 0 #000,
+    1px 0 0 #000;
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+/* Pixel frames are drawn with border-image; a solid border-color from the
+   design system bleeds through the seams, so clear it inside the game. */
+[data-game-route] * {
+  border-color: transparent;
+}
+
+.font-body, .font-body button, .font-body input {
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+}
+
+[data-game-route] img {
+  image-rendering: pixelated;
+}
+
+/* Touch devices: no rubber-band scrolling, no double-tap zoom, no text
+   selection or long-press callout while playing. */
+[data-game-route] {
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------
+ * Fantasy shell theme (ported from the Idle Raiders reference) —
+ * dark slate surfaces + gold accents, layered under the pixel panels
+ * so the UI reads as a hybrid of both styles.
+ * ------------------------------------------------------------- */
+@theme {
+  /* Deep moss greens — the frog-hero backdrop. Dark enough to sit behind
+     the brown pixel panels without competing with them. */
+  --color-ink-900: hsl(145 28% 6%);
+  --color-ink-800: hsl(145 24% 8%);
+  --color-ink-700: hsl(145 20% 11%);
+  --color-ink-600: hsl(145 15% 16%);
+  --color-ink-line: hsl(145 14% 20%);
+  --color-fgold: hsl(43 85% 59%);
+  --color-fgold-dim: hsl(43 60% 35%);
+  --color-fgold-glow: hsl(43 95% 68%);
+  --color-leaf: hsl(120 55% 50%);
+  --color-leaf-bright: hsl(110 75% 60%);
+  --color-leaf-dim: hsl(130 40% 32%);
+  --color-shell-accent: oklch(0.82 0.12 142);
+  --color-shell-accent-strong: oklch(0.7 0.15 142);
+  --color-shell-text: oklch(0.95 0.025 105);
+  --color-shell-muted: oklch(0.77 0.045 135);
+  --color-shell-divider: oklch(0.58 0.08 145);
+  --color-currency: oklch(0.8 0.14 78);
+  --color-ember: hsl(15 85% 58%);
+  --color-frost: hsl(200 70% 60%);
+}
+
+@utility glow-gold {
+  box-shadow:
+    0 0 20px hsl(43 85% 59% / 0.3),
+    0 0 40px hsl(43 85% 59% / 0.15),
+    inset 0 0 20px hsl(43 85% 59% / 0.1);
+}
+
+@utility glow-gold-strong {
+  box-shadow:
+    0 0 30px hsl(43 85% 59% / 0.4),
+    0 0 60px hsl(43 85% 59% / 0.2),
+    inset 0 0 30px hsl(43 85% 59% / 0.15);
+}
+
+@utility text-glow-gold {
+  text-shadow:
+    0 0 15px hsl(43 85% 59% / 0.6),
+    0 0 30px hsl(43 85% 59% / 0.3);
+}
+
+@utility bg-gradient-gold {
+  background: linear-gradient(135deg, hsl(43 85% 55%), hsl(43 85% 45%));
+}
+
+@utility text-gradient-gold {
+  background: linear-gradient(135deg, hsl(43 95% 65%), hsl(43 85% 55%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility shadow-gold {
+  box-shadow: 0 4px 12px hsl(43 85% 59% / 0.3);
+}
+
+@utility shadow-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@utility ember-glow {
+  background: radial-gradient(ellipse at center, hsl(120 70% 55% / 0.09) 0%, transparent 60%);
+}
+
+/**
+ * Layered forest backdrop for the home shell: soft leaf-green light pools
+ * over a deep moss base, with a faint canopy vignette at the edges so the
+ * brown pixel panels pop against it.
+ */
+@utility forest-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, hsl(120 60% 45% / 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 110%, hsl(130 50% 35% / 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 10% 100%, hsl(95 55% 40% / 0.12) 0%, transparent 65%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%),
+    linear-gradient(180deg, hsl(145 28% 8%), hsl(150 30% 5%));
+}
+
+@utility fantasy-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(145 14% 20%);
+  background: linear-gradient(145deg, hsl(145 18% 13%), hsl(150 20% 9%));
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+@utility fantasy-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.7 0.15 142 / 0.55), transparent);
+}
+
+@utility fantasy-btn {
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, oklch(0.76 0.14 142), oklch(0.64 0.13 146));
+  color: oklch(0.2 0.04 145);
+  box-shadow:
+    0 4px 12px oklch(0.5 0.1 145 / 0.28),
+    inset 0 1px 0 oklch(0.9 0.09 140 / 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 200ms ease;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px hsl(43 85% 59% / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(43 85% 59% / 0.5);
+  }
+}
+
+@utility animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Moss-green scrollbars matching the forest shell. */
+.fantasy-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(130 40% 30%) hsl(150 20% 8%);
+}
+.fantasy-shell ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.fantasy-shell ::-webkit-scrollbar-track {
+  background: hsl(150 20% 8%);
+}
+.fantasy-shell ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(130 40% 25%), hsl(120 55% 42%), hsl(130 40% 25%));
+  border-radius: 4px;
+}

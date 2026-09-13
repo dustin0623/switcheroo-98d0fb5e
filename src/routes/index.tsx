@@ -1,24 +1,47 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const HomeShell = lazy(() => import("@/components/game/home-shell"));
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "ARCOON — Frog Archer Stage Runner" },
+      {
+        name: "description",
+        content:
+          "ARCOON is a pixel bow-combat game. Pick a map, clear every stage of escalating waves, and unlock the next hunting ground.",
+      },
+      { property: "og:title", content: "ARCOON — Frog Archer Stage Runner" },
+      {
+        property: "og:description",
+        content:
+          "Pick a map, clear every stage of escalating waves, and unlock the next hunting ground in ARCOON.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+function Loading() {
+  return (
+    <div className="flex h-screen w-screen items-center justify-center bg-brown-500">
+      <p className="text-sm tracking-widest text-white uppercase">Loading ARCOON</p>
+    </div>
+  );
+}
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main data-game-route className="h-screen w-screen overflow-hidden bg-brown-500">
+      <h1 className="sr-only">ARCOON — frog archer stage runner</h1>
+      <ClientOnly fallback={<Loading />}>
+        <Suspense fallback={<Loading />}>
+          <HomeShell />
+        </Suspense>
+      </ClientOnly>
+    </main>
   );
 }
