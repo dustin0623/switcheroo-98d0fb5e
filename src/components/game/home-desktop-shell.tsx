@@ -126,7 +126,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
               aria-pressed={isActive}
               title={collapsed ? item.label : undefined}
               className={clsx(
-                "flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] transition-colors",
+                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] transition-colors",
                 collapsed ? "justify-center px-0" : "gap-3 px-3",
                 isActive
                   ? "bg-neon/90 font-semibold text-white shadow-card ring-1 ring-leaf-bright/60"
