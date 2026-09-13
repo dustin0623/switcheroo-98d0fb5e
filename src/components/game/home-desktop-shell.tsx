@@ -8,47 +8,36 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   Backpack,
+  BookOpen,
   Coins,
   Gem,
+  Globe,
   Hammer,
   PanelLeftClose,
   PanelLeftOpen,
-  Home,
   Mail,
-  Scroll,
   Settings,
   Store,
-  Swords,
-  Trophy,
+  User,
 } from "lucide-react";
 import { FrogAvatar } from "@/components/game/game-modals";
 import { getLevelProgress } from "@/features/game/experience";
 import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
 
-type NavId =
-  | "home"
-  | "armory"
-  | "inventory"
-  | "crafting"
-  | "quests"
-  | "marketplace"
-  | "achievements"
-  | "settings";
+type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
-const NAV: { id: NavId; label: string; icon: typeof Home; badge?: boolean }[] = [
-  { id: "home", label: "Home", icon: Home },
+const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] = [
+  { id: "world", label: "World", icon: Globe },
   { id: "armory", label: "Armory", icon: Backpack },
-  { id: "inventory", label: "Inventory", icon: Swords },
   { id: "crafting", label: "Crafting", icon: Hammer },
-  { id: "quests", label: "Quests", icon: Scroll, badge: true },
+  { id: "book", label: "Book", icon: BookOpen },
+  { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
-  { id: "achievements", label: "Achievements", icon: Trophy },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function HomeDesktopShell() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
-  const [active, setActive] = useState<NavId>("home");
+  const [active, setActive] = useState<NavId>("world");
 
   useEffect(() => {
     setProgress(loadProgress());
@@ -65,7 +54,7 @@ export default function HomeDesktopShell() {
         <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           <div className="fantasy-card mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
-            <p className="font-pixel text-[12px] text-shell-accent">
+            <p className="font-pixel text-[12px] text-white">
               {NAV.find((n) => n.id === active)?.label}
             </p>
             <p className="text-[13px] text-shell-muted">
@@ -86,13 +75,13 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
   return (
     <aside
       className={clsx(
-        "relative z-10 flex shrink-0 flex-col border-r border-ink-line bg-ink-800/95 backdrop-blur transition-[width] duration-200",
+        "relative z-10 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
         collapsed ? "w-16" : "w-56",
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
         {!collapsed && (
-          <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-fgold text-shadow">
+          <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-white text-shadow">
             ARCOON
           </p>
         )}
@@ -102,7 +91,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
           className={clsx(
-            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-shell-muted ring-1 ring-ink-line transition-colors hover:bg-ink-700 hover:text-shell-text",
+            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30 hover:text-white",
             collapsed && "mx-auto",
           )}
         >
@@ -126,11 +115,11 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
               aria-pressed={isActive}
               title={collapsed ? item.label : undefined}
               className={clsx(
-                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] transition-colors",
+                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] text-white transition-colors",
                 collapsed ? "justify-center px-0" : "gap-3 px-3",
                 isActive
-                  ? "bg-neon/90 font-semibold text-white shadow-card ring-1 ring-leaf-bright/60"
-                  : "text-shell-muted hover:bg-ink-700 hover:text-shell-text",
+                  ? "bg-[#8f5535] font-semibold text-white shadow-card ring-1 ring-black/20"
+                  : "hover:bg-black/30 hover:text-white",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
@@ -147,7 +136,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
       </nav>
 
       <div className="fantasy-rule w-full" aria-hidden />
-      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-shell-muted/60 uppercase">
+      <p className="px-4 py-3 text-center text-[11px] tracking-widest text-white/70 uppercase">
         {collapsed ? "!" : "Stay sharp!"}
       </p>
     </aside>
@@ -164,8 +153,8 @@ function TopHeader({ progress }: { progress: Progress }) {
         <FrogAvatar className="h-11 w-11 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
         <div className="min-w-0">
           <div className="flex items-baseline gap-2">
-            <p className="font-pixel text-[13px] text-shell-accent text-shadow">ARCOON</p>
-            <p className="font-pixel text-[10px] text-shell-accent">Lv.{level.level}</p>
+            <p className="font-pixel text-[13px] text-white text-shadow">ARCOON</p>
+            <p className="font-pixel text-[10px] text-white">Lv.{level.level}</p>
           </div>
           <div className="mt-1.5 flex items-center gap-2">
             <div className="h-2 w-36 overflow-hidden rounded-full bg-ink-900 ring-1 ring-ink-line">
