@@ -10,22 +10,30 @@ import { useNavigate } from "@tanstack/react-router";
 import {
   Backpack,
   BookOpen,
+  Bug,
   ChevronDown,
   Coins,
   Gem,
+  Ghost,
   Globe,
   Hammer,
+  Leaf,
   Lock,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Mail,
+  Play,
+  Rabbit,
   Search,
   Settings,
+  Sparkles,
+  Star,
   Store,
   Swords,
   User,
 } from "lucide-react";
+import type { EnemyType } from "@/phaser/config/GameConfig";
 import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
 import { getLevelProgress } from "@/features/game/experience";
 import {
