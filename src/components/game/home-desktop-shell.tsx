@@ -1749,27 +1749,17 @@ function MarketplacePage({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
-      <OuterPanel className="bg-panel-header px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Store className="h-8 w-8 shrink-0 text-panel-text" />
-          <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Marketplace</h1>
-            <p className="text-[13px] text-panel-text/80">
-              Trade gold for equipment, or swap gold and shards.
-            </p>
-          </div>
-          <div className="ml-auto flex items-center gap-3">
-            <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
-              <Coins className="h-4 w-4 text-amber-300" />
-              <span className="text-[13px] tabular-nums text-panel-text">{progress.gold}</span>
-            </InnerPanel>
-            <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
-              <Gem className="h-4 w-4 text-purple-300" />
-              <span className="text-[13px] tabular-nums text-panel-text">{progress.shards}</span>
-            </InnerPanel>
-          </div>
-        </div>
-      </OuterPanel>
+      <PageBanner src="/assets/marketplace_banner.png" alt="Marketplace banner" />
+      <div className="flex items-center justify-end gap-3">
+        <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
+          <Coins className="h-4 w-4 text-amber-300" />
+          <span className="text-[13px] tabular-nums text-panel-text">{progress.gold}</span>
+        </InnerPanel>
+        <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
+          <Gem className="h-4 w-4 text-purple-300" />
+          <span className="text-[13px] tabular-nums text-panel-text">{progress.shards}</span>
+        </InnerPanel>
+      </div>
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2">
