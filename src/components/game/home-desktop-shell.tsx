@@ -273,43 +273,15 @@ function SignOutMenu({ onSignOut }: { onSignOut: () => void }) {
   );
 }
 
-/** Top bar: player identity + XP on the left, wallet and actions on the right. */
+/** Top bar: wallet and actions on the right. */
 function TopHeader({ progress }: { progress: Progress }) {
-  const level = getLevelProgress(progress.xp);
-
   return (
-    <header className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
-      <div className="flex min-w-0 items-center gap-3">
-        <FrogAvatar className="h-11 w-11 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
-        <div className="min-w-0">
-          <div className="flex items-baseline gap-2">
-            <p className="font-pixel text-[13px] text-white text-shadow">ARCOON</p>
-            <p className="font-pixel text-[10px] text-white">Lv.{level.level}</p>
-          </div>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div className="h-2 w-36 overflow-hidden rounded-full bg-ink-900 ring-1 ring-ink-line">
-              <div
-                className="h-full rounded-full bg-shell-accent-strong"
-                style={{ width: `${Math.round(level.ratio * 100)}%` }}
-              />
-            </div>
-            <span className="text-[12px] whitespace-nowrap tabular-nums text-shell-muted">
-              {level.maxed ? "MAX" : `${level.into} / ${level.needed} XP`}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2">
-        <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
-        <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
-        <HeaderIconButton label="Mail">
-          <Mail className="h-5 w-5" />
-        </HeaderIconButton>
-        <HeaderIconButton label="Settings">
-          <Settings className="h-5 w-5" />
-        </HeaderIconButton>
-      </div>
+    <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line bg-ink-800/95 px-4 py-2.5 backdrop-blur">
+      <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
+      <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
+      <HeaderIconButton label="Mail">
+        <Mail className="h-5 w-5" />
+      </HeaderIconButton>
     </header>
   );
 }
