@@ -28,7 +28,7 @@ interface PanelProps {
 export const OuterPanel: React.FC<PanelProps> = ({ children, className, style, onClick }) => (
   <div
     onClick={onClick}
-    className={clsx("bg-brown-600 p-0.5 text-white text-shadow shadow-lg", className)}
+    className={clsx("bg-panel-description p-0.5 text-panel-text text-shadow shadow-lg", className)}
     style={{ ...frame(darkBorder, "6px", "20px"), ...style }}
   >
     {children}
@@ -39,7 +39,7 @@ export const OuterPanel: React.FC<PanelProps> = ({ children, className, style, o
 export const InnerPanel: React.FC<PanelProps> = ({ children, className, style, onClick }) => (
   <div
     onClick={onClick}
-    className={clsx("bg-brown-300 p-1", className)}
+    className={clsx("bg-panel-description p-1 text-panel-text", className)}
     style={{ ...frame(lightBorder, "6px", "20px"), ...style }}
   >
     {children}
@@ -94,7 +94,7 @@ export const Label: React.FC<{ className?: string; children?: React.ReactNode }>
 }) => (
   <div
     className={clsx(
-      "bg-silver-300 font-pixel flex items-center justify-center px-1 text-white text-shadow",
+      "bg-panel-description font-pixel flex items-center justify-center px-1 text-panel-text text-shadow",
       className,
     )}
     style={frame(whiteBorder, "5px", "15px")}
@@ -114,7 +114,7 @@ interface ButtonProps {
 }
 
 const BUTTON_FRAMES = {
-  default: { src: lightBorder, bg: "bg-brown-200 hover:bg-brown-300" },
+  default: { src: lightBorder, bg: "bg-button-default hover:brightness-110" },
   green: { src: greenBorder, bg: "bg-green-700 hover:bg-green-600" },
   red: { src: redBorder, bg: "bg-red-700 hover:bg-red-600" },
 } as const;
@@ -133,7 +133,7 @@ export const PixelButton: React.FC<ButtonProps> = ({
     disabled={disabled}
     onClick={onClick}
     className={clsx(
-      "flex cursor-pointer items-center justify-center px-2 py-1 text-white text-shadow disabled:cursor-not-allowed disabled:opacity-50",
+      "flex cursor-pointer items-center justify-center px-2 py-1 text-panel-text text-shadow disabled:cursor-not-allowed disabled:opacity-50",
       BUTTON_FRAMES[variant].bg,
       className,
     )}

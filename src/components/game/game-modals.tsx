@@ -119,7 +119,7 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
             <div className="h-full rounded-full bg-rose transition-[width] duration-300" style={{ width: `${Math.round(waveRatio * 100)}%` }} />
           </div>
 
-          <p className="mt-0.5 truncate font-pixel text-[6px] leading-3 text-hud-muted">{waveLabel}</p>
+          <p className="mt-0.5 truncate font-pixel text-[6px] leading-3 text-hud-muted/80">{waveLabel}</p>
         </div>
 
         {/* Right side stats, sitting on the back panel */}
@@ -307,9 +307,9 @@ export function VictoryModal({
 /** Floating banner shown for a moment after each level-up. */
 export function LevelUpToast({ level }: { level: number }) {
   return (
-    <OuterPanel className="px-3 py-2 text-center">
-      <p className="text-[14px] text-white">Level {level}!</p>
-      <p className="text-[12px] opacity-80">+1 skill point</p>
+    <OuterPanel className="bg-panel-description px-3 py-2 text-center text-panel-text">
+      <p className="text-[14px]">Level {level}!</p>
+      <p className="text-[12px] text-panel-text/80">+1 skill point</p>
     </OuterPanel>
   );
 }
@@ -348,7 +348,7 @@ function SkillNode({
           type="button"
           disabled={!learnable}
           onClick={() => onLearn(skill.id)}
-          className="shrink-0 rounded-full bg-brown-200 px-2 py-0.5 text-[13px] text-white text-shadow disabled:opacity-40"
+          className="shrink-0 rounded-full bg-button-default px-2 py-0.5 text-[13px] text-panel-text text-shadow hover:brightness-110 disabled:opacity-40"
         >
           +
         </button>
