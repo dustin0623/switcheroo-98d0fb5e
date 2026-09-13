@@ -5,7 +5,7 @@
 import React from "react";
 import clsx from "clsx";
 import { Coins, Skull, Star, Swords } from "lucide-react";
-import { OuterPanel, InnerPanel, Label, PixelButton, frame, darkBorder, greenBorder } from "@/components/ui/pixel-panel";
+import { OuterPanel, InnerPanel, Label, PixelButton, frame, darkBorder } from "@/components/ui/pixel-panel";
 import { BOWS, bowStats, MAX_STARS } from "@/features/game/bow";
 import { getLevelProgress } from "@/features/game/experience";
 import type { HudState } from "@/features/game/hud";
@@ -74,26 +74,15 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
   const waveRatio = hud.intermission ? 1 : cleared / total;
   const waveLabel = hud.boss && !hud.intermission ? getMap(hud.mapId).boss : hud.intermission ? "Next wave in..." : `${hud.enemiesLeft} left`;
 
-  const sidePanelStyle = frame(darkBorder, "6px", "12px");
-  const centerPanelStyle = frame(greenBorder, "7px", "12px");
+  const panelStyle = frame(darkBorder, "6px", "12px");
 
   return (
-    <div className="pointer-events-auto mx-auto flex w-full max-w-5xl items-center justify-center px-1 sm:px-2">
-      {/* Left side panel */}
+    <div className="pointer-events-auto mx-auto grid w-full max-w-5xl grid-cols-3 items-center px-1 sm:px-2">
+      {/* Left side panel — level and skills only */}
       <div
-        className="flex h-12 items-center gap-2 bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
-        style={sidePanelStyle}
+        className="flex h-12 items-center gap-2 justify-self-start bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
+        style={panelStyle}
       >
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-          <img src={ICONS.bow} alt="Equipped bow" className="h-6 w-6 shrink-0 object-contain sm:h-8 sm:w-8" />
-          <div className="hidden min-w-0 sm:block">
-            <p className="truncate font-pixel text-[8px] leading-3 text-gold">{hud.bowRarity}</p>
-            <StarRow stars={hud.bowStars} className="mt-0.5" />
-          </div>
-        </div>
-
-        <div className="h-6 w-px bg-hud-border/30" />
-
         <div className="flex min-w-12 flex-col gap-0.5 sm:min-w-16">
           <span className="font-pixel text-[8px] leading-3 text-hud-text">Lv {progress.level}</span>
           <div className="h-2 overflow-hidden rounded-full bg-hud-border ring-1 ring-hud-highlight">
@@ -111,22 +100,11 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
         )}
       </div>
 
-      {/* Center Wave panel — taller and green-bordered */}
+      {/* Center Wave panel — dark, no green border or corner diamonds */}
       <div
-        className="relative z-10 -mx-2 flex h-16 w-44 flex-col items-center justify-center bg-hud-panel-dark px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-20 sm:w-56"
-        style={centerPanelStyle}
+        className="flex h-16 w-44 flex-col items-center justify-center justify-self-center bg-hud-panel-dark px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-20 sm:w-56"
+        style={panelStyle}
       >
-        <div className="absolute -left-2.5 top-1.5 flex flex-col gap-0.5">
-          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
-          <div className="h-3.5 w-3.5 rotate-45 bg-hud-leaf-bright ring-1 ring-hud-border" />
-          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
-        </div>
-        <div className="absolute -right-2.5 top-1.5 flex flex-col gap-0.5">
-          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
-          <div className="h-3.5 w-3.5 rotate-45 bg-hud-leaf-bright ring-1 ring-hud-border" />
-          <div className="h-2.5 w-2.5 rotate-45 bg-hud-leaf ring-1 ring-hud-border" />
-        </div>
-
         <div className="flex items-center gap-2">
           <Swords className="h-3.5 w-3.5 text-hud-text" />
           <span className="font-pixel text-[9px] leading-4 tracking-widest sm:text-[10px]">Wave {hud.wave}</span>
@@ -142,8 +120,8 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
 
       {/* Right side panel */}
       <div
-        className="flex h-12 items-center justify-end gap-2 bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
-        style={sidePanelStyle}
+        className="flex h-12 items-center justify-end gap-2 justify-self-end bg-hud-panel px-2 py-1 text-hud-text text-shadow shadow-lg sm:h-14 sm:gap-3 sm:px-3"
+        style={panelStyle}
       >
         <div className="flex items-center gap-1 px-1.5 sm:px-2.5">
           {SkullIcon}<span className="font-pixel text-[8px] tabular-nums">{hud.enemiesLeft}</span>
