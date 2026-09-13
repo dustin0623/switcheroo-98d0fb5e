@@ -238,7 +238,7 @@ function PlayerFooter({ progress, collapsed }: { progress: Progress; collapsed: 
           aria-label="Settings"
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
-          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white ring-1 ring-white/30 transition-colors hover:bg-black/30"
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30"
         >
           <Settings className="h-4 w-4" />
         </button>
