@@ -1,8 +1,9 @@
 import React from "react";
 import clsx from "clsx";
+import lightBorderAsset from "@/assets/ui/light_border.png.asset.json";
 
 export const darkBorder = "/assets/ui/panel/dark_border.png";
-export const lightBorder = "/assets/ui/panel/light_border.png";
+export const lightBorder = lightBorderAsset.url;
 export const whiteBorder = "/assets/ui/panel/white_border.png";
 export const redBorder = "/assets/ui/panel/red_border.png";
 export const greenBorder = "/assets/ui/panel/green_border.png";
