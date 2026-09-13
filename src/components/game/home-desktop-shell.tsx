@@ -122,15 +122,15 @@ export default function HomeDesktopShell() {
         <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           {active === "armory" ? (
-            <InventoryPage progress={progress} onChange={setProgress} onNavigate={setActive} />
+            <InventoryPage progress={progress} onChange={commit} onNavigate={setActive} />
           ) : active === "world" ? (
             <WorldPage progress={progress} />
           ) : active === "book" ? (
-            <BookPage progress={progress} onChange={setProgress} />
+            <BookPage progress={progress} onChange={commit} />
           ) : active === "crafting" ? (
-            <EnchantmentPage progress={progress} onChange={setProgress} />
+            <EnchantmentPage progress={progress} onChange={commit} />
           ) : active === "character" ? (
-            <CharacterPage progress={progress} onChange={setProgress} />
+            <CharacterPage progress={progress} onChange={commit} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
@@ -345,7 +345,7 @@ function TopHeader({ progress }: { progress: Progress }) {
   return (
     <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line/60 bg-transparent px-4 py-2.5">
       <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
-      <CurrencyPill icon={<Gem className="h-4 w-4 text-frost" />} value={25} />
+      <CurrencyPill icon={<Gem className="h-4 w-4 text-purple-300" />} value={progress.shards} />
       <HeaderIconButton label="Mail">
         <Mail className="h-5 w-5" />
       </HeaderIconButton>
