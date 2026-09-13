@@ -132,15 +132,7 @@ export default function HomeDesktopShell() {
           ) : active === "character" ? (
             <CharacterPage progress={progress} onChange={commit} />
           ) : (
-            <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
-              <p className="font-pixel text-[12px] text-white">
-                {NAV.find((n) => n.id === active)?.label}
-              </p>
-              <p className="text-[13px] text-shell-muted">
-                This section is coming soon. The shell is ready — pick a destination from the
-                sidebar.
-              </p>
-            </div>
+            <MarketplacePage progress={progress} onChange={commit} />
           )}
         </main>
       </div>
@@ -1750,5 +1742,228 @@ function GearSlotCard({ progress, slot }: { progress: Progress; slot: GearSlot }
       sub={`Lv. ${levelOf(progress, slot, rarity)} · ${rarity}`}
       art={<Icon className="h-8 w-8 text-panel-text/70" />}
     />
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Marketplace
+// ---------------------------------------------------------------------------
+
+/** Gold paid per shard when selling, and gold charged per shard when buying. */
+const SHARD_SELL_GOLD = 40;
+const SHARD_BUY_GOLD = 120;
+
+function MarketplacePage({
+  progress,
+  onChange,
+}: {
+  progress: Progress;
+  onChange: (next: Progress) => void;
+}) {
+  const [tab, setTab] = useState<"shop" | "exchange">("shop");
+  const [slotFilter, setSlotFilter] = useState<GearSlot | "all">("all");
+
+  const stock = GEAR_SLOTS.flatMap((slot) =>
+    BOW_RARITIES.map((rarity) => ({ slot, rarity })),
+  ).filter((g) => (slotFilter === "all" || g.slot === slotFilter) && !owns(progress, g.slot, g.rarity));
+
+  const buyShards = (amount: number) => {
+    const cost = amount * SHARD_BUY_GOLD;
+    if (progress.gold < cost) return;
+    onChange({ ...progress, gold: progress.gold - cost, shards: progress.shards + amount });
+  };
+
+  const sellShards = (amount: number) => {
+    if (progress.shards < amount) return;
+    onChange({
+      ...progress,
+      shards: progress.shards - amount,
+      gold: progress.gold + amount * SHARD_SELL_GOLD,
+    });
+  };
+
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
+      <OuterPanel className="bg-panel-header px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Store className="h-8 w-8 shrink-0 text-panel-text" />
+          <div className="min-w-0">
+            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Marketplace</h1>
+            <p className="text-[13px] text-panel-text/80">
+              Trade gold for equipment, or swap gold and shards.
+            </p>
+          </div>
+          <div className="ml-auto flex items-center gap-3">
+            <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
+              <Coins className="h-4 w-4 text-amber-300" />
+              <span className="text-[13px] tabular-nums text-panel-text">{progress.gold}</span>
+            </InnerPanel>
+            <InnerPanel className="flex items-center gap-1.5 bg-panel-description px-2.5 py-1.5">
+              <Gem className="h-4 w-4 text-purple-300" />
+              <span className="text-[13px] tabular-nums text-panel-text">{progress.shards}</span>
+            </InnerPanel>
+          </div>
+        </div>
+      </OuterPanel>
+
+      {/* Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
+        {([
+          { id: "shop", label: "Shop" },
+          { id: "exchange", label: "Exchange" },
+        ] as const).map((t) => (
+          <PixelButton
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={clsx(
+              "px-4 py-1.5 text-[12px] font-semibold",
+              tab === t.id ? "brightness-110" : "opacity-70",
+            )}
+          >
+            {t.label}
+          </PixelButton>
+        ))}
+      </div>
+
+      {tab === "shop" ? (
+        <OuterPanel className="bg-panel-description p-3">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {(["all", ...GEAR_SLOTS] as const).map((s) => (
+              <PixelButton
+                key={s}
+                onClick={() => setSlotFilter(s as GearSlot | "all")}
+                className={clsx(
+                  "px-3 py-1 text-[11px]",
+                  slotFilter === s ? "brightness-110" : "opacity-70",
+                )}
+              >
+                {s === "all" ? "All" : SLOT_LABEL[s as GearSlot]}
+              </PixelButton>
+            ))}
+          </div>
+
+          {stock.length === 0 ? (
+            <p className="px-1 py-6 text-center text-[13px] text-panel-text/70">
+              Nothing left to buy here — you already own every piece in this category.
+            </p>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {stock.map((g) => {
+                const cost = gearUnlockCost(g.slot, g.rarity);
+                const affordable = progress.gold >= cost;
+                return (
+                  <InnerPanel
+                    key={`${g.slot}:${g.rarity}`}
+                    className="flex items-center gap-3 bg-panel-header p-2.5"
+                  >
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center">
+                      {g.slot === "weapon" ? (
+                        <img src={ICONS.bow} alt="" className="h-9 w-9 object-contain" />
+                      ) : (
+                        <SlotGlyph slot={g.slot} className="h-8 w-8 text-panel-text/70" />
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold text-panel-text">
+                        {gearName(g.slot, g.rarity)}
+                      </p>
+                      <span
+                        className={clsx(
+                          "mt-1 inline-block rounded-sm px-1.5 py-0.5 text-[10px] font-semibold text-white",
+                          RARITY_BADGE[g.rarity],
+                        )}
+                      >
+                        {g.rarity} {SLOT_LABEL[g.slot]}
+                      </span>
+                      <p className="mt-1 flex items-center gap-1 text-[12px] tabular-nums text-panel-text/80">
+                        <Coins className="h-3.5 w-3.5 text-amber-300" />
+                        {cost}
+                      </p>
+                    </div>
+                    <PixelButton
+                      variant={affordable ? "green" : "default"}
+                      disabled={!affordable}
+                      onClick={() => onChange(buyGear(progress, g.slot, g.rarity))}
+                      className="px-3 py-1.5 text-[12px] font-semibold"
+                    >
+                      Buy
+                    </PixelButton>
+                  </InnerPanel>
+                );
+              })}
+            </div>
+          )}
+        </OuterPanel>
+      ) : (
+        <div className="grid items-start gap-3 lg:grid-cols-2">
+          <OuterPanel className="bg-panel-description p-3">
+            <p className="font-pixel text-[12px] text-panel-text">Buy Shards</p>
+            <p className="mt-1 text-[12px] text-panel-text/70">
+              {SHARD_BUY_GOLD} gold per shard.
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              {[1, 5, 10].map((n) => {
+                const cost = n * SHARD_BUY_GOLD;
+                const ok = progress.gold >= cost;
+                return (
+                  <InnerPanel
+                    key={n}
+                    className="flex items-center gap-3 bg-panel-header px-3 py-2"
+                  >
+                    <Gem className="h-5 w-5 text-purple-300" />
+                    <span className="flex-1 text-[13px] text-panel-text">{n} shards</span>
+                    <span className="text-[12px] tabular-nums text-panel-text/80">{cost} gold</span>
+                    <PixelButton
+                      variant={ok ? "green" : "default"}
+                      disabled={!ok}
+                      onClick={() => buyShards(n)}
+                      className="px-3 py-1 text-[12px] font-semibold"
+                    >
+                      Buy
+                    </PixelButton>
+                  </InnerPanel>
+                );
+              })}
+            </div>
+          </OuterPanel>
+
+          <OuterPanel className="bg-panel-description p-3">
+            <p className="font-pixel text-[12px] text-panel-text">Sell Shards</p>
+            <p className="mt-1 text-[12px] text-panel-text/70">
+              {SHARD_SELL_GOLD} gold per shard.
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              {[1, 5, 10].map((n) => {
+                const ok = progress.shards >= n;
+                return (
+                  <InnerPanel
+                    key={n}
+                    className="flex items-center gap-3 bg-panel-header px-3 py-2"
+                  >
+                    <Coins className="h-5 w-5 text-amber-300" />
+                    <span className="flex-1 text-[13px] text-panel-text">
+                      {n * SHARD_SELL_GOLD} gold
+                    </span>
+                    <span className="text-[12px] tabular-nums text-panel-text/80">{n} shards</span>
+                    <PixelButton
+                      variant={ok ? "green" : "default"}
+                      disabled={!ok}
+                      onClick={() => sellShards(n)}
+                      className="px-3 py-1 text-[12px] font-semibold"
+                    >
+                      Sell
+                    </PixelButton>
+                  </InnerPanel>
+                );
+              })}
+            </div>
+            <p className="mt-3 flex items-start gap-1.5 text-[11px] text-panel-text/60">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              Salvaging equipment in your inventory is still the cheapest way to earn shards.
+            </p>
+          </OuterPanel>
+        </div>
+      )}
+    </div>
   );
 }
