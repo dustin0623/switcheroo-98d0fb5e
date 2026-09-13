@@ -431,6 +431,15 @@ const INV_TABS: { id: GearSlot | "all"; label: string; icon: typeof Swords }[] =
   { id: "boots", label: "Boots", icon: Footprints },
 ];
 
+/** Full-width illustrated page banner using the dark pixel frame. */
+function PageBanner({ src, alt }: { src: string; alt: string }) {
+  return (
+    <OuterPanel className="overflow-hidden bg-panel-header p-0 leading-[0]">
+      <img src={src} alt={alt} className="block h-auto w-full object-cover" />
+    </OuterPanel>
+  );
+}
+
 /** Inventory page: banner, category tabs, item grid and a detail drawer. */
 function InventoryPage({
   progress,
@@ -467,17 +476,7 @@ function InventoryPage({
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
       {/* Banner */}
-      <OuterPanel className="bg-panel-header px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Backpack className="h-8 w-8 shrink-0 text-panel-text" />
-          <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Inventory</h1>
-            <p className="text-[13px] text-panel-text/80">
-              Manage your items, equip gear, and prepare for your next hunt.
-            </p>
-          </div>
-        </div>
-      </OuterPanel>
+      <PageBanner src="/assets/inventory_banner.png" alt="Inventory banner" />
 
       {/* Category tabs */}
       <div className="flex flex-wrap items-center gap-2">
@@ -710,16 +709,7 @@ function WorldPage({ progress }: { progress: Progress }) {
   const level = getPlayerLevel(progress).level;
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-6">
-      <header className="flex flex-col items-center gap-1 py-2 text-center">
-        <h1 className="flex items-center gap-3 font-pixel text-[20px] text-white text-shadow">
-          <Leaf className="h-5 w-5 text-shell-accent" aria-hidden />
-          Choose your hunt
-          <Leaf className="h-5 w-5 -scale-x-100 text-shell-accent" aria-hidden />
-        </h1>
-        <p className="text-[13px] text-white/80 text-shadow">
-          Explore new areas, defeat stronger enemies, and earn better rewards.
-        </p>
-      </header>
+      <PageBanner src="/assets/world_banner.png" alt="World banner" />
 
       <div className="flex flex-col gap-3">
         {MAPS.map((map, i) => (
@@ -963,17 +953,7 @@ function BookPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 pb-6">
       {/* Banner */}
-      <OuterPanel className="bg-panel-header px-4 py-3">
-        <div className="flex items-center gap-3">
-          <BookOpen className="h-8 w-8 shrink-0 text-panel-text" />
-          <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">The Book</h1>
-            <p className="text-[13px] text-panel-text/80">
-              Knowledge is power. Discover creatures, gear, worlds and your journey in ARCOON.
-            </p>
-          </div>
-        </div>
-      </OuterPanel>
+      <PageBanner src="/assets/book_banner.png" alt="The Book banner" />
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2">
@@ -1305,17 +1285,7 @@ function EnchantmentPage({
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
       {/* Banner */}
-      <OuterPanel className="bg-panel-header px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Anvil className="h-8 w-8 shrink-0 text-panel-text" />
-          <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Enchantment</h1>
-            <p className="text-[13px] text-panel-text/80">
-              Spend shards to raise the level of your equipment.
-            </p>
-          </div>
-        </div>
-      </OuterPanel>
+      <PageBanner src="/assets/enchantment_banner.png" alt="Enchantment banner" />
 
       <div className="grid items-start gap-3 lg:grid-cols-[1fr_320px]">
         {/* Selected gear */}
@@ -1561,17 +1531,7 @@ function CharacterPage({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
-      <OuterPanel className="bg-panel-header px-4 py-3">
-        <div className="flex items-center gap-3">
-          <User className="h-8 w-8 shrink-0 text-panel-text" />
-          <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Character</h1>
-            <p className="text-[13px] text-panel-text/80">
-              Equip your gear, boost your stats, and become stronger.
-            </p>
-          </div>
-        </div>
-      </OuterPanel>
+      <PageBanner src="/assets/character_banner.png" alt="Character banner" />
 
       <div className="grid items-start gap-3 lg:grid-cols-[1fr_340px]">
         <div className="flex min-w-0 flex-col gap-3">
