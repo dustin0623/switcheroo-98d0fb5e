@@ -76,7 +76,7 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
 
   return (
     <div className="pointer-events-auto mx-auto w-full max-w-5xl px-1 sm:px-2">
-      <OuterPanel className="relative grid h-12 grid-cols-[1fr_auto_1fr] items-center gap-1 bg-brown-700 px-1.5 py-0 sm:gap-3 sm:px-3">
+      <OuterPanel className="relative grid h-12 grid-cols-2 items-center gap-40 bg-brown-700 px-1.5 py-0 sm:gap-52 sm:px-3">
         <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
           <div className="flex min-w-0 items-center gap-1.5">
             <img src={ICONS.bow} alt="Equipped bow" className="h-6 w-6 shrink-0 object-contain sm:h-8 sm:w-8" />
@@ -103,7 +103,7 @@ export function TopBar({ hud, onOpenSkills }: { hud: HudState; onOpenSkills?: ()
           )}
         </div>
 
-        <InnerPanel className="relative z-10 h-16 w-36 px-2 py-1.5 text-center shadow-lg sm:w-48">
+        <InnerPanel className="absolute left-1/2 top-1/2 z-10 h-16 w-36 -translate-x-1/2 -translate-y-1/2 px-2 py-1.5 text-center shadow-lg sm:w-48">
           <div className="flex items-center justify-center gap-2">
             <Swords className="h-3.5 w-3.5 text-brown-100" />
             <span className="font-pixel text-[9px] leading-4">Wave {hud.wave}</span>
