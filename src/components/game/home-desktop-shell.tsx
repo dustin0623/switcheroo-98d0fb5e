@@ -115,11 +115,11 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
               aria-pressed={isActive}
               title={collapsed ? item.label : undefined}
               className={clsx(
-                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] transition-colors",
+                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] text-white transition-colors",
                 collapsed ? "justify-center px-0" : "gap-3 px-3",
                 isActive
-                  ? "bg-neon/90 font-semibold text-white shadow-card ring-1 ring-leaf-bright/60"
-                  : "text-shell-muted hover:bg-ink-700 hover:text-shell-text",
+                  ? "bg-[#8f5535] font-semibold text-white shadow-card ring-1 ring-black/20"
+                  : "hover:bg-black/30 hover:text-white",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
