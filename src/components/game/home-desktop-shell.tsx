@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  Anvil,
   Backpack,
   BookOpen,
   Bug,
@@ -18,6 +19,7 @@ import {
   Ghost,
   Globe,
   Hammer,
+  Info,
   Leaf,
   Lock,
   LogOut,
