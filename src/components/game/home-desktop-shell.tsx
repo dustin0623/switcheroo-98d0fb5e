@@ -80,7 +80,7 @@ type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketpla
 
 const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] = [
   { id: "world", label: "World", icon: Globe },
-  { id: "armory", label: "Armory", icon: Backpack },
+  { id: "armory", label: "Inventory", icon: Backpack },
   { id: "crafting", label: "Enchantment", icon: Hammer },
   { id: "book", label: "Book", icon: BookOpen },
   { id: "character", label: "Character", icon: User },
@@ -106,7 +106,7 @@ export default function HomeDesktopShell() {
         <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           {active === "armory" ? (
-            <ArmoryPage progress={progress} onChange={setProgress} />
+            <InventoryPage progress={progress} onChange={setProgress} onNavigate={setActive} />
           ) : active === "world" ? (
             <WorldPage progress={progress} />
           ) : active === "book" ? (
@@ -375,196 +375,228 @@ const RARITY_BADGE: Record<BowRarity, string> = {
   Legendary: "bg-amber-500",
 };
 
-type ArmoryTabId = "bows" | "items";
+type InvTabId = "all" | "weapons" | "materials";
 
-/** Armory page: banner, Bows | Items tabs, rarity filter, search and gear cards. */
-function ArmoryPage({
+const INV_TABS: { id: InvTabId; label: string; icon: typeof Swords }[] = [
+  { id: "all", label: "All", icon: Backpack },
+  { id: "weapons", label: "Weapons", icon: Swords },
+  { id: "materials", label: "Materials", icon: Gem },
+];
+
+/** Inventory page: banner, category tabs, item grid and a detail panel. */
+function InventoryPage({
   progress,
   onChange,
+  onNavigate,
 }: {
   progress: Progress;
   onChange: (next: Progress) => void;
+  onNavigate: (id: NavId) => void;
 }) {
-  const [tab, setTab] = useState<ArmoryTabId>("bows");
+  const [tab, setTab] = useState<InvTabId>("all");
   const [rarity, setRarity] = useState<BowRarity | "all">("all");
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<BowRarity>(progress.equipped);
 
-  const bows = BOW_RARITIES.filter((r) => rarity === "all" || r === rarity).filter((r) =>
-    BOWS[r].name.toLowerCase().includes(query.trim().toLowerCase()),
-  );
+  const bows =
+    tab === "materials"
+      ? []
+      : BOW_RARITIES.filter((r) => rarity === "all" || r === rarity).filter((r) =>
+          BOWS[r].name.toLowerCase().includes(query.trim().toLowerCase()),
+        );
+  const showMaterials = tab !== "weapons";
+
+  const def = BOWS[selected];
+  const owned = ownsBow(progress, selected);
+  const stars = starsOf(progress, selected);
+  const stats = bowStats(selected, Math.max(stars, 1));
+  const equipped = progress.equipped === selected;
+  const ownedCount = BOW_RARITIES.filter((r) => ownsBow(progress, r)).length;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
       {/* Banner */}
       <OuterPanel className="bg-panel-header px-4 py-3">
         <div className="flex items-center gap-3">
-          <Swords className="h-8 w-8 shrink-0 text-panel-text" />
+          <Backpack className="h-8 w-8 shrink-0 text-panel-text" />
           <div className="min-w-0">
-            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Armory</h1>
+            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Inventory</h1>
             <p className="text-[13px] text-panel-text/80">
-              Equip powerful gear and prepare for your next adventure.
+              Manage your items, equip gear, and prepare for your next hunt.
             </p>
           </div>
         </div>
       </OuterPanel>
 
-      {/* Tabs + filters */}
+      {/* Category tabs */}
       <div className="flex flex-wrap items-center gap-2">
-        {(
-          [
-            { id: "bows", label: "Bows" },
-            { id: "items", label: "Items" },
-          ] as const
-        ).map((t) => (
+        {INV_TABS.map((t) => (
           <PixelButton
             key={t.id}
+            variant={tab === t.id ? "green" : "default"}
             onClick={() => setTab(t.id)}
-            className={clsx("px-4 py-1.5 text-[13px]", tab !== t.id && "opacity-70")}
+            className="flex items-center gap-2 px-4 py-1.5 text-[13px] font-semibold"
           >
+            <t.icon className="h-4 w-4" />
             {t.label}
           </PixelButton>
         ))}
-
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <select
-              value={rarity}
-              onChange={(e) => setRarity(e.target.value as BowRarity | "all")}
-              aria-label="Filter by rarity"
-              style={frame(lightBorder, "5px", "15px")}
-              className="cursor-pointer appearance-none bg-panel-header py-1.5 pr-8 pl-3 text-[13px] text-panel-text text-shadow outline-none"
-            >
-              <option value="all">Rarity</option>
-              {BOW_RARITIES.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-panel-text/70" />
-          </div>
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-panel-text/60" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search item..."
-              aria-label="Search items"
-              style={frame(lightBorder, "5px", "15px")}
-              className="w-44 bg-panel-header py-1.5 pr-3 pl-9 text-[13px] text-panel-text text-shadow outline-none placeholder:text-panel-text/50"
-            />
-          </div>
-        </div>
       </div>
 
-      {/* Content */}
-      {tab === "items" ? (
-        <OuterPanel className="flex flex-col items-center justify-center gap-2 p-10 text-center">
-          <p className="font-pixel text-[12px] text-panel-text">Items</p>
-          <p className="text-[13px] text-panel-text/70">
-            Consumables and trinkets are coming soon.
-          </p>
-        </OuterPanel>
-      ) : bows.length === 0 ? (
-        <OuterPanel className="p-10 text-center text-[13px] text-panel-text/70">
-          No bows match your search.
-        </OuterPanel>
-      ) : (
-        <div className="flex flex-col gap-3 pb-4">
-          {bows.map((r) => (
-            <BowCard key={r} rarity={r} progress={progress} onChange={onChange} />
-          ))}
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative">
+          <select
+            value={rarity}
+            onChange={(e) => setRarity(e.target.value as BowRarity | "all")}
+            aria-label="Filter by rarity"
+            style={frame(lightBorder, "5px", "15px")}
+            className="cursor-pointer appearance-none bg-panel-header py-1.5 pr-8 pl-3 text-[13px] text-panel-text text-shadow outline-none"
+          >
+            <option value="all">Rarity</option>
+            {BOW_RARITIES.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-panel-text/70" />
         </div>
-      )}
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-panel-text/60" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search items..."
+            aria-label="Search items"
+            style={frame(lightBorder, "5px", "15px")}
+            className="w-full bg-panel-header py-1.5 pr-3 pl-9 text-[13px] text-panel-text text-shadow outline-none placeholder:text-panel-text/50"
+          />
+        </div>
+        <span className="text-[13px] tabular-nums text-white text-shadow">
+          {ownedCount} / {BOW_RARITIES.length}
+        </span>
+      </div>
+
+      <div className="grid items-start gap-3 lg:grid-cols-[1fr_320px]">
+        {/* Grid */}
+        <OuterPanel className="bg-panel-description p-3">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-7">
+            {bows.map((r) => {
+              const has = ownsBow(progress, r);
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setSelected(r)}
+                  aria-label={BOWS[r].name}
+                  className="cursor-pointer"
+                >
+                  <InnerPanel
+                    className={clsx(
+                      "relative flex aspect-square items-center justify-center bg-panel-header",
+                      !has && "opacity-45",
+                      selected === r && "ring-2 ring-emerald-400",
+                    )}
+                  >
+                    <img src={ICONS.bow} alt="" className="h-8 w-8 object-contain" />
+                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap text-panel-text">
+                      {has ? `Lv. ${starsOf(progress, r)}` : <Lock className="h-3 w-3" />}
+                    </span>
+                  </InnerPanel>
+                </button>
+              );
+            })}
+            {showMaterials && (
+              <InnerPanel className="relative flex aspect-square items-center justify-center bg-panel-header">
+                <Gem className="h-7 w-7 text-purple-300" />
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] tabular-nums text-panel-text">
+                  {progress.shards}
+                </span>
+              </InnerPanel>
+            )}
+            {Array.from({ length: 14 }, (_, i) => (
+              <InnerPanel key={`empty-${i}`} className="aspect-square bg-panel-header/40" />
+            ))}
+          </div>
+        </OuterPanel>
+
+        {/* Detail */}
+        <OuterPanel className="bg-panel-description p-3">
+          <div className="flex items-start gap-3">
+            <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
+              <img src={ICONS.bow} alt={def.name} className="h-11 w-11 object-contain" />
+            </InnerPanel>
+            <div className="min-w-0">
+              <p className="font-pixel text-[13px] text-panel-text text-shadow">{def.name}</p>
+              <span
+                className={clsx(
+                  "mt-1 inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold text-white",
+                  RARITY_BADGE[selected],
+                )}
+              >
+                {selected}
+              </span>
+              <p className="mt-1 text-[12px] text-panel-text/80">Lv. {owned ? stars : 0}</p>
+              <StarRow stars={owned ? stars : 0} className="mt-1" />
+            </div>
+          </div>
+
+          <p className="mt-3 text-[12px] text-panel-text/70">{BOW_FLAVOR[selected]}</p>
+
+          <div className="mt-3 flex flex-col gap-1.5">
+            <StatRow icon={<Swords className="h-4 w-4 text-panel-text/80" />} label="Attack" current={`${stats.damage}`} next={null} />
+            <StatRow icon={<Zap className="h-4 w-4 text-gold" />} label="Attack Speed" current={`${(1000 / stats.fireRateMs).toFixed(1)}/s`} next={null} />
+            <StatRow icon={<Star className="h-4 w-4 text-gold" />} label="Range" current={`${stats.rangeTiles} tiles`} next={null} />
+          </div>
+
+          <div className="mt-3 flex flex-col gap-2">
+            {!owned ? (
+              <PixelButton
+                variant="green"
+                disabled={progress.gold < def.unlockCost}
+                onClick={() => onChange(buyBow(progress, selected))}
+                className="flex w-full items-center justify-center gap-1.5 px-5 py-2 text-[13px] font-semibold"
+              >
+                {progress.gold < def.unlockCost ? (
+                  <Lock className="h-4 w-4" />
+                ) : (
+                  <Coins className="h-4 w-4 text-currency" />
+                )}
+                {def.unlockCost.toLocaleString()}
+              </PixelButton>
+            ) : equipped ? (
+              <PixelButton disabled className="w-full px-5 py-2 text-[13px] font-semibold">
+                Equipped
+              </PixelButton>
+            ) : (
+              <PixelButton
+                variant="green"
+                onClick={() => onChange(equipBow(progress, selected))}
+                className="w-full px-5 py-2 text-[13px] font-semibold"
+              >
+                Equip
+              </PixelButton>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <PixelButton
+                disabled={!owned}
+                onClick={() => onNavigate("crafting")}
+                className="px-3 py-2 text-[13px] font-semibold"
+              >
+                Enhance
+              </PixelButton>
+              <PixelButton variant="red" disabled className="px-3 py-2 text-[13px] font-semibold">
+                Discard
+              </PixelButton>
+            </div>
+          </div>
+        </OuterPanel>
+      </div>
     </div>
   );
 }
 
-/** One gear card: bow art left, stats middle, action button right. */
-function BowCard({
-  rarity,
-  progress,
-  onChange,
-}: {
-  rarity: BowRarity;
-  progress: Progress;
-  onChange: (next: Progress) => void;
-}) {
-  const def = BOWS[rarity];
-  const owned = ownsBow(progress, rarity);
-  const stars = starsOf(progress, rarity);
-  const stats = bowStats(rarity, Math.max(stars, 1));
-  const equipped = progress.equipped === rarity;
-
-  return (
-    <OuterPanel className="flex items-center gap-4 p-2.5">
-      {/* Art */}
-      <InnerPanel className="flex h-20 w-20 shrink-0 items-center justify-center bg-panel-header">
-        <img src={ICONS.bow} alt={def.name} className="h-12 w-12 object-contain" />
-      </InnerPanel>
-
-      {/* Info */}
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="font-pixel text-[13px] text-panel-text text-shadow">{def.name}</p>
-          <span
-            className={clsx(
-              "rounded-sm px-2 py-0.5 text-[11px] font-semibold text-white",
-              RARITY_BADGE[rarity],
-            )}
-          >
-            {rarity}
-          </span>
-        </div>
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <p className="text-[12px] tabular-nums text-panel-text/85">
-            {stats.damage} dmg · {stats.rangeTiles} tiles · {(1000 / stats.fireRateMs).toFixed(1)}/s
-          </p>
-          <StarRow stars={owned ? stars : 0} />
-        </div>
-        <p className="mt-1 truncate text-[12px] text-panel-text/60">
-          {owned
-            ? equipped
-              ? "Currently equipped for your runs."
-              : "Owned — ready to equip."
-            : `Unlocks for ${def.unlockCost.toLocaleString()} gold.`}
-        </p>
-      </div>
-
-      {/* Action */}
-      <div className="shrink-0">
-        {equipped ? (
-          <PixelButton disabled className="px-5 py-2 text-[13px] font-semibold">
-            Equipped
-          </PixelButton>
-        ) : owned ? (
-          <PixelButton
-            className="px-5 py-2 text-[13px] font-semibold"
-            onClick={() => onChange(equipBow(progress, rarity))}
-          >
-            Equip
-          </PixelButton>
-        ) : (
-          <PixelButton
-            variant="green"
-            disabled={progress.gold < def.unlockCost}
-            onClick={() => onChange(buyBow(progress, rarity))}
-            className="px-5 py-2 text-[13px] font-semibold"
-          >
-            <span className="flex items-center gap-1.5">
-              {progress.gold < def.unlockCost ? (
-                <Lock className="h-4 w-4" />
-              ) : (
-                <Coins className="h-4 w-4 text-currency" />
-              )}
-              {def.unlockCost.toLocaleString()}
-            </span>
-          </PixelButton>
-        )}
-      </div>
-    </OuterPanel>
-  );
-}
 
 /** Map art thumbnails for the world list. */
 const MAP_ART: Record<string, string> = {
