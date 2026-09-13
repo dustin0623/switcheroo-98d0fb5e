@@ -61,7 +61,7 @@ type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketpla
 const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] = [
   { id: "world", label: "World", icon: Globe },
   { id: "armory", label: "Armory", icon: Backpack },
-  { id: "crafting", label: "Crafting", icon: Hammer },
+  { id: "crafting", label: "Enchantment", icon: Hammer },
   { id: "book", label: "Book", icon: BookOpen },
   { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
