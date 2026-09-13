@@ -28,7 +28,17 @@ import {
 } from "lucide-react";
 import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
 import { getLevelProgress } from "@/features/game/experience";
-import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
+import {
+  EMPTY_PROGRESS,
+  MAPS,
+  isMapUnlocked,
+  loadProgress,
+  type Progress,
+} from "@/features/game/campaign";
+import whisperwoodArt from "@/assets/world/whisperwood.jpg";
+import dunesArt from "@/assets/world/dunes.jpg";
+import sewersArt from "@/assets/world/sewers.jpg";
+import neonCityArt from "@/assets/world/neon-city.jpg";
 import { BOWS, BOW_RARITIES, bowStats, type BowRarity } from "@/features/game/bow";
 import { buyBow, equipBow, ownsBow, starsOf } from "@/features/game/armory";
 import { InnerPanel, OuterPanel, PixelButton, frame, lightBorder } from "@/components/ui/pixel-panel";
