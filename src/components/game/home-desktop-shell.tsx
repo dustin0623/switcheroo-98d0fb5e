@@ -9,20 +9,26 @@ import clsx from "clsx";
 import {
   Backpack,
   BookOpen,
+  ChevronDown,
   Coins,
   Gem,
   Globe,
   Hammer,
+  Lock,
   PanelLeftClose,
   PanelLeftOpen,
   Mail,
+  Search,
   Settings,
   Store,
+  Swords,
   User,
 } from "lucide-react";
-import { FrogAvatar } from "@/components/game/game-modals";
+import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
 import { getLevelProgress } from "@/features/game/experience";
 import { EMPTY_PROGRESS, loadProgress, type Progress } from "@/features/game/campaign";
+import { BOWS, BOW_RARITIES, bowStats, type BowRarity } from "@/features/game/bow";
+import { buyBow, equipBow, ownsBow, starsOf } from "@/features/game/armory";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
