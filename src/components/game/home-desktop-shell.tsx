@@ -104,6 +104,13 @@ export default function HomeDesktopShell() {
     setProgress(loadProgress());
   }, []);
 
+  /** Persist any progress change coming from a page. */
+  const commit = (next: Progress) => {
+    saveProgress(next);
+    setProgress(next);
+  };
+
+
   return (
     <div className="fantasy-shell relative flex h-full w-full overflow-hidden bg-ink-900 font-body text-shell-text">
       <div className="forest-bg pointer-events-none absolute inset-0" aria-hidden />
