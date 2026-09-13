@@ -81,16 +81,40 @@ export default function HomeDesktopShell() {
 
 /** Left rail: ARCOON wordmark plus the primary navigation list. */
 function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) => void }) {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <aside className="relative z-10 flex w-56 shrink-0 flex-col border-r border-ink-line bg-ink-800/95 backdrop-blur">
-      <div className="px-4 pt-5 pb-4">
-        <p className="text-center font-pixel text-[18px] tracking-wide text-fgold text-shadow">
-          ARCOON
-        </p>
+    <aside
+      className={clsx(
+        "relative z-10 flex shrink-0 flex-col border-r border-ink-line bg-ink-800/95 backdrop-blur transition-[width] duration-200",
+        collapsed ? "w-16" : "w-56",
+      )}
+    >
+      <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
+        {!collapsed && (
+          <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-fgold text-shadow">
+            ARCOON
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => setCollapsed((c) => !c)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          className={clsx(
+            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-shell-muted ring-1 ring-ink-line transition-colors hover:bg-ink-700 hover:text-shell-text",
+            collapsed && "mx-auto",
+          )}
+        >
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
       </div>
       <div className="fantasy-rule w-full" aria-hidden />
 
-      <nav aria-label="Main navigation" className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+      <nav
+        aria-label="Main navigation"
+        className={clsx("flex-1 space-y-1 overflow-y-auto py-3", collapsed ? "px-2" : "px-3")}
+      >
         {NAV.map((item) => {
           const isActive = item.id === active;
           const Icon = item.icon;
@@ -100,16 +124,23 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
               type="button"
               onClick={() => onChange(item.id)}
               aria-pressed={isActive}
+              title={collapsed ? item.label : undefined}
               className={clsx(
-                "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-left text-[14px] transition-colors",
+                "flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] transition-colors",
+                collapsed ? "justify-center px-0" : "gap-3 px-3",
                 isActive
                   ? "bg-neon/90 font-semibold text-white shadow-card ring-1 ring-leaf-bright/60"
                   : "text-shell-muted hover:bg-ink-700 hover:text-shell-text",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">{item.label}</span>
-              {item.badge && <span className="h-2 w-2 shrink-0 rounded-full bg-rose" aria-hidden />}
+              {!collapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
+              {item.badge && !collapsed && (
+                <span className="h-2 w-2 shrink-0 rounded-full bg-rose" aria-hidden />
+              )}
+              {item.badge && collapsed && (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-rose" aria-hidden />
+              )}
             </button>
           );
         })}
@@ -117,7 +148,7 @@ function Sidebar({ active, onChange }: { active: NavId; onChange: (id: NavId) =>
 
       <div className="fantasy-rule w-full" aria-hidden />
       <p className="px-4 py-3 text-center text-[11px] tracking-widest text-shell-muted/60 uppercase">
-        Stay sharp!
+        {collapsed ? "!" : "Stay sharp!"}
       </p>
     </aside>
   );
