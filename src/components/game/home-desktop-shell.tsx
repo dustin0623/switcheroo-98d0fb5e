@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Anvil,
+  BarChart3,
   Backpack,
   BookOpen,
   Bug,
@@ -19,7 +20,10 @@ import {
   Ghost,
   Globe,
   Hammer,
+  HardHat,
+  Heart,
   Info,
+  Footprints,
   Leaf,
   Lock,
   LogOut,
@@ -28,8 +32,11 @@ import {
   Mail,
   Play,
   Rabbit,
+  RefreshCw,
   Search,
   Settings,
+  Shield,
+  Shirt,
   Skull,
   Sparkles,
   Star,
@@ -37,6 +44,7 @@ import {
   Swords,
   Trophy,
   User,
+  Zap,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
 import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
@@ -105,6 +113,8 @@ export default function HomeDesktopShell() {
             <BookPage progress={progress} onChange={setProgress} />
           ) : active === "crafting" ? (
             <EnchantmentPage progress={progress} onChange={setProgress} />
+          ) : active === "character" ? (
+            <CharacterPage progress={progress} />
           ) : (
             <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center gap-2 p-8 text-center">
               <p className="font-pixel text-[12px] text-white">
@@ -1346,5 +1356,200 @@ function EnchantmentPage({
         </OuterPanel>
       </div>
     </div>
+  );
+}
+
+/** Equipment slots that are not yet earnable — shown locked for now. */
+const CHARACTER_SLOTS: { id: string; label: string; icon: typeof Shirt }[] = [
+  { id: "helmet", label: "Helmet", icon: HardHat },
+  { id: "armor", label: "Armor", icon: Shirt },
+  { id: "boots", label: "Boots", icon: Footprints },
+  { id: "accessory", label: "Accessory", icon: Leaf },
+];
+
+type CharacterTab = "equipment" | "appearance" | "stats";
+
+/** Character page: equipment loadout, hero portrait and the full stat sheet. */
+function CharacterPage({ progress }: { progress: Progress }) {
+  const [tab, setTab] = useState<CharacterTab>("equipment");
+  const level = getLevelProgress(progress.xp);
+  const stars = starsOf(progress, progress.equipped);
+  const bow = BOWS[progress.equipped];
+  const stats = bowStats(progress.equipped, Math.max(stars, 1));
+  const maxHp = 100 + level.level * 20;
+  const defense = 5 + Math.floor(level.level * 1.5);
+  const critRate = 5 + stars;
+  const critDamage = 150 + stars * 10;
+
+  const sheet: { icon: React.ReactNode; label: string; value: string }[] = [
+    { icon: <Swords className="h-4 w-4 text-panel-text/80" />, label: "Attack", value: `${stats.damage}` },
+    { icon: <Heart className="h-4 w-4 text-rose" />, label: "Max HP", value: `${maxHp}` },
+    { icon: <Shield className="h-4 w-4 text-panel-text/80" />, label: "Defense", value: `${defense}` },
+    { icon: <Zap className="h-4 w-4 text-gold" />, label: "Attack Speed", value: `${(1000 / stats.fireRateMs).toFixed(1)}/s` },
+    { icon: <Globe className="h-4 w-4 text-panel-text/80" />, label: "Range", value: `${stats.rangeTiles} tiles` },
+    { icon: <Star className="h-4 w-4 text-gold" />, label: "Critical Rate", value: `${critRate}%` },
+    { icon: <Sparkles className="h-4 w-4 text-panel-text/80" />, label: "Critical Damage", value: `${critDamage}%` },
+  ];
+
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
+      <OuterPanel className="bg-panel-header px-4 py-3">
+        <div className="flex items-center gap-3">
+          <User className="h-8 w-8 shrink-0 text-panel-text" />
+          <div className="min-w-0">
+            <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Character</h1>
+            <p className="text-[13px] text-panel-text/80">
+              Equip your gear, boost your stats, and become stronger.
+            </p>
+          </div>
+        </div>
+      </OuterPanel>
+
+      <div className="grid items-start gap-3 lg:grid-cols-[1fr_340px]">
+        <div className="flex min-w-0 flex-col gap-3">
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { id: "equipment", label: "Equipment", icon: Backpack },
+                { id: "appearance", label: "Appearance", icon: Shirt },
+                { id: "stats", label: "Stats", icon: BarChart3 },
+              ] as const
+            ).map((t) => (
+              <PixelButton
+                key={t.id}
+                variant={tab === t.id ? "green" : "default"}
+                onClick={() => setTab(t.id)}
+                className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold"
+              >
+                <t.icon className="h-4 w-4" />
+                {t.label}
+              </PixelButton>
+            ))}
+          </div>
+
+          {tab === "equipment" && (
+            <OuterPanel className="bg-panel-description p-3">
+              <div className="grid gap-3 sm:grid-cols-[120px_1fr_120px]">
+                <div className="flex flex-col gap-3">
+                  <SlotCard
+                    label="Weapon"
+                    sub={`${stars}★ ${bow.name}`}
+                    art={<img src={ICONS.bow} alt={bow.name} className="h-10 w-10 object-contain" />}
+                  />
+                  <SlotCard label="Helmet" sub="Empty" locked icon={HardHat} />
+                </div>
+                <InnerPanel className="relative flex min-h-[240px] items-end justify-center bg-panel-header p-4">
+                  <FrogAvatar className="absolute top-6 h-28 w-28" />
+                  <PixelButton className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold">
+                    <RefreshCw className="h-4 w-4" />
+                    Switch Hero
+                  </PixelButton>
+                </InnerPanel>
+                <div className="flex flex-col gap-3">
+                  <SlotCard label="Armor" sub="Empty" locked icon={Shirt} />
+                  <SlotCard label="Boots" sub="Empty" locked icon={Footprints} />
+                </div>
+              </div>
+            </OuterPanel>
+          )}
+
+          {tab === "appearance" && (
+            <OuterPanel className="bg-panel-description p-3">
+              <p className="font-pixel text-[11px] text-panel-text">Skins</p>
+              <p className="mt-1 text-[12px] text-panel-text/70">
+                Only the Forest Frog is available for now. More heroes arrive with future maps.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <InnerPanel className="flex flex-col items-center gap-2 bg-panel-header px-2 py-3">
+                  <FrogAvatar className="h-14 w-14" />
+                  <span className="text-[12px] font-semibold text-panel-text">Forest Frog</span>
+                  <span className="text-[11px] text-emerald-400">Equipped</span>
+                </InnerPanel>
+                {CHARACTER_SLOTS.map((s) => (
+                  <InnerPanel
+                    key={s.id}
+                    className="flex flex-col items-center gap-2 bg-panel-header px-2 py-3 opacity-60"
+                  >
+                    <Lock className="h-6 w-6 text-panel-text/60" />
+                    <span className="text-[12px] text-panel-text/70">Locked</span>
+                  </InnerPanel>
+                ))}
+              </div>
+            </OuterPanel>
+          )}
+
+          {tab === "stats" && (
+            <OuterPanel className="bg-panel-description p-3">
+              <p className="mb-2 font-pixel text-[11px] text-panel-text">Lifetime</p>
+              <div className="grid gap-1.5 sm:grid-cols-2">
+                <StatRow icon={<Swords className="h-4 w-4 text-panel-text/80" />} label="Total Kills" current={`${progress.kills}`} next={null} />
+                <StatRow icon={<Skull className="h-4 w-4 text-panel-text/80" />} label="Bosses Slain" current={`${progress.bosses}`} next={null} />
+                <StatRow icon={<Trophy className="h-4 w-4 text-gold" />} label="Best Score" current={`${progress.bestScore}`} next={null} />
+                <StatRow icon={<Coins className="h-4 w-4 text-gold" />} label="Gold" current={`${progress.gold}`} next={null} />
+                <StatRow icon={<Gem className="h-4 w-4 text-purple-300" />} label="Weapon Shards" current={`${progress.shards}`} next={null} />
+                <StatRow icon={<Star className="h-4 w-4 text-gold" />} label="Bows Owned" current={`${BOW_RARITIES.filter((r) => ownsBow(progress, r)).length} / ${BOW_RARITIES.length}`} next={null} />
+              </div>
+            </OuterPanel>
+          )}
+        </div>
+
+        {/* Hero stat sheet */}
+        <OuterPanel className="bg-panel-description p-3">
+          <p className="text-center font-pixel text-[14px] text-panel-text text-shadow">Frog</p>
+          <InnerPanel className="mt-3 flex items-center gap-3 bg-panel-header px-3 py-2">
+            <span className="text-[12px] font-semibold text-panel-text">Lv. {level.level}</span>
+            <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-black/40">
+              <span
+                className="block h-full bg-emerald-400"
+                style={{ width: `${Math.round(level.ratio * 100)}%` }}
+              />
+            </span>
+            <span className="text-[11px] tabular-nums text-panel-text/80">
+              {level.into} / {level.needed} XP
+            </span>
+          </InnerPanel>
+          <div className="mt-3 flex flex-col gap-1.5">
+            {sheet.map((s) => (
+              <InnerPanel key={s.label} className="flex items-center gap-3 bg-panel-header px-3 py-2">
+                {s.icon}
+                <span className="min-w-0 flex-1 text-[13px] text-panel-text">{s.label}</span>
+                <span className="text-[13px] font-semibold tabular-nums text-panel-text">{s.value}</span>
+              </InnerPanel>
+            ))}
+          </div>
+        </OuterPanel>
+      </div>
+    </div>
+  );
+}
+
+/** One equipment slot tile. */
+function SlotCard({
+  label,
+  sub,
+  art,
+  icon: Icon,
+  locked,
+}: {
+  label: string;
+  sub: string;
+  art?: React.ReactNode;
+  icon?: typeof Shirt;
+  locked?: boolean;
+}) {
+  return (
+    <InnerPanel
+      className={clsx(
+        "flex flex-col items-center gap-1 bg-panel-header px-2 py-2.5",
+        locked && "opacity-70",
+      )}
+    >
+      <span className="self-start text-[11px] font-semibold text-panel-text/80">{label}</span>
+      <span className="flex h-12 items-center justify-center">
+        {art ?? (Icon ? <Icon className="h-8 w-8 text-panel-text/50" /> : null)}
+      </span>
+      <span className="text-[11px] text-panel-text/70">{sub}</span>
+    </InnerPanel>
   );
 }
