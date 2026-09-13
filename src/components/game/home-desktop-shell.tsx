@@ -48,8 +48,8 @@ import {
   Zap,
 } from "lucide-react";
 import type { EnemyType } from "@/phaser/config/GameConfig";
-import { FrogAvatar, ICONS, StarRow } from "@/components/game/game-modals";
-import { getLevelProgress } from "@/features/game/experience";
+import { FrogAvatar, ICONS, LevelBadge } from "@/components/game/game-modals";
+import { getPlayerLevel, levelUpPlayer } from "@/features/game/experience";
 import {
   EMPTY_PROGRESS,
   MAPS,
@@ -63,18 +63,25 @@ import whisperwoodArt from "@/assets/world/whisperwood.jpg";
 import dunesArt from "@/assets/world/dunes.jpg";
 import sewersArt from "@/assets/world/sewers.jpg";
 import neonCityArt from "@/assets/world/neon-city.jpg";
-import { BOWS, BOW_RARITIES, MAX_STARS, bowStats, type BowRarity } from "@/features/game/bow";
+import { BOWS, BOW_RARITIES, MAX_GEAR_LEVEL, bowStats, type BowRarity } from "@/features/game/bow";
 import {
-  SHARD_BUNDLE,
-  SHARD_BUNDLE_GOLD,
-  buyBow,
-  buyShards,
-  enchantBow,
-  enchantShardCost,
-  equipBow,
-  ownsBow,
-  starsOf,
-} from "@/features/game/armory";
+  GEAR_SLOTS,
+  SLOT_LABEL,
+  buyGear,
+  equipGear,
+  equippedOf,
+  gearBonus,
+  gearName,
+  gearUnlockCost,
+  levelOf,
+  levelUpGear,
+  levelUpShardCost,
+  owns,
+  salvageGear,
+  salvageValue,
+  type GearSlot,
+} from "@/features/game/equipment";
+
 import { InnerPanel, OuterPanel, PixelButton, darkBorder, frame, lightBorder } from "@/components/ui/pixel-panel";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
