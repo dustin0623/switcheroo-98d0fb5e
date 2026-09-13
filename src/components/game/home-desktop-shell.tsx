@@ -1248,7 +1248,7 @@ function StatRow({
   );
 }
 
-/** Enchantment page: selected weapon panel on the left, weapon list on the right. */
+/** Enchantment page: selected gear panel on the left, owned-gear list on the right. */
 function EnchantmentPage({
   progress,
   onChange,
@@ -1256,21 +1256,46 @@ function EnchantmentPage({
   progress: Progress;
   onChange: (next: Progress) => void;
 }) {
-  const owned = BOW_RARITIES.filter((r) => owns(progress, "weapon", r));
-  const [selected, setSelected] = useState<BowRarity>(progress.equipped);
-  const [rarity, setRarity] = useState<BowRarity | "all">("all");
+  const ownedAll = GEAR_SLOTS.flatMap((slot) =>
+    BOW_RARITIES.filter((r) => owns(progress, slot, r)).map((r) => ({ slot, rarity: r })),
+  );
+  const [sel, setSel] = useState<{ slot: GearSlot; rarity: BowRarity }>({
+    slot: "weapon",
+    rarity: progress.equipped,
+  });
+  const [slotFilter, setSlotFilter] = useState<GearSlot | "all">("all");
 
-  const raritySafe = owned.includes(selected) ? selected : (owned[0] ?? "Common");
-  const def = BOWS[raritySafe];
-  const stars = starsOf(progress, raritySafe);
-  const maxed = stars >= MAX_STARS;
-  const cost = maxed ? null : enchantShardCost(stars);
+  const safe =
+    ownedAll.find((g) => g.slot === sel.slot && g.rarity === sel.rarity) ??
+    ownedAll[0] ?? { slot: "weapon" as GearSlot, rarity: "Common" as BowRarity };
+
+  const level = levelOf(progress, safe.slot, safe.rarity);
+  const maxed = level >= MAX_GEAR_LEVEL;
+  const cost = levelUpShardCost(level);
   const affordable = cost !== null && progress.shards >= cost;
 
-  const now = bowStats(raritySafe, Math.max(stars, 1));
-  const after = maxed ? null : bowStats(raritySafe, stars + 1);
+  const statLines = (lvl: number) => {
+    if (safe.slot === "weapon") {
+      const s = bowStats(safe.rarity, lvl);
+      return {
+        a: `${s.damage}`,
+        b: `${s.rangeTiles} tiles`,
+        c: `${(1000 / s.fireRateMs).toFixed(1)}/s`,
+        labels: ["Attack", "Range", "Attack Speed"] as const,
+      };
+    }
+    const g = gearBonus(safe.slot, safe.rarity, lvl);
+    return {
+      a: `+${g.hp}`,
+      b: `+${g.defense}`,
+      c: `+${Math.round(g.moveSpeed)}`,
+      labels: ["Max HP", "Defense", "Move Speed"] as const,
+    };
+  };
+  const now = statLines(Math.max(level, 1));
+  const after = maxed ? null : statLines(level + 1);
 
-  const list = owned.filter((r) => rarity === "all" || r === rarity);
+  const list = ownedAll.filter((g) => slotFilter === "all" || g.slot === slotFilter);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-6">
@@ -1281,41 +1306,52 @@ function EnchantmentPage({
           <div className="min-w-0">
             <h1 className="font-pixel text-[16px] text-panel-text text-shadow">Enchantment</h1>
             <p className="text-[13px] text-panel-text/80">
-              Infuse your weapons with shards to increase their power.
+              Spend shards to raise the level of your equipment.
             </p>
           </div>
         </div>
       </OuterPanel>
 
       <div className="grid items-start gap-3 lg:grid-cols-[1fr_320px]">
-        {/* Selected weapon */}
+        {/* Selected gear */}
         <OuterPanel className="bg-panel-description p-3">
           <div className="flex flex-wrap items-start gap-4">
             <InnerPanel className="relative flex h-28 w-28 shrink-0 items-center justify-center bg-panel-header">
-              <img src={ICONS.bow} alt={def.name} className="h-16 w-16 object-contain" />
+              {safe.slot === "weapon" ? (
+                <img src={ICONS.bow} alt="" className="h-16 w-16 object-contain" />
+              ) : (
+                <SlotGlyph slot={safe.slot} className="h-14 w-14 text-panel-text/70" />
+              )}
               <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[11px] font-semibold whitespace-nowrap text-panel-text">
-                Lv. {stars * 5 - 3}
+                Lv. {level}
               </span>
             </InnerPanel>
             <div className="min-w-0 flex-1">
-              <p className="font-pixel text-[14px] text-panel-text text-shadow">{def.name}</p>
+              <p className="font-pixel text-[14px] text-panel-text text-shadow">
+                {gearName(safe.slot, safe.rarity)}
+              </p>
               <span
                 className={clsx(
                   "mt-1 inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold text-white",
-                  RARITY_BADGE[raritySafe],
+                  RARITY_BADGE[safe.rarity],
                 )}
               >
-                {raritySafe}
+                {safe.rarity} {SLOT_LABEL[safe.slot]}
               </span>
-              <p className="mt-2 text-[12px] text-panel-text/70">{BOW_FLAVOR[raritySafe]}</p>
+              {safe.slot === "weapon" && (
+                <p className="mt-2 text-[12px] text-panel-text/70">{BOW_FLAVOR[safe.rarity]}</p>
+              )}
             </div>
             <InnerPanel className="bg-panel-header px-4 py-3 text-center">
-              <StarRow stars={stars} />
-              <p className="mt-2 text-[11px] text-panel-text/60">Star Level</p>
+              <LevelBadge level={level} />
+              <p className="mt-2 text-[11px] text-panel-text/60">Level</p>
               <p className="text-[15px] font-semibold tabular-nums text-panel-text">
-                {stars}
-                {after && (
-                  <span className="text-emerald-400"> <ChevronRight className="inline h-3.5 w-3.5" /> {stars + 1}</span>
+                {level}
+                {!maxed && (
+                  <span className="text-emerald-400">
+                    {" "}
+                    <ChevronRight className="inline h-3.5 w-3.5" /> {level + 1}
+                  </span>
                 )}
               </p>
             </InnerPanel>
@@ -1323,38 +1359,38 @@ function EnchantmentPage({
 
           {/* Stats */}
           <p className="mt-4 mb-2 font-pixel text-[11px] text-panel-text">
-            Stats {after ? "(Next Star)" : "(Max Star)"}
+            Stats {after ? "(Next Level)" : "(Max Level)"}
           </p>
           <div className="flex flex-col gap-1.5">
             <StatRow
               icon={<Swords className="h-4 w-4 text-panel-text/80" />}
-              label="Attack"
-              current={`${now.damage}`}
-              next={after ? `${after.damage}` : null}
+              label={now.labels[0]}
+              current={now.a}
+              next={after ? after.a : null}
             />
             <StatRow
-              icon={<Star className="h-4 w-4 text-gold" />}
-              label="Range"
-              current={`${now.rangeTiles} tiles`}
-              next={after ? `${after.rangeTiles} tiles` : null}
+              icon={<Shield className="h-4 w-4 text-panel-text/80" />}
+              label={now.labels[1]}
+              current={now.b}
+              next={after ? after.b : null}
             />
             <StatRow
               icon={<Sparkles className="h-4 w-4 text-panel-text/80" />}
-              label="Attack Speed"
-              current={`${(1000 / now.fireRateMs).toFixed(1)}/s`}
-              next={after ? `${(1000 / after.fireRateMs).toFixed(1)}/s` : null}
+              label={now.labels[2]}
+              current={now.c}
+              next={after ? after.c : null}
             />
           </div>
 
-          {/* Materials */}
-          <p className="mt-4 mb-2 font-pixel text-[11px] text-panel-text">Required Materials</p>
+          {/* Cost */}
+          <p className="mt-4 mb-2 font-pixel text-[11px] text-panel-text">Required Shards</p>
           <InnerPanel className="flex flex-wrap items-center gap-3 bg-panel-header px-3 py-2.5">
             <span className="flex h-11 w-11 items-center justify-center rounded-md bg-purple-900/50 ring-1 ring-purple-400/50">
               <Gem className="h-6 w-6 text-purple-300" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-semibold text-panel-text">Weapon Shard</p>
-              <p className="text-[11px] text-panel-text/60">Used to enchant weapons.</p>
+              <p className="text-[13px] font-semibold text-panel-text">Shards</p>
+              <p className="text-[11px] text-panel-text/60">Earned by salvaging equipment.</p>
             </div>
             {cost !== null && (
               <span
@@ -1366,58 +1402,50 @@ function EnchantmentPage({
                 {progress.shards} / {cost}
               </span>
             )}
-            <PixelButton
-              variant="green"
-              disabled={progress.gold < SHARD_BUNDLE_GOLD}
-              onClick={() => onChange(buyShards(progress))}
-              className="px-3 py-1.5 text-[12px] font-semibold"
-            >
-              Get More
-            </PixelButton>
           </InnerPanel>
 
           {/* Enchant action */}
           {maxed ? (
             <PixelButton disabled className="mt-4 w-full px-5 py-2.5 text-[14px] font-semibold">
-              Max Star Level
+              Max Level
             </PixelButton>
           ) : (
             <PixelButton
               variant={affordable ? "green" : "default"}
               disabled={!affordable}
-              onClick={() => onChange(enchantBow(progress, raritySafe))}
+              onClick={() => onChange(levelUpGear(progress, safe.slot, safe.rarity))}
               className="mt-4 w-full px-5 py-2.5 text-[14px] font-semibold"
             >
-              Enchant
+              Enchant to Lv. {level + 1}
             </PixelButton>
           )}
 
           <p className="mt-3 flex items-start gap-1.5 text-[11px] text-panel-text/60">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Enchantment increases the star level of the selected weapon. Stats will be permanently
-            improved. Get More trades {SHARD_BUNDLE_GOLD} gold for {SHARD_BUNDLE} shards.
+            Each level costs level² shards and permanently improves the item, up to level{" "}
+            {MAX_GEAR_LEVEL}. Salvage unused equipment to earn more shards.
           </p>
         </OuterPanel>
 
-        {/* Weapon picker */}
+        {/* Gear picker */}
         <OuterPanel className="bg-panel-description p-3">
           <div className="flex items-center gap-2">
             <Anvil className="h-4 w-4 text-panel-text/80" />
             <p className="min-w-0 flex-1 font-pixel text-[12px] text-panel-text text-shadow">
-              Select Weapon
+              Select Gear
             </p>
             <div className="relative">
               <select
-                value={rarity}
-                onChange={(e) => setRarity(e.target.value as BowRarity | "all")}
-                aria-label="Filter by rarity"
+                value={slotFilter}
+                onChange={(e) => setSlotFilter(e.target.value as GearSlot | "all")}
+                aria-label="Filter by slot"
                 style={frame(lightBorder, "5px", "15px")}
                 className="cursor-pointer appearance-none bg-panel-header py-1 pr-7 pl-2.5 text-[12px] text-panel-text text-shadow outline-none"
               >
-                <option value="all">Rarity</option>
-                {BOW_RARITIES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
+                <option value="all">All</option>
+                {GEAR_SLOTS.map((s) => (
+                  <option key={s} value={s}>
+                    {SLOT_LABEL[s]}
                   </option>
                 ))}
               </select>
@@ -1428,17 +1456,16 @@ function EnchantmentPage({
           <div className="mt-3 flex flex-col gap-2">
             {list.length === 0 ? (
               <p className="p-4 text-center text-[12px] text-panel-text/60">
-                No owned bows of this rarity yet.
+                No owned equipment in this slot yet.
               </p>
             ) : (
-              list.map((r) => {
-                const b = BOWS[r];
-                const isSel = r === raritySafe;
+              list.map((g) => {
+                const isSel = g.slot === safe.slot && g.rarity === safe.rarity;
                 return (
                   <button
-                    key={r}
+                    key={`${g.slot}:${g.rarity}`}
                     type="button"
-                    onClick={() => setSelected(r)}
+                    onClick={() => setSel(g)}
                     aria-pressed={isSel}
                     className={clsx(
                       "flex w-full cursor-pointer items-center gap-3 p-2 text-left",
@@ -1447,26 +1474,27 @@ function EnchantmentPage({
                     style={frame(darkBorder, "6px", "20px")}
                   >
                     <InnerPanel className="flex h-14 w-14 shrink-0 items-center justify-center bg-panel-header">
-                      <img src={ICONS.bow} alt={b.name} className="h-9 w-9 object-contain" />
+                      {g.slot === "weapon" ? (
+                        <img src={ICONS.bow} alt="" className="h-9 w-9 object-contain" />
+                      ) : (
+                        <SlotGlyph slot={g.slot} className="h-8 w-8 text-panel-text/70" />
+                      )}
                     </InnerPanel>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-semibold text-panel-text">
-                        {b.name}
+                        {gearName(g.slot, g.rarity)}
                       </span>
                       <span
                         className={clsx(
                           "mt-0.5 inline-block rounded-sm px-1.5 py-0.5 text-[10px] font-semibold text-white",
-                          RARITY_BADGE[r],
+                          RARITY_BADGE[g.rarity],
                         )}
                       >
-                        {r}
-                      </span>
-                      <span className="mt-1 block">
-                        <StarRow stars={starsOf(progress, r)} />
+                        {g.rarity}
                       </span>
                     </span>
                     <span className="shrink-0 text-[11px] tabular-nums text-panel-text/70">
-                      Lv. {starsOf(progress, r) * 5 - 3}
+                      Lv. {levelOf(progress, g.slot, g.rarity)}
                     </span>
                   </button>
                 );
@@ -1478,6 +1506,13 @@ function EnchantmentPage({
     </div>
   );
 }
+
+/** Lucide glyph for a non-weapon gear slot. */
+function SlotGlyph({ slot, className }: { slot: GearSlot; className?: string }) {
+  const Glyph = slot === "helmet" ? HardHat : slot === "armor" ? Shirt : Footprints;
+  return <Glyph className={className} aria-hidden />;
+}
+
 
 /** Equipment slots that are not yet earnable — shown locked for now. */
 const CHARACTER_SLOTS: { id: string; label: string; icon: typeof Shirt }[] = [
