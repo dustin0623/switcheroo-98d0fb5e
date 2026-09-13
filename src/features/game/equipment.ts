@@ -5,8 +5,7 @@
  * Levelling costs Weapon Shards (level^2 shards to go from `level` to the
  * next), and shards come from salvaging gear you no longer need.
  */
-import { BOWS, type BowRarity } from "@/features/game/bow";
-import { BOW_RARITIES } from "@/features/game/bow";
+import { BOWS, BOW_RARITIES, MAX_GEAR_LEVEL, type BowRarity } from "@/features/game/bow";
 import { saveProgress, type Progress } from "@/features/game/campaign";
 
 export type GearSlot = "weapon" | "helmet" | "armor" | "boots";
@@ -20,8 +19,7 @@ export const SLOT_LABEL: Record<GearSlot, string> = {
   boots: "Boots",
 };
 
-/** Highest level any piece of equipment can reach. */
-export const MAX_GEAR_LEVEL = 20;
+export { MAX_GEAR_LEVEL };
 
 export interface GearBonus {
   /** Flat bonus max HP. */

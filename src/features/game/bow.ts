@@ -3,8 +3,6 @@
  * Pure data + math; ownership lives in the saved profile (armory.ts).
  */
 
-import { MAX_GEAR_LEVEL } from "@/features/game/equipment";
-
 export type BowRarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary";
 
 export interface BowDef {
@@ -23,6 +21,9 @@ export interface BowStats {
   rangeTiles: number;
   fireRateMs: number;
 }
+
+/** Highest level any piece of equipment can reach. */
+export const MAX_GEAR_LEVEL = 20;
 
 export const BOW_RARITIES: BowRarity[] = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 
