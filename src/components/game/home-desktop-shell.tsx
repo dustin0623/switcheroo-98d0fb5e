@@ -822,7 +822,12 @@ function MapCard({
           <PixelButton
             variant="green"
             className="w-full px-4 py-2 text-[13px] font-semibold"
-            onClick={() => navigate({ to: "/" })}
+            onClick={() =>
+              navigate({
+                to: "/game",
+                search: { map: map.id, stage: Math.min(cleared + 1, map.stages) },
+              })
+            }
           >
             <span className="flex items-center justify-center gap-1.5">
               Enter
