@@ -374,7 +374,78 @@ function TestUiPage() {
           </div>
         </Slot>
 
+        <Slot title="World map cards (open / level-locked / locked)" className="lg:col-span-2">
+          <div className="flex w-full flex-col gap-3">
+            {MAP_SAMPLE.map((m, i) => (
+              <OuterPanel
+                key={m.name}
+                className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden p-0"
+              >
+                <div className="relative h-full min-h-[160px] overflow-hidden">
+                  <img
+                    src={m.art}
+                    alt={m.name}
+                    loading="lazy"
+                    className={`h-full w-full object-cover ${m.state === "locked" ? "opacity-40 grayscale" : ""}`}
+                  />
+                  <span className="absolute top-1.5 left-1.5">
+                    <PixelButton className="cursor-default px-2 py-1 text-[10px] font-semibold">
+                      MAP {i + 1}
+                    </PixelButton>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 items-center gap-3 p-2.5">
+                  <div className="col-span-2 flex min-w-0 flex-col justify-center gap-1.5 py-1">
+                    <p className="font-pixel text-[14px] text-panel-text text-shadow">{m.name}</p>
+                    <p className="text-[12px] text-panel-text/80">{m.blurb}</p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+                        <span className="text-[11px] text-panel-text/70">Recommended</span>
+                        <span className="text-[11px] font-semibold text-panel-text">
+                          Lv. {m.reqLevel}+
+                        </span>
+                      </InnerPanel>
+                      <InnerPanel className="flex items-center gap-1.5 bg-panel-header px-2 py-1">
+                        <span className="text-[11px] text-panel-text/70">Enemies</span>
+                        <Swords className="h-3.5 w-3.5 text-panel-text" aria-label="melee" />
+                        <Sparkles className="h-3.5 w-3.5 text-panel-text" aria-label="boss" />
+                      </InnerPanel>
+                    </div>
+                  </div>
+
+                  <div className="col-span-1 flex flex-col items-end justify-center gap-2">
+                    <div className="text-right">
+                      <p className="text-[11px] text-panel-text/70">Rewards</p>
+                      <div className="mt-1 flex items-center justify-end gap-1.5">
+                        <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+                          <Coins className="h-4 w-4 text-currency" aria-label="gold" />
+                        </InnerPanel>
+                        <InnerPanel className="flex h-8 w-8 items-center justify-center bg-panel-header">
+                          <Gem className="h-4 w-4 text-purple-300" aria-label="shards" />
+                        </InnerPanel>
+                      </div>
+                    </div>
+                    <PixelButton
+                      variant={m.state === "open" ? "green" : "default"}
+                      disabled={m.state !== "open"}
+                      className="text-[11px]"
+                    >
+                      {m.state === "open"
+                        ? "Enter"
+                        : m.state === "level"
+                          ? `Lv. ${m.reqLevel}+`
+                          : "Locked"}
+                    </PixelButton>
+                  </div>
+                </div>
+              </OuterPanel>
+            ))}
+          </div>
+        </Slot>
+
         <Slot title="Page banners (no frame — artwork has its own border)" className="lg:col-span-2">
+
           <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {BANNERS.map((b) => (
               <figure key={b.label}>
