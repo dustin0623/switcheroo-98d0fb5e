@@ -4,7 +4,7 @@
  * player identity (avatar, name, level, XP) and wallet on the right.
  * The main content area sits to the right of the sidebar, under the header.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -13,6 +13,7 @@ import {
   Backpack,
   BookOpen,
   Bug,
+  CheckCheck,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -86,6 +87,15 @@ import {
 } from "@/features/game/equipment";
 
 import { InnerPanel, OuterPanel, PixelButton, darkBorder, frame, lightBorder } from "@/components/ui/pixel-panel";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
