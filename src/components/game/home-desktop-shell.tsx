@@ -745,7 +745,10 @@ function MapCard({
   const stars = Math.min(3, Math.floor((cleared / map.stages) * 3));
 
   return (
-    <OuterPanel className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden p-0">
+    <OuterPanel
+      className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden"
+      style={{ padding: 0 }}
+    >
       {/* Art + map tag — fills the full card height with no padding */}
       <div className="relative h-full min-h-[160px] overflow-hidden">
         <img
