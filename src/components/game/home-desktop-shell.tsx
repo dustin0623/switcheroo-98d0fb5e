@@ -97,14 +97,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
+type NavId = "world" | "armory" | "crafting" | "book" | "marketplace";
 
 const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] = [
   { id: "world", label: "World", icon: Globe },
   { id: "armory", label: "Inventory", icon: Backpack },
   { id: "crafting", label: "Enchantment", icon: Hammer },
   { id: "book", label: "Book", icon: BookOpen },
-  { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
 ];
 
@@ -140,8 +139,6 @@ export default function HomeDesktopShell() {
             <BookPage progress={progress} onChange={commit} />
           ) : active === "crafting" ? (
             <EnchantmentPage progress={progress} onChange={commit} />
-          ) : active === "character" ? (
-            <CharacterPage progress={progress} onChange={commit} />
           ) : (
             <MarketplacePage progress={progress} onChange={commit} />
           )}
