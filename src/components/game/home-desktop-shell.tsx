@@ -4,7 +4,7 @@
  * player identity (avatar, name, level, XP) and wallet on the right.
  * The main content area sits to the right of the sidebar, under the header.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -13,6 +13,7 @@ import {
   Backpack,
   BookOpen,
   Bug,
+  CheckCheck,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -86,6 +87,15 @@ import {
 } from "@/features/game/equipment";
 
 import { InnerPanel, OuterPanel, PixelButton, darkBorder, frame, lightBorder } from "@/components/ui/pixel-panel";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
@@ -121,7 +131,6 @@ export default function HomeDesktopShell() {
       <Sidebar active={active} onChange={setActive} progress={progress} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           {active === "armory" ? (
             <InventoryPage progress={progress} onChange={commit} onNavigate={setActive} />
@@ -142,7 +151,7 @@ export default function HomeDesktopShell() {
   );
 }
 
-/** Left rail: ARCOON wordmark, navigation list, and the player identity footer. */
+/** Left rail: brand, account row (avatar dropdown + mail), currencies, navigation, XP. */
 function Sidebar({
   active,
   onChange,
@@ -157,8 +166,8 @@ function Sidebar({
   return (
     <aside
       className={clsx(
-        "relative z-10 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
-        collapsed ? "w-16" : "w-56",
+        "relative z-30 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
+        collapsed ? "w-16" : "w-60",
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
@@ -180,7 +189,12 @@ function Sidebar({
           {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
       </div>
-      <div className="fantasy-rule w-full" aria-hidden />
+
+      <AccountRow progress={progress} collapsed={collapsed} onNavigate={onChange} />
+
+      <div className="fantasy-rule mt-3 w-full" aria-hidden />
+
+      <CurrencyBlock progress={progress} collapsed={collapsed} />
 
       <nav
         aria-label="Main navigation"
@@ -217,162 +231,316 @@ function Sidebar({
         })}
       </nav>
 
-      <div className="fantasy-rule w-full" aria-hidden />
-      <PlayerFooter progress={progress} collapsed={collapsed} />
+      <XpFooter progress={progress} collapsed={collapsed} />
     </aside>
   );
 }
 
-/** Sidebar footer: avatar, name, level, XP bar, and a settings popover with sign out. */
-function PlayerFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+/** Avatar + name/level as a dropdown trigger, with the mail popover beside it. */
+function AccountRow({
+  progress,
+  collapsed,
+  onNavigate,
+}: {
+  progress: Progress;
+  collapsed: boolean;
+  onNavigate: (id: NavId) => void;
+}) {
   const level = getPlayerLevel(progress);
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  return (
+    <div className={clsx("flex items-center gap-1.5 px-3", collapsed && "flex-col px-2")}>
+      <div className="min-w-0 flex-1">
+        <AccountDropdown collapsed={collapsed} level={level.level} onNavigate={onNavigate} />
+      </div>
+      <MailPopover collapsed={collapsed} />
+    </div>
+  );
+}
+
+/** Avatar dropdown: identity header, Character, Settings, Sign out. */
+export function AccountDropdown({
+  collapsed,
+  level,
+  onNavigate,
+}: {
+  collapsed: boolean;
+  level: number;
+  onNavigate: (id: NavId) => void;
+}) {
   const navigate = useNavigate();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label="Account menu"
+        className={clsx(
+          "flex w-full cursor-pointer items-center gap-2.5 rounded-md p-1.5 text-left text-white transition-colors hover:bg-black/30 focus:outline-none",
+          collapsed && "justify-center",
+        )}
+      >
+        <FrogAvatar className="h-9 w-9 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
+        {!collapsed && (
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="flex items-center gap-1.5">
+              <span className="truncate font-pixel text-[11px] text-shadow">ARCOON</span>
+              <span className="shrink-0 font-pixel text-[9px]">Lv.{level}</span>
+            </span>
+            <span className="block truncate text-[10px] text-white/60">Adventurer</span>
+          </span>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side={collapsed ? "right" : "bottom"}
+        align="start"
+        sideOffset={8}
+        className="w-52 border-ink-line bg-panel-header text-panel-text"
+      >
+        <div className="flex items-center gap-2.5 px-2 py-2">
+          <FrogAvatar className="h-8 w-8 rounded-full ring-2 ring-shell-accent/70" />
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 truncate font-pixel text-[10px]">
+              ARCOON
+              <span className="font-pixel text-[8px] text-white/70">Lv.{level}</span>
+            </p>
+            <p className="truncate text-[10px] text-white/60">Adventurer</p>
+          </div>
+        </div>
+        <DropdownMenuSeparator className="bg-ink-line/60" />
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            className="cursor-pointer text-[13px] focus:bg-white/10 focus:text-panel-text"
+            onSelect={() => onNavigate("character")}
+          >
+            <User className="h-4 w-4" />
+            Character
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer text-[13px] focus:bg-white/10 focus:text-panel-text"
+            onSelect={() => {}}
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator className="bg-ink-line/60" />
+        <DropdownMenuItem
+          className="cursor-pointer text-[13px] text-rose focus:bg-white/10 focus:text-rose"
+          onSelect={() => navigate({ to: "/" })}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+type MailEntry = {
+  id: string;
+  tab: "activity" | "market";
+  message: string;
+  at: number;
+};
 
+const MAIL_SEED: MailEntry[] = [
+  { id: "m1", tab: "activity", message: "You cleared Whisperwood Stage 3.", at: Date.now() - 5 * 60_000 },
+  { id: "m2", tab: "activity", message: "A Rare Helm dropped from the Boar boss.", at: Date.now() - 42 * 60_000 },
+  { id: "m3", tab: "market", message: "Your Rare Bow listing sold for 240 gold.", at: Date.now() - 2 * 3_600_000 },
+  { id: "m4", tab: "market", message: "Common Boots listing expired.", at: Date.now() - 26 * 3_600_000 },
+];
+
+function mailRelativeTime(at: number): string {
+  const mins = Math.max(1, Math.round((Date.now() - at) / 60_000));
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
+}
+
+/** Mail popover: Activity and Market tabs with unread badge and mark-as-read. */
+export function MailPopover({ collapsed }: { collapsed: boolean }) {
+  const [tab, setTab] = useState<"activity" | "market">("activity");
+  const [readIds, setReadIds] = useState<string[]>([]);
+  const entries = MAIL_SEED.filter((e) => e.tab === tab);
+  const unread = MAIL_SEED.filter((e) => !readIds.includes(e.id)).length;
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        aria-label="Mail"
+        className="relative flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30 focus:outline-none"
+      >
+        <Mail className="h-4 w-4" />
+        {unread > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-rose px-1 text-[9px] font-bold leading-4 text-white">
+            {unread}
+          </span>
+        )}
+      </PopoverTrigger>
+      <PopoverContent
+        side={collapsed ? "right" : "right"}
+        align="start"
+        sideOffset={10}
+        collisionPadding={12}
+        className="flex max-h-[70vh] w-80 flex-col overflow-hidden border-ink-line bg-panel-header p-0 text-panel-text"
+      >
+        <div className="shrink-0 border-b border-ink-line/60 px-4 pt-3">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-[13px] font-semibold">Notifications</p>
+              <p className="text-[11px] text-white/60">Stay updated with your activity</p>
+            </div>
+            {unread > 0 && (
+              <button
+                type="button"
+                onClick={() => setReadIds(MAIL_SEED.map((e) => e.id))}
+                className="flex shrink-0 cursor-pointer items-center gap-1 rounded-sm px-2 py-1 text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <CheckCheck className="h-3 w-3" />
+                Mark all read
+              </button>
+            )}
+          </div>
+          <div className="mt-3 flex">
+            {(["activity", "market"] as const).map((key) => {
+              const count = MAIL_SEED.filter((e) => e.tab === key && !readIds.includes(e.id)).length;
+              const Icon = key === "activity" ? Mail : Store;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTab(key)}
+                  className={clsx(
+                    "relative flex flex-1 cursor-pointer items-center justify-center gap-1.5 pb-2.5 text-[12px] font-medium transition-colors",
+                    tab === key
+                      ? "text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:rounded-t-full after:bg-shell-accent-strong"
+                      : "text-white/50 hover:text-white",
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {key === "activity" ? "Activity" : "Market"}
+                  {count > 0 && (
+                    <span className="grid h-4 min-w-4 place-items-center rounded-full bg-rose/20 px-1 text-[10px] font-semibold text-rose">
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-2">
+          {entries.length === 0 ? (
+            <p className="px-1 py-8 text-center text-[13px] text-white/50">
+              {tab === "activity" ? "Nothing yet. Clear a stage or defeat a boss." : "No market activity yet."}
+            </p>
+          ) : (
+            <ul className="space-y-1.5">
+              {entries.map((entry) => {
+                const read = readIds.includes(entry.id);
+                return (
+                  <li key={entry.id}>
+                    <button
+                      type="button"
+                      onClick={() => !read && setReadIds((ids) => [...ids, entry.id])}
+                      className={clsx(
+                        "flex w-full cursor-pointer items-start gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors",
+                        !read && "bg-shell-accent/15",
+                      )}
+                    >
+                      <span
+                        className={clsx(
+                          "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                          entry.tab === "market" ? "bg-currency" : "bg-shell-accent-strong",
+                          read && "opacity-40",
+                        )}
+                        aria-hidden
+                      />
+                      <span className={clsx("min-w-0 flex-1", read && "text-white/50")}>{entry.message}</span>
+                      <span className="shrink-0 text-[11px] text-white/50">{mailRelativeTime(entry.at)}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** Currency balances, moved down from the old top header. */
+export function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+  const items = [
+    { icon: <Coins className="h-4 w-4 text-currency" />, label: "Gold", value: progress.gold },
+    { icon: <Gem className="h-4 w-4 text-purple-300" />, label: "Shards", value: progress.shards },
+  ];
   if (collapsed) {
     return (
-      <div ref={rootRef} className="relative flex flex-col items-center gap-2 px-2 py-3">
-        <FrogAvatar className="h-9 w-9 rounded-full ring-2 ring-shell-accent/70" />
-        <button
-          type="button"
-          aria-label="Settings"
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30"
-        >
-          <Settings className="h-4 w-4" />
-        </button>
-        {open && (
-          <div className="absolute bottom-2 left-full z-30 ml-2 w-40">
-            <SignOutMenu
-              onSignOut={() => {
-                setOpen(false);
-                navigate({ to: "/" });
-              }}
-            />
+      <div className="flex flex-col items-center gap-1 py-3">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            title={`${item.label}: ${item.value.toLocaleString()}`}
+            className="flex h-9 w-9 items-center justify-center rounded-md bg-ink-700 ring-1 ring-ink-line"
+          >
+            {item.icon}
           </div>
-        )}
+        ))}
       </div>
     );
   }
-
   return (
-    <div ref={rootRef} className="relative px-3 py-3">
-      <div className="flex items-center gap-2.5">
-        <FrogAvatar className="h-10 w-10 shrink-0 rounded-full ring-2 ring-shell-accent/70" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-1.5">
-            <p className="truncate font-pixel text-[11px] text-white text-shadow">ARCOON</p>
-            <p className="shrink-0 font-pixel text-[9px] text-white">Lv.{level.level}</p>
-          </div>
-          <div className="mt-1 flex items-center gap-1.5">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
-              <div
-                className="h-full rounded-full bg-shell-accent-strong"
-                style={{ width: `${Math.round(level.ratio * 100)}%` }}
-              />
-            </div>
-            <span className="shrink-0 text-[10px] whitespace-nowrap tabular-nums text-white/80">
-              {level.maxed ? "MAX" : `${level.into}/${level.needed}`}
-            </span>
-          </div>
+    <div className="grid grid-cols-2 gap-2 px-3 py-3">
+      {items.map((item) => (
+        <div key={item.label} className="rounded-md bg-ink-700 px-3 py-2 ring-1 ring-ink-line">
+          <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-shell-muted">
+            {item.icon}
+            {item.label}
+          </p>
+          <p className="mt-0.5 text-[14px] font-semibold tabular-nums text-shell-text text-shadow">
+            {item.value.toLocaleString()}
+          </p>
         </div>
-        <button
-          type="button"
-          aria-label="Settings"
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30"
+      ))}
+    </div>
+  );
+}
+
+/** Bottom of the rail: player level XP bar. */
+export function XpFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+  const level = getPlayerLevel(progress);
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-1 border-t border-ink-line/60 px-2 py-3">
+        <span className="font-pixel text-[8px] text-white">Lv.{level.level}</span>
+        <div
+          className="h-9 w-2 overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20"
+          title={level.maxed ? "MAX" : `${level.into}/${level.needed} XP`}
         >
-          <Settings className="h-4 w-4" />
-        </button>
-      </div>
-      {open && (
-        <div className="absolute right-3 bottom-full z-30 mb-2 w-44">
-          <SignOutMenu
-            onSignOut={() => {
-              setOpen(false);
-              navigate({ to: "/" });
-            }}
+          <div
+            className="w-full rounded-full bg-shell-accent-strong"
+            style={{ height: `${Math.round(level.ratio * 100)}%` }}
           />
         </div>
-      )}
+      </div>
+    );
+  }
+  return (
+    <div className="border-t border-ink-line/60 px-3 py-3">
+      <div className="flex items-center justify-between">
+        <span className="font-pixel text-[9px] text-white">Lv.{level.level}</span>
+        <span className="text-[10px] tabular-nums text-white/70">
+          {level.maxed ? "MAX" : `${level.into}/${level.needed} XP`}
+        </span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
+        <div
+          className="h-full rounded-full bg-shell-accent-strong"
+          style={{ width: `${Math.round(level.ratio * 100)}%` }}
+        />
+      </div>
     </div>
-  );
-}
-
-/** Popover panel shown from the sidebar settings button. */
-function SignOutMenu({ onSignOut }: { onSignOut: () => void }) {
-  return (
-    <OuterPanel className="bg-panel-header p-1.5">
-      <button
-        type="button"
-        onClick={onSignOut}
-        className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-left text-[13px] text-panel-text transition-colors hover:bg-white/10"
-      >
-        <LogOut className="h-4 w-4" />
-        Sign out
-      </button>
-    </OuterPanel>
-  );
-}
-
-/** Top bar: wallet and actions on the right. */
-function TopHeader({ progress }: { progress: Progress }) {
-  return (
-    <header className="relative z-10 flex shrink-0 items-center justify-end gap-2 border-b border-ink-line/60 bg-transparent px-4 py-2.5">
-      <CurrencyPill icon={<Coins className="h-4 w-4 text-currency" />} value={progress.gold} />
-      <CurrencyPill icon={<Gem className="h-4 w-4 text-purple-300" />} value={progress.shards} />
-      <HeaderIconButton label="Mail">
-        <Mail className="h-5 w-5" />
-      </HeaderIconButton>
-    </header>
-  );
-}
-
-function CurrencyPill({ icon, value }: { icon: React.ReactNode; value: number }) {
-  return (
-    <div className="flex items-center gap-1.5 rounded-md bg-ink-700 px-3 py-1.5 ring-1 ring-ink-line">
-      {icon}
-      <span className="text-[14px] tabular-nums text-shell-text text-shadow">
-        {value.toLocaleString()}
-      </span>
-    </div>
-  );
-}
-
-function HeaderIconButton({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md bg-ink-700 text-shell-muted ring-1 ring-ink-line transition-colors hover:bg-ink-600 hover:text-shell-text"
-    >
-      {children}
-    </button>
   );
 }
 

@@ -366,47 +366,38 @@ function TestUiPage() {
           </div>
         </Slot>
 
-        <Slot title="Player footer & sign-out popover">
-          <div className="w-full max-w-xs">
-            <div className="flex items-center gap-2.5 px-1">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-green-800 ring-2 ring-green-400/70" />
+        <Slot title="Account row — avatar dropdown & mail popover (live)">
+          <div className="w-full max-w-xs space-y-2">
+            <div className="flex items-center gap-1.5">
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline gap-1.5">
-                  <p className="truncate font-pixel text-[11px] text-white text-shadow">ARCOON</p>
-                  <p className="shrink-0 font-pixel text-[9px] text-white">Lv.5</p>
-                </div>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
-                    <div className="h-full w-[62%] rounded-full bg-green-400" />
-                  </div>
-                  <span className="shrink-0 text-[10px] tabular-nums text-white/80">640/900</span>
-                </div>
+                <AccountDropdown collapsed={false} level={5} onNavigate={() => {}} />
               </div>
-              <Settings className="h-4 w-4 shrink-0 text-white" />
+              <MailPopover collapsed={false} />
             </div>
-            <OuterPanel className="mt-3 bg-panel-header p-1.5">
-              <p className="px-3 py-2 text-[13px] text-panel-text">Sign out</p>
-            </OuterPanel>
+            <p className="text-[11px] text-white/50">
+              Click the avatar for the account menu (Character / Settings / Sign out) and the
+              envelope for the Notifications popover with Activity and Market tabs.
+            </p>
           </div>
         </Slot>
 
-        <Slot title="Top bar — currency pills and icon button" className="lg:col-span-2">
-          <div className="flex w-full items-center justify-end gap-2 border-b border-white/10 px-4 py-2.5">
-            <div className="flex items-center gap-1.5 rounded-md bg-black/40 px-3 py-1.5 ring-1 ring-white/15">
-              <Coins className="h-4 w-4 text-amber-300" />
-              <span className="text-[14px] tabular-nums">12,480</span>
+        <Slot title="Currency block & XP footer (live)">
+          <div className="w-full max-w-xs">
+            <CurrencyBlock progress={SAMPLE_PROGRESS} collapsed={false} />
+            <XpFooter progress={SAMPLE_PROGRESS} collapsed={false} />
+          </div>
+        </Slot>
+
+        <Slot title="Collapsed rail states (live)" className="lg:col-span-2">
+          <div className="flex items-start gap-8">
+            <div className="flex w-16 flex-col items-center gap-1.5 border border-white/10 px-2 py-3">
+              <AccountDropdown collapsed level={5} onNavigate={() => {}} />
+              <MailPopover collapsed />
             </div>
-            <div className="flex items-center gap-1.5 rounded-md bg-black/40 px-3 py-1.5 ring-1 ring-white/15">
-              <Gem className="h-4 w-4 text-purple-300" />
-              <span className="text-[14px] tabular-nums">36</span>
+            <div className="w-16 border border-white/10">
+              <CurrencyBlock progress={SAMPLE_PROGRESS} collapsed />
+              <XpFooter progress={SAMPLE_PROGRESS} collapsed />
             </div>
-            <button
-              type="button"
-              aria-label="Mail"
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md bg-black/40 text-white/70 ring-1 ring-white/15 hover:text-white"
-            >
-              <Mail className="h-5 w-5" />
-            </button>
           </div>
         </Slot>
 
