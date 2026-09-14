@@ -126,6 +126,38 @@ const BANNERS: { label: string; src: string }[] = [
   { label: "Marketplace", src: "/assets/marketplace_banner.png" },
 ];
 
+const MAP_SAMPLE: {
+  name: string;
+  blurb: string;
+  art: string;
+  reqLevel: number;
+  state: "open" | "level" | "locked";
+}[] = [
+  {
+    name: "Whisperwood",
+    blurb: "Quiet pines hiding restless goblin scouts.",
+    art: whisperwoodArt,
+    reqLevel: 1,
+    state: "open",
+  },
+  {
+    name: "Sunken Dunes",
+    blurb: "Endless sand, brutes buried just beneath it.",
+    art: dunesArt,
+    reqLevel: 8,
+    state: "level",
+  },
+  {
+    name: "Old Sewers",
+    blurb: "Flooded tunnels crawling with fast, feral things.",
+    art: sewersArt,
+    reqLevel: 14,
+    state: "locked",
+  },
+];
+
+
+
 /** Section heading that groups related slots. */
 function SectionHeading({ title, note }: { title: string; note: string }) {
   return (
