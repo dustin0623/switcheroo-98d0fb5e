@@ -584,9 +584,10 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
           type="button"
           title={`Balances — ${progress.gold.toLocaleString()} gold, ${progress.shards.toLocaleString()} shards`}
           aria-label="Open wallet balances"
-          className="mx-auto my-3 flex size-9 cursor-pointer items-center justify-center rounded-md border border-shell-accent/40 bg-shell-accent/15 text-shell-accent-strong transition-colors hover:border-shell-accent/70 hover:bg-shell-accent/25 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+          className="group relative mx-auto my-3 flex size-9 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-shell-accent/40 bg-ink-700 text-shell-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/70 hover:shadow-[0_8px_20px_-8px_var(--color-shell-accent-strong)] focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
         >
-          <Wallet className="size-4" />
+          <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-shell-accent/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" aria-hidden />
+          <Wallet className="relative size-4" />
         </button>
       </WalletModal>
     );
@@ -597,9 +598,10 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
       <button
         type="button"
         aria-label="Open wallet balances"
-        className="group relative mx-3 my-3 block w-[calc(100%-1.5rem)] cursor-pointer overflow-hidden rounded-md border border-shell-accent/45 bg-shell-accent/15 p-3 text-left shadow-card transition-colors hover:border-shell-accent/80 hover:bg-shell-accent/20 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+        className="group relative mx-3 my-3 block w-[calc(100%-1.5rem)] cursor-pointer overflow-hidden rounded-md border border-shell-accent/45 bg-ink-700 p-3 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/80 hover:shadow-[0_10px_28px_-10px_var(--color-shell-accent-strong)] focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
       >
         <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-shell-accent/50" aria-hidden />
+        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-shell-accent/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" aria-hidden />
         <span className="relative block">
           <span className="mb-2 flex items-center justify-between">
             <span className="font-pixel text-[9px] uppercase text-white/80">Balances</span>
