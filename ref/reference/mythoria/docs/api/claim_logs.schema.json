@@ -1,8 +1,0 @@
-[
-  {
-    "username": "string",
-    "qty": "string",
-    "status": "string",
-    "time": "integer"
-  }
-]
