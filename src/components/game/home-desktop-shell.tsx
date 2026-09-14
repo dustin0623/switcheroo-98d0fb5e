@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Coins,
   Gem,
+  ExternalLink,
   Ghost,
   Globe,
   Hammer,
