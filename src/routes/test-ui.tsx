@@ -415,7 +415,8 @@ function TestUiPage() {
             {MAP_SAMPLE.map((m, i) => (
               <OuterPanel
                 key={m.name}
-                className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden p-0"
+                className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden"
+                style={{ padding: 0 }}
               >
                 <div className="relative h-full min-h-[160px] overflow-hidden">
                   <img
