@@ -41,6 +41,15 @@ import { GEAR_SLOTS, SLOT_LABEL, gearName, type GearSlot } from "@/features/game
 import whisperwoodArt from "@/assets/world/whisperwood.jpg";
 import dunesArt from "@/assets/world/dunes.jpg";
 import sewersArt from "@/assets/world/sewers.jpg";
+import {
+  AboutFooter,
+  AccountDropdown,
+  CurrencyBlock,
+  MailPopover,
+} from "@/components/game/home-desktop-shell";
+import { EMPTY_PROGRESS } from "@/features/game/campaign";
+
+const SAMPLE_PROGRESS = { ...EMPTY_PROGRESS, gold: 1240, shards: 32 };
 
 
 export const Route = createFileRoute("/test-ui")({
