@@ -48,6 +48,7 @@ import {
   Swords,
   Trophy,
   User,
+  Wallet,
   X,
   Zap,
 } from "lucide-react";
@@ -477,41 +478,111 @@ export function MailPopover({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-/** Currency balances, moved down from the old top header. */
-export function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
-  const items = [
-    { icon: <Coins className="h-4 w-4 text-currency" />, label: "Gold", value: progress.gold },
-    { icon: <Gem className="h-4 w-4 text-purple-300" />, label: "Shards", value: progress.shards },
-  ];
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center gap-1 py-3">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            title={`${item.label}: ${item.value.toLocaleString()}`}
-            className="flex h-9 w-9 items-center justify-center rounded-md bg-ink-700 ring-1 ring-ink-line"
-          >
-            {item.icon}
-          </div>
-        ))}
-      </div>
-    );
-  }
+/** Wallet dialog opened from the sidebar balance card. */
+export function WalletModal({
+  progress,
+  children,
+}: {
+  progress: Progress;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="grid grid-cols-2 gap-2 px-3 py-3">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-md bg-ink-700 px-3 py-2 ring-1 ring-ink-line">
-          <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-shell-muted">
-            {item.icon}
-            {item.label}
-          </p>
-          <p className="mt-0.5 text-[14px] font-semibold tabular-nums text-shell-text text-shadow">
-            {item.value.toLocaleString()}
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="border-ink-line bg-panel-header text-panel-text sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 font-pixel text-[13px]">
+            <span className="grid size-8 place-items-center rounded-full bg-shell-accent/20 text-shell-accent-strong">
+              <Wallet className="size-4" />
+            </span>
+            ARCOON Wallet
+          </DialogTitle>
+          <DialogDescription className="text-white/60">
+            Your currencies earned and spent across the hunt.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-md border border-shell-accent/35 bg-shell-accent/10 p-3">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-white/60">
+              <Coins className="size-3.5 text-currency" /> Gold
+            </p>
+            <p className="mt-2 font-pixel text-[16px] tabular-nums text-white text-shadow">
+              {progress.gold.toLocaleString()}
+            </p>
+            <p className="mt-2 text-[10px] text-white/50">Earned from hunts and victories</p>
+          </div>
+          <div className="rounded-md border border-shell-accent/35 bg-shell-accent/10 p-3">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-white/60">
+              <Gem className="size-3.5 text-shell-accent-strong" /> Shards
+            </p>
+            <p className="mt-2 font-pixel text-[16px] tabular-nums text-white text-shadow">
+              {progress.shards.toLocaleString()}
+            </p>
+            <p className="mt-2 text-[10px] text-white/50">Salvage gear to earn more</p>
+          </div>
+        </div>
+
+        <div className="rounded-md border border-ink-line/60 bg-ink-700/50 px-3 py-2.5">
+          <p className="text-[11px] leading-relaxed text-white/60">
+            Gold buys equipment in the Marketplace. Shards improve equipment and raise your
+            character level once its EXP bar is full.
           </p>
         </div>
-      ))}
-    </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Unified wallet balance card, matching the reference shell structure. */
+export function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+  if (collapsed) {
+    return (
+      <WalletModal progress={progress}>
+        <button
+          type="button"
+          title={`Balances — ${progress.gold.toLocaleString()} gold, ${progress.shards.toLocaleString()} shards`}
+          aria-label="Open wallet balances"
+          className="mx-auto my-3 flex size-9 cursor-pointer items-center justify-center rounded-md border border-shell-accent/40 bg-shell-accent/15 text-shell-accent-strong transition-colors hover:border-shell-accent/70 hover:bg-shell-accent/25 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+        >
+          <Wallet className="size-4" />
+        </button>
+      </WalletModal>
+    );
+  }
+
+  return (
+    <WalletModal progress={progress}>
+      <button
+        type="button"
+        aria-label="Open wallet balances"
+        className="group relative mx-3 my-3 block w-[calc(100%-1.5rem)] cursor-pointer overflow-hidden rounded-md border border-shell-accent/45 bg-shell-accent/15 p-3 text-left shadow-card transition-colors hover:border-shell-accent/80 hover:bg-shell-accent/20 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+      >
+        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-shell-accent/50" aria-hidden />
+        <span className="relative block">
+          <span className="mb-2 flex items-center justify-between">
+            <span className="font-pixel text-[9px] uppercase text-white/80">Balances</span>
+            <Wallet className="size-3.5 text-white/60 transition-colors group-hover:text-shell-accent-strong" />
+          </span>
+          <span className="block pb-2.5">
+            <span className="flex items-center gap-1.5 text-[9px] font-semibold uppercase text-white/50">
+              <Coins className="size-3 text-currency" /> Gold
+            </span>
+            <span className="mt-1 block font-pixel text-[16px] tabular-nums text-white text-shadow">
+              {progress.gold.toLocaleString()}
+            </span>
+          </span>
+          <span className="block border-t border-white/15 pt-2">
+            <span className="flex items-center gap-1.5 text-[9px] font-semibold uppercase text-white/50">
+              <Gem className="size-3 text-shell-accent-strong" /> Shards
+            </span>
+            <span className="mt-1 block font-pixel text-[12px] tabular-nums text-white">
+              {progress.shards.toLocaleString()}
+            </span>
+          </span>
+        </span>
+      </button>
+    </WalletModal>
   );
 }
 
