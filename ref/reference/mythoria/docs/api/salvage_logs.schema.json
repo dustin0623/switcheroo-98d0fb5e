@@ -1,0 +1,8 @@
+[
+  {
+    "username": "string",
+    "item_number": "integer",
+    "value": "number",
+    "time": "integer"
+  }
+]

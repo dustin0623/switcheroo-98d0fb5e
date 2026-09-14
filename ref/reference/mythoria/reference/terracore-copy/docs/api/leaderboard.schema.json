@@ -1,0 +1,94 @@
+[
+  {
+    "username": "string",
+    "favor": "integer",
+    "scrap": "integer",
+    "attacks": "integer",
+    "claims": "integer",
+    "experience": "integer",
+    "level": "integer",
+    "hiveEngineScrap": "number",
+    "hiveEngineStake": "integer",
+    "items": {
+      "avatar": {
+        "item_number": "integer",
+        "item_id": "integer",
+        "item_equipped": "boolean",
+        "attributes": {
+          "damage": "number",
+          "defense": "number",
+          "engineering": "number",
+          "dodge": "number",
+          "crit": "number",
+          "luck": "number"
+        },
+        "rarity": "string"
+      },
+      "weapon": {
+        "item_number": "integer",
+        "item_id": "integer",
+        "item_equipped": "boolean",
+        "attributes": {
+          "damage": "number",
+          "defense": "number",
+          "engineering": "number",
+          "dodge": "number",
+          "crit": "number",
+          "luck": "number"
+        },
+        "rarity": "string"
+      },
+      "armor": {
+        "item_number": "integer",
+        "item_id": "integer",
+        "item_equipped": "boolean",
+        "attributes": {
+          "damage": "number",
+          "defense": "number",
+          "engineering": "number",
+          "dodge": "integer",
+          "crit": "integer",
+          "luck": "number"
+        },
+        "rarity": "string"
+      },
+      "ship": {
+        "item_number": "integer",
+        "item_id": "integer",
+        "item_equipped": "boolean",
+        "attributes": {
+          "damage": "integer",
+          "defense": "number",
+          "engineering": "number",
+          "dodge": "integer",
+          "crit": "number",
+          "luck": "integer"
+        },
+        "rarity": "string"
+      },
+      "special": {
+        "item_number": "integer",
+        "item_id": "integer",
+        "item_equipped": "boolean",
+        "attributes": {
+          "damage": "number",
+          "defense": "number",
+          "engineering": "number",
+          "dodge": "number",
+          "crit": "number",
+          "luck": "number"
+        },
+        "rarity": "string"
+      }
+    },
+    "stats": {
+      "damage": "number",
+      "defense": "number",
+      "engineering": "number",
+      "dodge": "number",
+      "crit": "number",
+      "luck": "number"
+    },
+    "reward": "number"
+  }
+]
