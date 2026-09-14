@@ -104,7 +104,7 @@ Overlay panel with the persistent player sheet:
 | `src/components/game/shell-panels.tsx`      | New: `BottomNav`, `InventoryPanel`, `PacksPanel`, `CharacterPanel`, `GameTab` type |
 | `src/components/game/game-modals.tsx`       | `XpBar` accepts a `className` so it can sit above the tab bar |
 | `src/phaser/ArenaCanvas.tsx`                | Tab state, bottom nav, overlay wiring, joystick hidden off-world |
-| `src/routes/test-modals.tsx`                | Gallery entries for the new shell widgets |
+|  `src/routes/test-ui.tsx`                     | Gallery entries for the new shell widgets |
 
 ## 5. Behavior rules
 
