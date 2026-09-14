@@ -46,7 +46,6 @@ import {
   Store,
   Swords,
   Trophy,
-  User,
   X,
   Zap,
 } from "lucide-react";
@@ -1647,15 +1646,6 @@ function SlotGlyph({ slot, className }: { slot: GearSlot; className?: string }) 
   const Glyph = slot === "helmet" ? HardHat : slot === "armor" ? Shirt : Footprints;
   return <Glyph className={className} aria-hidden />;
 }
-
-
-/** Equipment slots that are not yet earnable — shown locked for now. */
-const CHARACTER_SLOTS: { id: string; label: string; icon: typeof Shirt }[] = [
-  { id: "helmet", label: "Helmet", icon: HardHat },
-  { id: "armor", label: "Armor", icon: Shirt },
-  { id: "boots", label: "Boots", icon: Footprints },
-  { id: "accessory", label: "Accessory", icon: Leaf },
-];
 
 /** One equipment slot tile. */
 function SlotCard({
