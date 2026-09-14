@@ -104,7 +104,6 @@ const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] =
   { id: "armory", label: "Inventory", icon: Backpack },
   { id: "crafting", label: "Enchantment", icon: Hammer },
   { id: "book", label: "Book", icon: BookOpen },
-  { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
 ];
 
