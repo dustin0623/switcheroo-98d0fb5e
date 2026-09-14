@@ -584,7 +584,7 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
           type="button"
           title={`Balances — ${progress.gold.toLocaleString()} gold, ${progress.shards.toLocaleString()} shards`}
           aria-label="Open wallet balances"
-          className="group relative mx-auto my-3 flex size-9 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-shell-accent/40 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 text-shell-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/70 hover:shadow-[0_8px_20px_-8px_var(--color-shell-accent-strong)] focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+          className="group relative mx-auto my-3 flex size-9 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-shell-accent/40 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 text-shell-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/70 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
         >
           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-shell-accent/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" aria-hidden />
           <Wallet className="relative size-4" />
