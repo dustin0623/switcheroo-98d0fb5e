@@ -305,13 +305,6 @@ export function AccountDropdown({
         <DropdownMenuGroup>
           <DropdownMenuItem
             className="cursor-pointer text-[13px] focus:bg-white/10 focus:text-panel-text"
-            onSelect={() => onNavigate("character")}
-          >
-            <User className="h-4 w-4" />
-            Character
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer text-[13px] focus:bg-white/10 focus:text-panel-text"
             onSelect={() => {}}
           >
             <Settings className="h-4 w-4" />
