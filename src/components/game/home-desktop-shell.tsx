@@ -87,6 +87,14 @@ import {
 
 import { InnerPanel, OuterPanel, PixelButton, darkBorder, frame, lightBorder } from "@/components/ui/pixel-panel";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -186,7 +194,7 @@ function Sidebar({
         </button>
       </div>
 
-      <AccountRow progress={progress} collapsed={collapsed} onNavigate={onChange} />
+      <AccountRow progress={progress} collapsed={collapsed} />
 
       <div className="fantasy-rule mt-3 w-full" aria-hidden />
 
