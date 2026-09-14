@@ -258,7 +258,7 @@ function AccountRow({
 }
 
 /** Avatar dropdown: identity header, Character, Settings, Sign out. */
-function AccountDropdown({
+export function AccountDropdown({
   collapsed,
   level,
   onNavigate,
@@ -357,7 +357,7 @@ function mailRelativeTime(at: number): string {
 }
 
 /** Mail popover: Activity and Market tabs with unread badge and mark-as-read. */
-function MailPopover({ collapsed }: { collapsed: boolean }) {
+export function MailPopover({ collapsed }: { collapsed: boolean }) {
   const [tab, setTab] = useState<"activity" | "market">("activity");
   const [readIds, setReadIds] = useState<string[]>([]);
   const entries = MAIL_SEED.filter((e) => e.tab === tab);
@@ -470,7 +470,7 @@ function MailPopover({ collapsed }: { collapsed: boolean }) {
 }
 
 /** Currency balances, moved down from the old top header. */
-function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+export function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
   const items = [
     { icon: <Coins className="h-4 w-4 text-currency" />, label: "Gold", value: progress.gold },
     { icon: <Gem className="h-4 w-4 text-purple-300" />, label: "Shards", value: progress.shards },
@@ -508,7 +508,7 @@ function CurrencyBlock({ progress, collapsed }: { progress: Progress; collapsed:
 }
 
 /** Bottom of the rail: player level XP bar. */
-function XpFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
+export function XpFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
   const level = getPlayerLevel(progress);
   if (collapsed) {
     return (
