@@ -30,6 +30,7 @@ import {
   Leaf,
   Lock,
   LogOut,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Mail,
@@ -98,6 +99,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
@@ -120,6 +122,7 @@ const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] =
 export default function HomeDesktopShell() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const [active, setActive] = useState<NavId>("world");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     setProgress(loadProgress());
@@ -137,10 +140,41 @@ export default function HomeDesktopShell() {
       <div className="forest-bg pointer-events-none absolute inset-0" aria-hidden />
       <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
 
-      <Sidebar active={active} onChange={setActive} progress={progress} />
+      <Sidebar active={active} onChange={setActive} progress={progress} className="hidden md:flex" />
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent
+          side="left"
+          className="w-[min(19rem,86vw)] border-ink-line bg-ink-900/95 p-0 text-white backdrop-blur"
+        >
+          <SheetTitle className="sr-only">ARCOON navigation</SheetTitle>
+          <Sidebar
+            active={active}
+            onChange={(id) => {
+              setActive(id);
+              setMobileOpen(false);
+            }}
+            progress={progress}
+            className="w-full border-r-0"
+            hideCollapse
+          />
+        </SheetContent>
+      </Sheet>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <main className="relative flex-1 overflow-y-auto p-4">
+        <header className="flex h-14 shrink-0 items-center border-b border-ink-line/60 bg-ink-900/65 px-3 backdrop-blur md:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation"
+            className="grid size-9 place-items-center rounded-md text-white transition-colors hover:bg-black/30"
+          >
+            <Menu className="size-5" />
+          </button>
+          <p className="flex-1 text-center font-pixel text-[15px] text-white text-shadow">ARCOON</p>
+          <div className="size-9" aria-hidden />
+        </header>
+        <main className="relative flex-1 overflow-y-auto p-3 md:p-4">
           {active === "armory" ? (
             <InventoryPage progress={progress} onChange={commit} onNavigate={setActive} />
           ) : active === "world" ? (
@@ -165,10 +199,14 @@ function Sidebar({
   active,
   onChange,
   progress,
+  className,
+  hideCollapse = false,
 }: {
   active: NavId;
   onChange: (id: NavId) => void;
   progress: Progress;
+  className?: string;
+  hideCollapse?: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -177,6 +215,7 @@ function Sidebar({
       className={clsx(
         "relative z-30 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
         collapsed ? "w-16" : "w-60",
+        className,
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
@@ -185,18 +224,20 @@ function Sidebar({
             ARCOON
           </p>
         )}
-        <button
-          type="button"
-          onClick={() => setCollapsed((c) => !c)}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!collapsed}
-          className={clsx(
-            "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30 hover:text-white",
-            collapsed && "mx-auto",
-          )}
-        >
-          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-        </button>
+        {!hideCollapse && (
+          <button
+            type="button"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            className={clsx(
+              "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-white transition-colors hover:bg-black/30 hover:text-white",
+              collapsed && "mx-auto",
+            )}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </button>
+        )}
       </div>
 
       <AccountRow progress={progress} collapsed={collapsed} onNavigate={onChange} />
