@@ -121,7 +121,6 @@ export default function HomeDesktopShell() {
       <Sidebar active={active} onChange={setActive} progress={progress} />
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <TopHeader progress={progress} />
         <main className="relative flex-1 overflow-y-auto p-4">
           {active === "armory" ? (
             <InventoryPage progress={progress} onChange={commit} onNavigate={setActive} />
