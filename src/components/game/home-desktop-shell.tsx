@@ -747,7 +747,7 @@ function MapCard({
   return (
     <OuterPanel
       className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden"
-      style={{ padding: 0 }}
+      style={{ padding: 0, borderRadius: "0 20px 20px 0" }}
     >
       {/* Art + map tag — fills the full card height with no padding */}
       <div className="relative h-full min-h-[160px] overflow-hidden">
