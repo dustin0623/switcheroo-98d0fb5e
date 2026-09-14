@@ -416,7 +416,7 @@ function TestUiPage() {
               <OuterPanel
                 key={m.name}
                 className="grid grid-cols-[minmax(160px,1fr)_3fr] gap-0 overflow-hidden"
-                style={{ padding: 0 }}
+                style={{ padding: 0, borderRadius: "0 20px 20px 0" }}
               >
                 <div className="relative h-full min-h-[160px] overflow-hidden">
                   <img
