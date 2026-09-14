@@ -1,0 +1,14 @@
+[
+  {
+    "action": "string",
+    "id": "string|integer",
+    "item_number": "string|integer",
+    "buyer": "string|null",
+    "seller": "string|null",
+    "price": "number|null",
+    "marketplace": "string|null",
+    "rarity": "string|null",
+    "qty": "number",
+    "created": "integer"
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "_id": "string",
+      "name": "string",
+      "id": "integer",
+      "edition": "string",
+      "print": "integer",
+      "max_supply": "integer",
+      "description": "string",
+      "image": "string",
+      "owner": "string",
+      "type": "string",
+      "rarity": "string",
+      "equiped": "boolean",
+      "burnt": "boolean",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "market": {
+        "listed": "boolean",
+        "price": "integer",
+        "seller": "null",
+        "created": "integer",
+        "expires": "integer",
+        "sold": "integer"
+      },
+      "item_number": "integer",
+      "level": "integer",
+      "version": "integer",
+      "lastTransfer": "integer"
+    }
+  ],
+  "crates": [],
+  "relics": [
+    {
+      "_id": "string",
+      "username": "string",
+      "version": "integer",
+      "type": "string",
+      "amount": "number",
+      "market": {
+        "listed": "boolean",
+        "amount": "integer",
+        "price": "integer",
+        "seller": "null",
+        "created": "integer",
+        "expires": "integer",
+        "sold": "integer"
+      }
+    }
+  ],
+  "consumables": [
+    {
+      "_id": "string",
+      "username": "string",
+      "version": "integer",
+      "type": "string",
+      "amount": "integer",
+      "market": {
+        "listed": "boolean",
+        "amount": "integer",
+        "price": "string",
+        "seller": "string",
+        "created": "integer",
+        "expires": "integer",
+        "sold": "integer"
+      }
+    }
+  ]
+}

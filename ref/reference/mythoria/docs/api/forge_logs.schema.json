@@ -1,0 +1,42 @@
+[
+  {
+    "username": "string",
+    "item": {
+      "_id": "string",
+      "name": "string",
+      "id": "integer",
+      "edition": "string",
+      "print": "integer",
+      "max_supply": "integer",
+      "description": "string",
+      "image": "string",
+      "owner": "string",
+      "type": "string",
+      "rarity": "string",
+      "equiped": "boolean",
+      "burnt": "boolean",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "market": {
+        "listed": "boolean",
+        "price": "integer",
+        "seller": "null",
+        "created": "integer",
+        "expires": "integer",
+        "sold": "integer"
+      },
+      "item_number": "integer",
+      "level": "integer",
+      "version": "integer",
+      "lastTransfer": "integer"
+    },
+    "flux": "string",
+    "time": "string"
+  }
+]

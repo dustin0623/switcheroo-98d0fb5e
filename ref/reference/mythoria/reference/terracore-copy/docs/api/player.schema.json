@@ -1,0 +1,146 @@
+{
+  "username": "string",
+  "favor": "integer",
+  "scrap": "number",
+  "health": "integer",
+  "damage": "integer",
+  "defense": "integer",
+  "engineering": "integer",
+  "cooldown": "integer",
+  "minerate": "number",
+  "attacks": "integer",
+  "lastregen": "integer",
+  "claims": "integer",
+  "lastclaim": "integer",
+  "registrationTime": "integer",
+  "lastBattle": "integer",
+  "experience": "integer",
+  "level": "integer",
+  "version": "integer",
+  "balance": "number",
+  "consumables": {
+    "type": "integer",
+    "type_times": [],
+    "crit": "integer",
+    "damage": "integer",
+    "dodge": "integer",
+    "protection": "integer",
+    "focus": "integer",
+    "rage": "integer",
+    "impenetrable": "integer",
+    "overload": "integer",
+    "rogue": "integer",
+    "fury": "integer",
+    "impenetrable_times": [],
+    "crit_times": [],
+    "damage_times": [],
+    "dodge_times": [
+      "integer"
+    ],
+    "protection_times": [],
+    "focus_times": [],
+    "rage_times": [],
+    "overload_times": [],
+    "rogue_times": [],
+    "fury_times": []
+  },
+  "flux": "number",
+  "hiveEngineScrap": "number",
+  "hiveEngineStake": "integer",
+  "items": {
+    "avatar": {
+      "item_number": "integer",
+      "item_id": "integer",
+      "item_equipped": "boolean",
+      "rarity": "string",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "level": "integer"
+    },
+    "weapon": {
+      "item_number": "integer",
+      "item_id": "integer",
+      "item_equipped": "boolean",
+      "rarity": "string",
+      "level": "integer",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      }
+    },
+    "armor": {
+      "item_number": "integer",
+      "item_id": "integer",
+      "item_equipped": "boolean",
+      "rarity": "string",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "level": "integer"
+    },
+    "ship": {
+      "item_number": "integer",
+      "item_id": "integer",
+      "item_equipped": "boolean",
+      "rarity": "string",
+      "attributes": {
+        "damage": "integer",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "level": "integer"
+    },
+    "special": {
+      "item_number": "integer",
+      "item_id": "integer",
+      "item_equipped": "boolean",
+      "rarity": "string",
+      "attributes": {
+        "damage": "number",
+        "defense": "number",
+        "engineering": "number",
+        "dodge": "number",
+        "crit": "number",
+        "luck": "number"
+      },
+      "level": "integer"
+    }
+  },
+  "last_upgrade_time": "integer",
+  "maxAttacks": "integer",
+  "stats": {
+    "damage": "number",
+    "defense": "number",
+    "engineering": "number",
+    "dodge": "number",
+    "crit": "number",
+    "luck": "number"
+  },
+  "boss_data": [
+    {
+      "name": "string",
+      "lastBattle": "integer",
+      "level": "integer"
+    }
+  ],
+  "lastPayout": "integer",
+  "lastRewardTime": "integer"
+}

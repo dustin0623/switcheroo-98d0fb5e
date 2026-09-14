@@ -1,0 +1,17 @@
+[
+  {
+    "username": "string",
+    "version": "integer",
+    "type": "string",
+    "amount": "integer",
+    "market": {
+      "listed": "boolean",
+      "amount": "integer",
+      "price": "string",
+      "seller": "string",
+      "created": "integer",
+      "expires": "integer",
+      "sold": "integer"
+    }
+  }
+]

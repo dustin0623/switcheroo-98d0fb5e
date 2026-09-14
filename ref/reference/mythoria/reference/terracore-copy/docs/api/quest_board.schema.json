@@ -1,0 +1,19 @@
+{
+  "date": "string",
+  "slots": [
+    {
+      "template_id": "string",
+      "quest_type": "string",
+      "tier": "integer",
+      "name": "string",
+      "flavor": "string",
+      "image_url": "string",
+      "duration_hours": "integer",
+      "base_rolls": "integer",
+      "scrap_cost": "integer"
+    }
+  ],
+  "generated_at": "integer",
+  "multiplier": "number",
+  "scrap_usd": "number"
+}
