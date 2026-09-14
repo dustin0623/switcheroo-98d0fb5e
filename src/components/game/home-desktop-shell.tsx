@@ -214,11 +214,11 @@ function Sidebar({
     <aside
       className={clsx(
         "relative z-30 flex shrink-0 flex-col border-r border-ink-line/60 bg-transparent transition-[width] duration-200",
-        collapsed ? "w-16" : "w-60",
+        collapsed ? "w-14" : "w-60",
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2 px-3 pt-5 pb-4">
+      <div className="flex items-center justify-between gap-2 px-3 py-3">
         {!collapsed && (
           <p className="flex-1 text-center font-pixel text-[18px] tracking-wide text-white text-shadow">
             ARCOON
@@ -242,13 +242,13 @@ function Sidebar({
 
       <AccountRow progress={progress} collapsed={collapsed} onNavigate={onChange} />
 
-      <div className="fantasy-rule mt-3 w-full" aria-hidden />
+      <div className="fantasy-rule mx-3 mb-3 w-auto" aria-hidden />
 
       <CurrencyBlock progress={progress} collapsed={collapsed} />
 
       <nav
         aria-label="Main navigation"
-        className={clsx("flex-1 space-y-1 overflow-y-auto py-3", collapsed ? "px-2" : "px-3")}
+        className="flex-1 space-y-0.5 overflow-x-hidden overflow-y-auto px-2 pb-4"
       >
         {NAV.map((item) => {
           const isActive = item.id === active;
@@ -261,14 +261,14 @@ function Sidebar({
               aria-pressed={isActive}
               title={collapsed ? item.label : undefined}
               className={clsx(
-                "relative flex w-full cursor-pointer items-center rounded-md py-2.5 text-left text-[14px] text-white transition-colors",
-                collapsed ? "justify-center px-0" : "gap-3 px-3",
+                "relative flex w-full cursor-pointer items-center rounded-md text-left text-[13px] font-medium text-white/70 transition-colors",
+                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-2.5 py-[7px]",
                 isActive
                   ? "bg-[#8f5535] font-semibold text-white shadow-card ring-1 ring-black/20"
                   : "hover:bg-black/30 hover:text-white",
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              <Icon className="size-[15px] shrink-0" />
               {!collapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
               {item.badge && !collapsed && (
                 <span className="h-2 w-2 shrink-0 rounded-full bg-rose" aria-hidden />
@@ -298,7 +298,7 @@ function AccountRow({
 }) {
   const level = getPlayerLevel(progress);
   return (
-    <div className={clsx("flex items-center gap-1.5 px-3", collapsed && "flex-col px-2")}>
+    <div className={clsx("flex items-center gap-1 px-2 pb-2", collapsed && "flex-col justify-center")}>
       <div className="min-w-0 flex-1">
         <AccountDropdown collapsed={collapsed} level={level.level} onNavigate={onNavigate} />
       </div>
@@ -584,7 +584,7 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
           type="button"
           title={`Balances — ${progress.gold.toLocaleString()} gold, ${progress.shards.toLocaleString()} shards`}
           aria-label="Open wallet balances"
-          className="group relative mx-auto my-3 flex size-9 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-shell-accent/40 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 text-shell-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/70 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+          className="group relative mx-auto mb-2 flex size-9 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-shell-accent/40 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 text-shell-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/70 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
         >
           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-shell-accent/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" aria-hidden />
           <Wallet className="relative size-4" />
@@ -598,7 +598,7 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
       <button
         type="button"
         aria-label="Open wallet balances"
-        className="group relative mx-3 my-3 block w-[calc(100%-1.5rem)] cursor-pointer overflow-hidden rounded-md border border-shell-accent/45 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 p-3 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/80 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
+        className="group relative mx-2 mb-2 block w-[calc(100%-1rem)] cursor-pointer overflow-hidden rounded-md border border-shell-accent/45 bg-gradient-to-br from-leaf-dim via-ink-600 to-ink-900 p-3 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-shell-accent/80 focus:outline-none focus-visible:ring-1 focus-visible:ring-shell-accent"
       >
         <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-shell-accent/50" aria-hidden />
         <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-shell-accent/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" aria-hidden />
@@ -638,7 +638,7 @@ export function AboutFooter({ collapsed }: { collapsed: boolean }) {
           type="button"
           aria-label="About Arcoon"
           className={clsx(
-            "flex w-full cursor-pointer items-center gap-2 rounded-md bg-shell-accent/15 px-2.5 py-2 text-[11px] font-semibold text-white ring-1 ring-shell-accent/40 transition-colors hover:bg-shell-accent/30",
+            "flex w-full cursor-pointer items-center gap-2 rounded-md bg-shell-accent/15 px-2.5 py-1.5 text-[11px] font-semibold text-white ring-1 ring-shell-accent/40 transition-colors hover:bg-shell-accent/30",
             collapsed && "justify-center px-0",
           )}
         >
