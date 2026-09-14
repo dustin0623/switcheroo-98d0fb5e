@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Coins,
   Gem,
+  ExternalLink,
   Ghost,
   Globe,
   Hammer,
@@ -96,6 +97,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type NavId = "world" | "armory" | "crafting" | "book" | "character" | "marketplace";
 
@@ -104,7 +113,6 @@ const NAV: { id: NavId; label: string; icon: typeof Globe; badge?: boolean }[] =
   { id: "armory", label: "Inventory", icon: Backpack },
   { id: "crafting", label: "Enchantment", icon: Hammer },
   { id: "book", label: "Book", icon: BookOpen },
-  { id: "character", label: "Character", icon: User },
   { id: "marketplace", label: "Marketplace", icon: Store },
 ];
 
@@ -231,7 +239,7 @@ function Sidebar({
         })}
       </nav>
 
-      <XpFooter progress={progress} collapsed={collapsed} />
+      <AboutFooter collapsed={collapsed} />
     </aside>
   );
 }
@@ -507,40 +515,75 @@ export function CurrencyBlock({ progress, collapsed }: { progress: Progress; col
   );
 }
 
-/** Bottom of the rail: player level XP bar. */
-export function XpFooter({ progress, collapsed }: { progress: Progress; collapsed: boolean }) {
-  const level = getPlayerLevel(progress);
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center gap-1 border-t border-ink-line/60 px-2 py-3">
-        <span className="font-pixel text-[8px] text-white">Lv.{level.level}</span>
-        <div
-          className="h-9 w-2 overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20"
-          title={level.maxed ? "MAX" : `${level.into}/${level.needed} XP`}
-        >
-          <div
-            className="w-full rounded-full bg-shell-accent-strong"
-            style={{ height: `${Math.round(level.ratio * 100)}%` }}
-          />
-        </div>
-      </div>
-    );
-  }
+/** Bottom of the rail: About button that opens the About modal. */
+export function AboutFooter({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className="border-t border-ink-line/60 px-3 py-3">
-      <div className="flex items-center justify-between">
-        <span className="font-pixel text-[9px] text-white">Lv.{level.level}</span>
-        <span className="text-[10px] tabular-nums text-white/70">
-          {level.maxed ? "MAX" : `${level.into}/${level.needed} XP`}
-        </span>
-      </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-black/50 ring-1 ring-white/20">
-        <div
-          className="h-full rounded-full bg-shell-accent-strong"
-          style={{ width: `${Math.round(level.ratio * 100)}%` }}
-        />
-      </div>
+    <div className="mt-auto border-t border-ink-line/60 px-3 py-3">
+      <AboutModal>
+        <button
+          type="button"
+          aria-label="About Arcoon"
+          className={clsx(
+            "flex w-full cursor-pointer items-center gap-2 rounded-md bg-shell-accent/15 px-2.5 py-2 text-[11px] font-semibold text-white ring-1 ring-shell-accent/40 transition-colors hover:bg-shell-accent/30",
+            collapsed && "justify-center px-0",
+          )}
+        >
+          <Info className="h-3.5 w-3.5 shrink-0" />
+          {!collapsed && <span>About Arcoon</span>}
+        </button>
+      </AboutModal>
     </div>
+  );
+}
+
+const ABOUT_LINKS = [
+  { label: "X (Twitter)", value: "@arcoon_game", href: "https://x.com" },
+  { label: "Discord", value: "Join the guild", href: "https://discord.com" },
+];
+
+/** About modal: game blurb, community links and version. */
+export function AboutModal({ children }: { children: React.ReactNode }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="border-ink-line bg-panel-header text-panel-text sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 font-pixel text-[13px]">
+            <span className="grid size-8 place-items-center rounded-full bg-shell-accent/20 text-shell-accent-strong">
+              <Info className="size-4" />
+            </span>
+            About Arcoon
+          </DialogTitle>
+          <DialogDescription className="text-white/70">
+            Arcoon is a pixel-art archery survival game. Clear stages, hunt bosses, salvage gear
+            for shards and level up your equipment.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          {ABOUT_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-lg border border-ink-line/60 bg-ink-700/60 px-3 py-2.5 transition-colors hover:border-shell-accent/50 hover:bg-shell-accent/10"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-medium">{link.label}</p>
+                <p className="truncate text-[11px] text-white/60">{link.value}</p>
+              </div>
+              <ExternalLink className="size-3.5 shrink-0 text-white/50" />
+            </a>
+          ))}
+        </div>
+
+        <div className="rounded-lg border border-ink-line/60 bg-ink-700/40 p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Version</p>
+          <p className="mt-1 font-mono text-[11px]">Arcoon build 0.1.0 — early access</p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

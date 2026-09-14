@@ -41,6 +41,15 @@ import { GEAR_SLOTS, SLOT_LABEL, gearName, type GearSlot } from "@/features/game
 import whisperwoodArt from "@/assets/world/whisperwood.jpg";
 import dunesArt from "@/assets/world/dunes.jpg";
 import sewersArt from "@/assets/world/sewers.jpg";
+import {
+  AboutFooter,
+  AccountDropdown,
+  CurrencyBlock,
+  MailPopover,
+} from "@/components/game/home-desktop-shell";
+import { EMPTY_PROGRESS } from "@/features/game/campaign";
+
+const SAMPLE_PROGRESS = { ...EMPTY_PROGRESS, gold: 1240, shards: 32 };
 
 
 export const Route = createFileRoute("/test-ui")({
@@ -375,16 +384,16 @@ function TestUiPage() {
               <MailPopover collapsed={false} />
             </div>
             <p className="text-[11px] text-white/50">
-              Click the avatar for the account menu (Character / Settings / Sign out) and the
+              Click the avatar for the account menu (Settings / Sign out) and the
               envelope for the Notifications popover with Activity and Market tabs.
             </p>
           </div>
         </Slot>
 
-        <Slot title="Currency block & XP footer (live)">
+        <Slot title="Currency block & About footer (live)">
           <div className="w-full max-w-xs">
             <CurrencyBlock progress={SAMPLE_PROGRESS} collapsed={false} />
-            <XpFooter progress={SAMPLE_PROGRESS} collapsed={false} />
+            <AboutFooter collapsed={false} />
           </div>
         </Slot>
 
@@ -396,7 +405,7 @@ function TestUiPage() {
             </div>
             <div className="w-16 border border-white/10">
               <CurrencyBlock progress={SAMPLE_PROGRESS} collapsed />
-              <XpFooter progress={SAMPLE_PROGRESS} collapsed />
+              <AboutFooter collapsed />
             </div>
           </div>
         </Slot>
