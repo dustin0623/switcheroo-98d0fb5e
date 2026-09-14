@@ -38,6 +38,10 @@ import { WAVES_PER_STAGE } from "@/features/game/campaign";
 import { EMPTY_RANKS, canLearn, getSkill, type SkillId } from "@/features/game/skill-tree";
 import { BOW_RARITIES, type BowRarity } from "@/features/game/bow";
 import { GEAR_SLOTS, SLOT_LABEL, gearName, type GearSlot } from "@/features/game/equipment";
+import whisperwoodArt from "@/assets/world/whisperwood.jpg";
+import dunesArt from "@/assets/world/dunes.jpg";
+import sewersArt from "@/assets/world/sewers.jpg";
+
 
 export const Route = createFileRoute("/test-ui")({
   head: () => ({
