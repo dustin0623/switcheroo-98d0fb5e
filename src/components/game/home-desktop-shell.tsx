@@ -230,7 +230,7 @@ function Sidebar({
         })}
       </nav>
 
-      <XpFooter progress={progress} collapsed={collapsed} />
+      <AboutFooter collapsed={collapsed} />
     </aside>
   );
 }
